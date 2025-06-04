@@ -1,0 +1,27 @@
+.glass-container {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  -webkit-backdrop-filter: blur(12.1px);
+  min-height: 80vh;
+  border: 1px solid rgba(0, 0, 0, 0.26);
+}
+
+/* style optionnel pour différencier les sous-conteneurs */
+.child {
+  background: rgba(255, 255, 255, 0.311);
+  border-radius: 8px;
+  height: 100%;
+}
+
+
+/* resp. spacing */
+.g-3 { gap: 1rem !important; }
+@media (max-width: 575.98px) {
+  .card {
+    height: 30 vh; /* ou une hauteur fixe plus adaptée au mobile */
+  }
+}
+
+

@@ -1,0 +1,127 @@
+/* Empêche le logo de rétrécir */
+.navbar-brand {
+  flex-shrink: 0;
+}
+
+
+/* Logo responsive */
+.navbar-brand img {
+  width: clamp(120px, 8vw, 300px);
+  height: auto;
+}
+
+/* Aligne la dropdown à droite du menu */
+.dropdown-menu-end {
+  right: 0;
+  left: auto;
+}
+
+/* Optionnel : agrandir légèrement les emojis pour plus de lisibilité */
+.nav-link,
+.dropdown-item {
+  font-size: 1rem;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-link::before,
+.dropdown-item::before {
+  content: "";
+  margin-right: 0.5rem;
+}
+
+/* Si vous voulez un peu plus d’espacement autour de l’emoji : */
+.nav-link,
+.dropdown-item {
+  letter-spacing: 0.02em;
+}
+/* ===== Responsive menu mobile/tablette ===== */
+@media (max-width: 991.98px) {
+  /* 1) On veut le menu en plein width */
+  .navbar-collapse {
+    width: 100%;
+    padding: 0;              /* on colle bien aux bords */
+  }
+
+  /* 2) Chaque item prend la largeur, text à gauche */
+  .navbar-nav {
+    width: 100%;
+  }
+  .navbar-nav .nav-item {
+    width: 100%;
+  }
+  .navbar-nav .nav-link,
+  .navbar-nav .dropdown-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;    /* 0.75rem haut/bas, 1rem gauche/droite */
+    border-bottom: 1px solid #e0e0e0;  /* ligne de séparation */
+  }
+
+  /* 3) On retire la ligne sous le dernier item */
+  .navbar-nav .nav-item:last-child .nav-link,
+  .navbar-nav .dropdown-menu .dropdown-item:last-child {
+    border-bottom: none;
+  }
+
+  /* 4) Pour le dropdown “Compte”, on veut le même style */
+  .dropdown-menu {
+    width: 100%;             /* pleine largeur du menu */
+    margin: 0;               /* pas de décalage */
+    border: none;            /* on garde juste les separators */
+    box-shadow: none;        /* épure le style */
+  }
+  .dropdown-menu .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .dropdown-menu .dropdown-item:last-child {
+    border-bottom: none;
+  }
+}
+.menu__link {
+  color: #4a1c2a;;
+  line-height: 2;
+  position: relative;
+}
+
+.menu__link::before {
+  content: '';
+  padding-left: 0%;
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background-color: #000000;
+  position: absolute;
+  bottom: -.25rem;
+  left: 0;
+  transition: width .4s;
+}
+
+.menu__link:hover::before {
+  width: 100%;
+}
+
+/* Espace entre l’icône et le texte */
+.nav-link mat-icon,
+.dropdown-item mat-icon {
+  vertical-align: middle;
+  margin-right: 0.5rem;
+  font-size: 1.2rem; /* ajustez selon votre goût */
+}
+
+/* Pour le toggler en mobile */
+.navbar-toggler mat-icon {
+  font-size: 1.5rem;
+  color: #333; /* ou la couleur de votre choix */
+}
+
+/* Si nécessaire, ajustez l’alignement vertical */
+.nav-link,
+.dropdown-item {
+  display: inline-flex;
+  align-items: center;
+}
+
