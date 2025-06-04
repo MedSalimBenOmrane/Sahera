@@ -1,38 +1,67 @@
-
 <head>
-	<title>Slide Navbar</title>
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+    <title>Slide Navbar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    
-	<div class="main">  	
-		<input type="checkbox" id="chk" aria-hidden="true">
 
-			<div class="signup">
-				<form>
-					<label for="chk" aria-hidden="true">Inscription</label>
-					<input type="text" name="txt" placeholder="Nom" required="">
-					<input type="email" name="email" placeholder="Prenom" required="">
-                    <input type="email" name="email" placeholder="Email" required="">
-					<input type="password" name="pswd" placeholder="Password" required="">
-                    <input type="number" name="broj" placeholder="Telephone" required="">
-                    <input type="date" name="txt" placeholder="Date de naissance" required="">
-					<input type="text" name="txt" placeholder="Genre" required="">
-                    <input type="text" name="broj" placeholder="Role" required="">
-					<button>S'inscrire</button>
-				</form>
-			</div>
 
-			<div class="login">
-				<form>
-					<label for="chk" aria-hidden="true">Connexion</label>
-					<input type="email" name="email" placeholder="Email" required="">
-					<input type="password" name="pswd" placeholder="Password" required="">
-					<button>se connecter</button>
-                    <div class="pwd">Mot de passe oublié ?</div>
-				</form>
-			</div>
-	</div>
+    <div class="main">
+        <input type="checkbox" id="chk" aria-hidden="true">
+
+        <div class="signup">
+            <form form [formGroup]="signupForm" (ngSubmit)="onSignup()">
+                <label class="titleInscription" for="chk" aria-hidden="true">Inscription</label>
+                <input id="nom" type="text" formControlName="nom" placeholder="Nom" (blur)="onBlurField('nom')" />
+                <input id="prenom" type="text" formControlName="prenom" placeholder="Prénom"
+                    (blur)="onBlurField('prenom')" />
+                <input id="emailSignup" type="email" formControlName="email" placeholder="Email"
+                    (blur)="onBlurField('email')" />
+                <input id="passwordSignup" type="password" formControlName="password" placeholder="Password"
+                    (blur)="onBlurField('password')" />
+                <input id="telephone" type="text" formControlName="telephone" placeholder="Telephone"
+                    (blur)="onBlurField('telephone')" />
+                <input id="dateNaissance" type="date" formControlName="dateNaissance" placeholder="Date de naissance"
+                    (blur)="onBlurField('dateNaissance')" />
+                <div class="genre-container">
+  <span class="genre-label">Genre :</span>
+  <span class="genre-radio">
+    <input
+      type="radio"
+      formControlName="genre"
+      value="Homme"
+      (change)="onBlurField('genre')"
+    />
+    Homme
+  </span>
+  <span class="genre-radio">
+    <input
+      type="radio"
+      formControlName="genre"
+      value="Femme"
+      (change)="onBlurField('genre')"
+    />
+    Femme
+  </span>
+</div>
+                <input id="role" type="text" formControlName="role" placeholder="Role" (blur)="onBlurField('role')" />
+
+                <button type="submit">S'inscrire</button>
+
+            </form>
+        </div>
+
+        <div class="login">
+            <form>
+                <label class="titleConnexion" for="chk" aria-hidden="true">Connexion</label>
+                <input id="emailLogin" type="email" formControlName="email" placeholder="Email"
+                    (blur)="onBlurLoginField('email')" />
+                <input id="passwordLogin" type="password" formControlName="password" placeholder="Password"
+                    (blur)="onBlurLoginField('password')" />
+                <button type="submit">se connecter</button>
+                <div class="pwd">Mot de passe oublié ?</div>
+            </form>
+        </div>
+    </div>
 
 </body>

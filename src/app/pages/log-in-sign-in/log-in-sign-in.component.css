@@ -89,6 +89,12 @@ input{
 	border-radius: 5px;
     
 }
+.date{
+    width: 85%;
+    height: 10px;
+    justify-content: center;
+}
+
 button{
 	width: 60%;
 	height: 40px;
@@ -109,6 +115,33 @@ button{
 button:hover{
 	background: #4a1c2ac7;
 }
+.genre-container {
+  display: flex;              /* affiche tout sur une ligne */
+  align-items: center;        /* centre verticalement le texte et les radios */
+  width: 85%;
+  margin: 15px auto; 
+  padding-left: 20px;         /* reprend le même margin que vos inputs */
+  font-weight: bold;
+}
+
+.genre-label {
+  margin-right: 10px;         /* espace entre "Genre:" et le 1er radio */
+  white-space: nowrap;        /* empêche le mot "Genre:" de se couper */
+}
+
+.genre-radio {
+  display: flex;              /* radio + texte côte-à-côte */
+  align-items: center;        /* centre verticalement la petite bulle radio avec le texte */
+  margin-right: 15px;         /* espace entre chaque option radio */
+  cursor: pointer;
+  user-select: none;
+}
+
+.genre-radio input[type="radio"] {
+  margin-right: 5px;          /* petit espace entre la bulle et le mot "Homme"/"Femme" */
+  margin-top: 12px;              /* s’assure que la bulle n’est pas un peu plus haute */
+}
+
 .login{
 	height: 600px;
 	background: #4b2530;

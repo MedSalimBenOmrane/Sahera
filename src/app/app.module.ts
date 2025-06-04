@@ -28,6 +28,7 @@ import { CardComponent } from './components/card/card.component';
 import { QuestionnaireComponent } from './pages/questionnaire/questionnaire.component';
 import { QAndAComponent } from './pages/q-and-a/q-and-a.component';
 import { LogInSignINComponent } from './pages/log-in-sign-in/log-in-sign-in.component';
+import { ReactiveFormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     AppComponent,
@@ -44,6 +45,7 @@ import { LogInSignINComponent } from './pages/log-in-sign-in/log-in-sign-in.comp
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    ReactiveFormsModule,
     ToastrModule.forRoot({
       positionClass: 'toast-bottom-right',
       timeOut: 3000,
