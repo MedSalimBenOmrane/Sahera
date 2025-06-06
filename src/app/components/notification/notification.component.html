@@ -1,50 +1,60 @@
+<!-- src/app/components/notification/notification.component.html -->
 <div class="wrapper">
-    <section class="text-container gradient" [class.show]="isShown">
-        <div class="container-fluid">
-            <!-- Ligne 1 : Nom + Date -->
-            <div class="row mb-2">
-                <div class="col-12 col-md-9 fw-bold">Objet :Lancement de la plateforme clinique de validation du dispositif Sahera</div>
-                <div class="col-12 col-md-3 text-md-end text-muted">06/06/2025</div>
-            </div>
-
-            <!-- Ligne 2 : Objet + Marquer comme vue -->
-            <div class="row mb-3 align-items-center">
-                <div class="col-12 col-md-10">L’équipe Hera Care Solutions</div>
-                <div class="col-12 col-md-2 text-md-end mt-1 mt-md-0 d-flex justify-content-md-end">
-                    <div class="d-flex align-items-center gap-2">
-                        <input type="checkbox" id="cbx2" style="display: none;">
-                        <label for="cbx2" class="check">
-                            <svg width="18px" height="18px" viewBox="0 0 18 18">
-                                <path
-                                    d="M 1 9 L 1 9 c 0 -5 3 -8 8 -8 L 9 1 C 14 1 17 5 17 9 L 17 9 c 0 4 -4 8 -8 8 L 9 17 C 5 17 1 14 1 9 L 1 9 Z">
-                                </path>
-                                <polyline points="1 9 7 14 15 4"></polyline>
-                            </svg>
-                        </label>
-                        <span class="text-nowrap">Marquer comme lue</span>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Texte de notification -->
-
-            <p >
-                Bonjour,
-
-Nous avons le plaisir de vous informer que dans le cadre de notre étude clinique sur le dispositif médical Sahera, nous venons de lancer une plateforme web sécurisée destinée à recueillir les données des participantes tout au long de la période d’évaluation. Cette plateforme a été développée afin de garantir une collecte fiable, structurée et conforme aux exigences réglementaires en matière de données de santé, notamment le RGPD.
-
-L’outil permettra à 50 participantes d’accéder à un questionnaire thématique et personnalisé. Côté administration, il offre la possibilité de gérer dynamiquement les utilisateurs, les questions et les thématiques, tout en assurant un suivi analytique des réponses avec des visualisations et des exports en temps réel. La conception technique repose sur une architecture robuste combinant Angular pour le frontend, Flask pour le backend, et une base de données MySQL hébergée sur l’infrastructure sécurisée d’AWS.
-
-Ce projet s’inscrit dans notre engagement à proposer une solution innovante, non médicamenteuse et personnalisée, visant à soulager efficacement les douleurs menstruelles et à accompagner les femmes dans la gestion de leur cycle hormonal.
-
-Nous restons disponibles pour vous fournir un accès à la plateforme dans le cadre de collaborations, de tests ou de validation réglementaire. N'hésitez pas à nous contacter pour toute information complémentaire.
-
-Cordialement,
-L’équipe Hera Care Solutions
-            </p>
+  <section class="text-container gradient" [class.show]="isShown">
+    <div class="container-fluid">
+      <!-- Ligne 1 : Objet + Date -->
+      <div class="row mb-2">
+        <div class="col-12 col-md-9 fw-bold">
+          Objet : {{ notification.objet }}
         </div>
-    </section>
+        <div class="col-12 col-md-3 text-md-end text-muted">
+          {{ notification.date | date: 'dd/MM/yyyy HH:mm' }}
+        </div>
+      </div>
 
-    <button class="show-btn fa fa-chevron-down" [class.rotate]="isShown" (click)="toggleText()"></button>
+      <!-- Ligne 2 : Sender + “Marquer comme lue” -->
+      <div class="row mb-3 align-items-center">
+        <div class="col-12 col-md-10">
+          {{ notification.sender }}
+        </div>
+        <div
+          class="col-12 col-md-2 text-md-end mt-1 mt-md-0 d-flex justify-content-md-end"
+        >
+          <div class="d-flex align-items-center gap-2">
+            <!--
+              1) On utilise un <input type="checkbox"> masqué par CSS (opacity: 0; width: 0; height: 0)
+                 car la “cyberpunk-checkbox” personnalisée repose sur l’input + pseudo-éléments.
+              2) Le <label> qui suit porte la classe “cyberpunk-checkbox-label” (fourni dans votre CSS),
+                 de sorte que cliquer sur “Marquer comme lue” ou sur la case anime la coche.
+            -->
+            <input
+              type="checkbox"
+              [checked]="notification.seen"
+              (change)="onCheckboxChange($event)"
+              id="cbx-{{ index }}"
+              class="cyberpunk-checkbox"
+            />
+            <label
+              for="cbx-{{ index }}"
+              class="cyberpunk-checkbox-label"
+            >
+              Marquer comme lue
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Texte complet de la notification -->
+      <p *ngIf="isShown">
+        {{ notification.message }}
+      </p>
+    </div>
+  </section>
+
+  <!-- Bouton pour dérouler / replier le texte -->
+  <button
+    class="show-btn fa fa-chevron-down"
+    [class.rotate]="isShown"
+    (click)="toggleText()"
+  ></button>
 </div>

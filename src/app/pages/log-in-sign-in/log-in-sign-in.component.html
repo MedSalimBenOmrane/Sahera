@@ -1,67 +1,143 @@
 <head>
-    <title>Slide Navbar</title>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+  <title>Slide Navbar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
 </head>
 
 <body>
+  <div class="main">
+    <!-- Checkbox invisible qui gère le toggle Inscription/Connexion -->
+    <input type="checkbox" id="chk" aria-hidden="false" />
 
+    <!-- ===== Partie Inscription (Signup) ===== -->
+    <div class="signup">
+      <!-- On lie le formGroup “signupForm” ici -->
+      <form [formGroup]="signupForm" (ngSubmit)="onSignup()">
+        <label class="titleInscription" for="chk" aria-hidden="false">Inscription</label>
 
-    <div class="main">
-        <input type="checkbox" id="chk" aria-hidden="true">
+        <input
+          id="nom"
+          type="text"
+          formControlName="nom"
+          placeholder="Nom"
+          (blur)="onBlurField('nom')"
+          [class.error-border]="isFieldInvalid('nom')"
+        />
 
-        <div class="signup">
-            <form form [formGroup]="signupForm" (ngSubmit)="onSignup()">
-                <label class="titleInscription" for="chk" aria-hidden="true">Inscription</label>
-                <input id="nom" type="text" formControlName="nom" placeholder="Nom" (blur)="onBlurField('nom')" />
-                <input id="prenom" type="text" formControlName="prenom" placeholder="Prénom"
-                    (blur)="onBlurField('prenom')" />
-                <input id="emailSignup" type="email" formControlName="email" placeholder="Email"
-                    (blur)="onBlurField('email')" />
-                <input id="passwordSignup" type="password" formControlName="password" placeholder="Password"
-                    (blur)="onBlurField('password')" />
-                <input id="telephone" type="text" formControlName="telephone" placeholder="Telephone"
-                    (blur)="onBlurField('telephone')" />
-                <input id="dateNaissance" type="date" formControlName="dateNaissance" placeholder="Date de naissance"
-                    (blur)="onBlurField('dateNaissance')" />
-                <div class="genre-container">
-  <span class="genre-label">Genre :</span>
-  <span class="genre-radio">
-    <input
-      type="radio"
-      formControlName="genre"
-      value="Homme"
-      (change)="onBlurField('genre')"
-    />
-    Homme
-  </span>
-  <span class="genre-radio">
-    <input
-      type="radio"
-      formControlName="genre"
-      value="Femme"
-      (change)="onBlurField('genre')"
-    />
-    Femme
-  </span>
-</div>
-                <input id="role" type="text" formControlName="role" placeholder="Role" (blur)="onBlurField('role')" />
+        <input
+          id="prenom"
+          type="text"
+          formControlName="prenom"
+          placeholder="Prénom"
+          (blur)="onBlurField('prenom')"
+          [class.error-border]="isFieldInvalid('prenom')"
+        />
 
-                <button type="submit">S'inscrire</button>
+        <input
+          id="emailSignup"
+          type="email"
+          formControlName="email"
+          placeholder="Email"
+          (blur)="onBlurField('email')"
+          [class.error-border]="isFieldInvalid('email')"
+        />
 
-            </form>
+        <input
+          id="passwordSignup"
+          type="password"
+          formControlName="password"
+          placeholder="Password"
+          (blur)="onBlurField('password')"
+          [class.error-border]="isFieldInvalid('password')"
+        />
+
+        <input
+          id="telephone"
+          type="text"
+          formControlName="telephone"
+          placeholder="Téléphone"
+          (blur)="onBlurField('telephone')"
+          [class.error-border]="isFieldInvalid('telephone')"
+        />
+
+        <input
+          id="dateNaissance"
+          type="date"
+          formControlName="dateNaissance"
+          placeholder="Date de naissance"
+          (blur)="onBlurField('dateNaissance')"
+          class="date"
+          [class.error-border]="isFieldInvalid('dateNaissance')"
+        />
+
+        <div class="genre-container">
+          <span class="genre-label">Genre :</span>
+          <span
+            class="genre-radio"
+            [class.error-border]="isFieldInvalid('genre')"
+          >
+            <input
+              type="radio"
+              formControlName="genre"
+              value="Homme"
+              (change)="onBlurField('genre')"
+            />
+            Homme
+          </span>
+          <span
+            class="genre-radio"
+            [class.error-border]="isFieldInvalid('genre')"
+          >
+            <input
+              type="radio"
+              formControlName="genre"
+              value="Femme"
+              (change)="onBlurField('genre')"
+            />
+            Femme
+          </span>
         </div>
 
-        <div class="login">
-            <form>
-                <label class="titleConnexion" for="chk" aria-hidden="true">Connexion</label>
-                <input id="emailLogin" type="email" formControlName="email" placeholder="Email"
-                    (blur)="onBlurLoginField('email')" />
-                <input id="passwordLogin" type="password" formControlName="password" placeholder="Password"
-                    (blur)="onBlurLoginField('password')" />
-                <button type="submit">se connecter</button>
-                <div class="pwd">Mot de passe oublié ?</div>
-            </form>
-        </div>
+        <input
+          id="role"
+          type="text"
+          formControlName="role"
+          placeholder="Rôle"
+          (blur)="onBlurField('role')"
+          [class.error-border]="isFieldInvalid('role')"
+        />
+
+        <button type="submit">S'inscrire</button>
+      </form>
     </div>
 
+    <!-- ===== Partie Connexion (Login) ===== -->
+    <div class="login">
+      <!-- On lie le formGroup “loginForm” ici -->
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+        <label class="titleConnexion" for="chk" aria-hidden="false">Connexion</label>
+
+        <input
+          id="emailLogin"
+          type="email"
+          formControlName="email"
+          placeholder="Email"
+          (blur)="onBlurLoginField('email')"
+          [class.error-border]="isLoginFieldInvalid('email')"
+        />
+
+        <input
+          id="passwordLogin"
+          type="password"
+          formControlName="password"
+          placeholder="Password"
+          (blur)="onBlurLoginField('password')"
+          [class.error-border]="isLoginFieldInvalid('password')"
+        />
+
+        <button type="submit">Se connecter</button>
+        <div class="pwd">Mot de passe oublié ?</div>
+        <div class="navbar-brand "><img src="assets/images/logo.png" alt="Brand Logo"></div>
+      </form>
+    </div>
+  </div>
 </body>

@@ -23,31 +23,57 @@
       <ul class="navbar-nav ms-auto align-items-center">
 
         <!-- Mes réponses -->
-        <li class="nav-item ">
-          <a class="nav-link menu__link" routerLink="/mes-reponses">
+        <li class="nav-item">
+          <a
+            class="nav-link menu__link"
+            routerLink="/mes-reponses"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
             <mat-icon>assignment</mat-icon>
             Mes réponses
           </a>
         </li>
 
         <!-- Questionnaire -->
-        <li class="nav-item ">
-          <a class="nav-link menu__link" routerLink="/questionnaire">
-            <mat-icon >help_outline</mat-icon>
+        <li class="nav-item">
+          <a
+            class="nav-link menu__link"
+            routerLink="/questionnaire"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <mat-icon>help_outline</mat-icon>
             Questionnaire
           </a>
         </li>
 
-        <!-- Notifications -->
-        <li class="nav-item ">
-          <a class="nav-link menu__link" routerLink="/notifications">
-            <mat-icon>notifications</mat-icon>
-            Notifications
-          </a>
-        </li>
+        <!-- Notifications avec badge -->
+        <li class="nav-item">
+  <a
+    class="nav-link menu__link"
+    routerLink="/notifications"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    <!-- Icône englobée dans un conteneur pour position relative -->
+    <span class="icon-with-badge position-relative">
+      <mat-icon>notifications</mat-icon>
+      <!-- Badge superposé sur l’icône -->
+      <span
+        *ngIf="unreadCount > 0"
+        class="badge rounded-pill bg-danger position-absolute badge-on-icon"
+      >
+        {{ unreadCount }}
+      </span>
+    </span>
+    <!-- Texte “Notifications” reste à droite de l’icône -->
+    Notifications
+  </a>
+</li>
 
         <!-- Compte (dropdown) -->
-        <li class="nav-item  dropdown">
+        <li class="nav-item dropdown">
           <a
             class="nav-link menu__link dropdown-toggle"
             href="#"
@@ -61,14 +87,19 @@
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
             <li>
-              <a class="dropdown-item" routerLink="/modifier-coordonnees">
+              <a
+                class="dropdown-item"
+                routerLink="/modifier-coordonnees"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+              >
                 <mat-icon>edit</mat-icon>
                 Modifier mes coordonnées
               </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-              <a class="dropdown-item" >
+              <a class="dropdown-item" routerLink="/">
                 <mat-icon>logout</mat-icon>
                 Se déconnecter
               </a>

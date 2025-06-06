@@ -3,7 +3,6 @@
   flex-shrink: 0;
 }
 
-
 /* Logo responsive */
 .navbar-brand img {
   width: clamp(120px, 8vw, 300px);
@@ -25,26 +24,18 @@
   align-items: center;
 }
 
-.nav-link::before,
-.dropdown-item::before {
-  content: "";
-  margin-right: 0.5rem;
-}
-
 /* Si vous voulez un peu plus d’espacement autour de l’emoji : */
 .nav-link,
 .dropdown-item {
   letter-spacing: 0.02em;
 }
+
 /* ===== Responsive menu mobile/tablette ===== */
 @media (max-width: 991.98px) {
-  /* 1) On veut le menu en plein width */
   .navbar-collapse {
     width: 100%;
-    padding: 0;              /* on colle bien aux bords */
+    padding: 0;
   }
-
-  /* 2) Chaque item prend la largeur, text à gauche */
   .navbar-nav {
     width: 100%;
   }
@@ -56,22 +47,18 @@
     display: block;
     width: 100%;
     text-align: left;
-    padding: 0.75rem 1rem;    /* 0.75rem haut/bas, 1rem gauche/droite */
-    border-bottom: 1px solid #e0e0e0;  /* ligne de séparation */
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
   }
-
-  /* 3) On retire la ligne sous le dernier item */
   .navbar-nav .nav-item:last-child .nav-link,
   .navbar-nav .dropdown-menu .dropdown-item:last-child {
     border-bottom: none;
   }
-
-  /* 4) Pour le dropdown “Compte”, on veut le même style */
   .dropdown-menu {
-    width: 100%;             /* pleine largeur du menu */
-    margin: 0;               /* pas de décalage */
-    border: none;            /* on garde juste les separators */
-    box-shadow: none;        /* épure le style */
+    width: 100%;
+    margin: 0;
+    border: none;
+    box-shadow: none;
   }
   .dropdown-menu .dropdown-item {
     padding: 0.75rem 1rem;
@@ -81,12 +68,14 @@
     border-bottom: none;
   }
 }
+
 .menu__link {
-  color: #4a1c2a;;
+  color: #4a1c2a;
   line-height: 2;
   position: relative;
 }
 
+/* Ligne sous le lien au survol */
 .menu__link::before {
   content: '';
   padding-left: 0%;
@@ -95,12 +84,18 @@
   border-radius: 2px;
   background-color: #000000;
   position: absolute;
-  bottom: -.25rem;
+  bottom: -0.25rem;
   left: 0;
-  transition: width .4s;
+  transition: width 0.4s;
 }
 
+/* Effet au survol : la ligne s’étend */
 .menu__link:hover::before {
+  width: 100%;
+}
+
+/* Effet actif (même règle que hover, mais dès affichage) */
+.menu__link.active::before {
   width: 100%;
 }
 
@@ -109,19 +104,38 @@
 .dropdown-item mat-icon {
   vertical-align: middle;
   margin-right: 0.5rem;
-  font-size: 1.2rem; /* ajustez selon votre goût */
+  font-size: 1.2rem;
 }
 
 /* Pour le toggler en mobile */
 .navbar-toggler mat-icon {
   font-size: 1.5rem;
-  color: #333; /* ou la couleur de votre choix */
+  color: #333;
 }
 
-/* Si nécessaire, ajustez l’alignement vertical */
+/* Ajuster l’alignement vertical si nécessaire */
 .nav-link,
 .dropdown-item {
   display: inline-flex;
   align-items: center;
 }
+.badge {
+  font-size: 0.75rem;
+  padding: 0.25em 0.5em;
+}
+.icon-with-badge {
+  display: inline-block;      /* pour ne prendre que la taille de l’icône */
+}
 
+/* Badge superposé sur l’icône */
+.badge-on-icon {
+  top: 1px;                     /* coller en haut du conteneur */
+  right: 12px;                   /* coller à droite du conteneur */
+  transform: translate(25%, -25%);
+  /* Ajustez translate(%) selon la taille de l’icône / de la badge :
+     ici, 25% vers la droite et -25% vers le haut pour que le badge « flotte » 
+     sur le coin supérieur droit de l’icône */
+  font-size: 0.65rem;         /* taille plus petite pour le badge */
+  padding: 0.25em 0.4em;      /* rétrécit un peu le padding */
+  line-height: 1;             /* évite que le texte du badge soit décalé */
+}

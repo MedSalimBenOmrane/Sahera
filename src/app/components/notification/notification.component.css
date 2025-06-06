@@ -1,3 +1,6 @@
+/* src/app/components/notification/notification.component.css */
+
+/* === Styles du conteneur global === */
 .wrapper {
   background: #ffffffcb;
   border-radius: 16px 20px;
@@ -10,39 +13,46 @@
   margin-bottom: 5px;
 }
 
+/* Contenu textuel tronqué ou étendu selon isShown */
 .text-container {
   font-family: Helvetica, Arial, sans-serif;
   line-height: 1.75rem;
-  max-height: 130px;
+  max-height: 130px;         /* tronque le contenu si trop long */
   overflow: hidden;
   padding: 20px 30px 60px 30px;
-  transition: max-height .5s ease;
+  transition: max-height 0.5s ease;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
 }
 
 .text-container.show {
-  max-height: 2000px;
+  max-height: 2000px;        /* on agrandit pour montrer tout le message */
 }
 
+/* Effet “gradient” pour le fade en bas du texte */
 .gradient::before {
   content: '';
   height: 100px;
   position: absolute;
-  bottom: 0px;
+  bottom: 0;
   left: 0;
   width: 100%;
-  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255, 255, 255, 0.8) 70%);
-  transition: height .25s ease;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.8) 70%
+  );
+  transition: height 0.25s ease;
   border-radius: 16px;
 }
 
 .text-container.show.gradient::before {
-  height: 50px;
+  height: 50px;  /* gradient plus court quand on est en “show” */
 }
 
+/* === Bouton pour dérouler/replier le texte === */
 .show-btn {
-  box-shadow: 0 2px 5px rgba(0,0,0,.6);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .6);
   background-color: #4a1c2a;
   border: none;
   border-radius: 100%;
@@ -53,7 +63,7 @@
   left: 50%;
   margin-left: -20px;
   position: absolute;
-  transition: background-color .25s ease;
+  transition: background-color 0.25s ease;
   width: 40px;
   font-size: 20px;
 }
@@ -66,143 +76,60 @@
   transform: rotate(180deg);
 }
 
-/* Checkbox custom styling */
-.container input {
+/* === Styles pour la “cyberpunk checkbox” === */
+
+/*
+  On garde l’input type="checkbox" dans le DOM, mais on le masque en lui donnant
+  opacity: 0; width: 0; height: 0; position: absolute. Cela permet au label
+  d’être associé à l’input, et à l’animation CSS de fonctionner via :checked.
+*/
+input.cyberpunk-checkbox {
+  appearance: none;
   position: absolute;
   opacity: 0;
   cursor: pointer;
-  height: 0;
-  width: 0;
+  height: 20px;
+  width: 20px;
 }
 
-.container {
-  display: inline-block;
-  position: relative;
+/* On définit la vraie case via le pseudo-élément :before du label */
+.cyberpunk-checkbox-label {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  color: #000;           /* Couleur du texte “Marquer comme lue” */
   cursor: pointer;
-  font-size: 20px;
   user-select: none;
 }
 
-.checkmark {
-  position: relative;
-  height: 1.4em;
-  width: 1.4em;
-  border: 2px solid #4a1c2a;
-  border-radius: 1rem 0rem 1rem;
-  transform: rotate(45deg);
-  transition: all .5s ease-in-out;
+/* Les styles du box rond (par défaut non coché) */
+.cyberpunk-checkbox-label .cyberpunk-checkbox + .cyberpunk-checkbox-custom {
+  /* ce sélecteur n’existe pas si on n’utilise pas un <span> */
 }
 
-.container input:checked ~ .checkmark {
-  box-shadow: 0px 0px 40px 5px #4a1c2a;
-  background-color: #4a1c2a12;
+/* IMPORTANT : on crée un pseudo-élément sur le label pour afficher la case */
+.cyberpunk-checkbox-label:before {
+  content: '';
+  display: inline-block;
+  background-color: transparent;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #30cfd0;
+  border-radius: 5px;
+  margin-right: 10px;
+  transition: all 0.3s ease-in-out;
+  box-sizing: border-box;
 }
 
-.checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
-}
-
-.container input:checked ~ .checkmark:after {
-  display: block;
-}
-
-.container .checkmark:after {
-  left: 0.35em;
-  top: 0.20em;
-  width: 0.25em;
-  height: 0.5em;
-  border: solid #4a1c2a;
-  border-width: 0 0.15em 0.15em 0;
-  transform: rotate(-5deg);
-  animation: upAnimate 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-@keyframes upAnimate {
-  from {
-    transform: translate(-20px, -20px) rotate(-5deg);
-    opacity: 0;
-  }
-  to {
-    transform: translate(0, 0) rotate(-5deg);
-    opacity: 1;
-  }
+/* Quand l’input est checked, on fait apparaître le carré plein */
+input.cyberpunk-checkbox:checked + .cyberpunk-checkbox-label:before {
+  background-color: #30cfd0;
+  transform: scale(1);
 }
 @media (max-width: 45em) {
  .text-container {
 
-  padding: 10px 15px 40px 15px;
+  padding: 5px 10px 40px 10px;
 
 }
 }
-
-
-.check {
-  cursor: pointer;
-  position: relative;
-  margin: auto;
-  bottom: 5px;
-  width: 18px;
-  height: 18px;
-  -webkit-tap-highlight-color: transparent;
-  transform: translate3d(0, 0, 0);
-}
-
-.check:before {
-  content: "";
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: rgba(34, 50, 84, 0.03);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.check svg {
-  position: relative;
-  z-index: 1;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke: #c8ccd4;
-  stroke-width: 1.5;
-  transform: translate3d(0, 0, 0);
-  transition: all 0.2s ease;
-}
-
-.check svg path {
-  stroke-dasharray: 60;
-  stroke-dashoffset: 0;
-}
-
-.check svg polyline {
-  stroke-dasharray: 22;
-  stroke-dashoffset: 66;
-}
-
-.check:hover:before {
-  opacity: 1;
-}
-
-.check:hover svg {
-  stroke: var(--accent-color, #a3e583);
-}
-
-#cbx2:checked + .check svg {
-  stroke: var(--accent-color, #a3e583);
-}
-
-#cbx2:checked + .check svg path {
-  stroke-dashoffset: 60;
-  transition: all 0.3s linear;
-}
-
-#cbx2:checked + .check svg polyline {
-  stroke-dashoffset: 42;
-  transition: all 0.2s linear;
-  transition-delay: 0.15s;
-}
-
-

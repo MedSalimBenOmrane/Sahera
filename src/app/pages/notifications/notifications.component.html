@@ -1,6 +1,10 @@
 <div class="container my-4">
   <div class="glass-container p-2">
-    <app-notification></app-notification>
-    <app-notification></app-notification>
-    </div>
-    </div>
+    <app-notification
+      *ngFor="let notif of notifications; let i = index"
+      [notification]="notif"
+      [index]="i"
+      (toggleSeen)="onToggleSeen($event)"
+    ></app-notification>
+  </div>
+</div>

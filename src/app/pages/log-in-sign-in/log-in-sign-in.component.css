@@ -1,16 +1,28 @@
-body{
-	margin: 0;
-	padding: 0;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 100vh;
-	font-family: 'Jost', sans-serif;
-        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-        background: linear-gradient(-45deg, #ffffff, #ffeddacb, #ffd4abd8);
+/* ===== Styles globaux ===== */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Jost', sans-serif;
+    background: linear-gradient(-45deg, #ffffff, #ffeddacb, #ffd4abd8);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
-	
+}
+
+.login .navbar-brand {
+  display: flex;
+  justify-content: center; /* centre horizontalement */
+  margin-top: 20px;        /* ajustez l’espacement vertical si besoin */
+}
+
+/* L’image elle-même garde sa largeur adaptative, sans avoir besoin de justify-content */
+.login .navbar-brand img {
+  width: clamp(120px, 8vw, 300px);
+  height: auto;
+  display: block;
 }
 @keyframes gradient {
     0% {
@@ -23,49 +35,162 @@ body{
         background-position: 0% 50%;
     }
 }
-.logo {
-      text-align: center;
-      margin: 20px 0; /* espace au-dessus et en dessous du logo */
-      z-index: 100;
-    }
-    .logo img {
-      max-width: 150px;   /* ajustez selon la taille voulue */
-      height: auto;
-      display: inline-block;
-    }
 
-    /* Dès que la largeur de l'écran atteint 768px, on aligne à droite */
- 
-.main{
-	width: 450px;
-	height: 620px;
-	background: red;
-	overflow: hidden;
-	background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") no-repeat center/ cover;
-	border-radius: 10px;
-	box-shadow: 5px 10px 15px #000;
+.logo {
+    text-align: center;
+    margin: 20px 0;
+    z-index: 100;
 }
-#chk{
-	display: none;
+.logo img {
+    max-width: 150px;
+    height: auto;
+    display: inline-block;
 }
-.signup{
-	position: relative;
-	width:100%;
-	height: 100%;
+
+/* ===== Container principal ===== */
+.main {
+    width: 450px;
+    height: 620px;
+    background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") 
+               no-repeat center/cover;
+    border-radius: 10px;
+    box-shadow: 5px 10px 15px #000;
+    overflow: hidden;
 }
-label{
-	color: #4a1c2a;
-	font-size: 2.3em;
-	justify-content: center;
-	display: flex;
-	margin: 50px;
+
+/* ===== Masquage du checkbox utilisé pour le slide ===== */
+#chk {
+    display: none;
+}
+
+/* ===== Formulaires Signup & Login ===== */
+.signup {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.login {
+    height: 600px;
+    background: #ffd4a4;
+    border-radius: 60% / 10%;
+    transform: translateY(-180px);
+    transition: .8s ease-in-out;
+	box-shadow: 15px 20px 20px #000;
+}
+
+/* ===== Titres “Inscription” / “Connexion” ===== */
+label.titleInscription,
+label.titleConnexion {
+    color: #4a1c2a;
+    font-size: 2.3em;
+    justify-content: center;
+    display: flex;
+    margin: 50px;
     margin-bottom: 25px;
-	font-weight: bold;
-	cursor: pointer;
-	transition: .5s ease-in-out;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .5s ease-in-out;
+}
+
+/* Lorsque l’on bascule vers “Connexion” */
+.login label.titleConnexion {
+    color: #4a1c2a;
+    transform: scale(.6);
+}
+
+/* Lorsque checkbox est coché : on remonte “Connexion” et on agrandit son label */
+#chk:checked ~ .login {
+    transform: translateY(-620px);
+}
+#chk:checked ~ .login label {
+    transform: scale(1);
+}
+/* Et on réduit le label “Inscription” */
+#chk:checked ~ .signup label.titleInscription {
+    transform: scale(.6);
+}
+
+/* ===== Styles des inputs & bouton par défaut ===== */
+input {
+    width: 85%;
+    height: 10px;
+    background: #ffffff80;
+    justify-content: center;
+    display: flex;
+    margin: 15px auto;
+    padding: 12px;
+    border: 1px solid #000;      /* Bordure noire par défaut */
+    outline: none;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color .2s ease-in-out;
+}
+
+/* Classe appliquée en erreur */
+.error-border {
+    border-color: red !important;
+}
+
+/* Spécificité pour les champs date (même mise en forme horizontale) */
+.date {
+    width: 85%;
+    height: 10px;
+    justify-content: center;
+}
+
+/* ===== Styles du bouton ===== */
+button {
+    width: 60%;
+    height: 40px;
+    margin: 10px auto;
+    justify-content: center;
+    display: block;
+    color: #fff;
+    background: #4a1c2a;
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 30px;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    transition: .2s ease-in;
+    cursor: pointer;
+}
+.login button{
+	background: #ffeddacb;	
+	color: #4a1c2ac7;
+}
+button:hover {
+    background: #4a1c2ac7;
+}
+
+/* ===== Styles spécifique “Genre” (radio) ===== */
+.genre-container {
+    display: flex;
+    align-items: center;
+    width: 85%;
+    margin: 15px auto;
+    padding-left: 20px;
+    font-weight: bold;
+}
+.genre-label {
+    margin-right: 10px;
+    white-space: nowrap;
+}
+.genre-radio {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+    cursor: pointer;
+    user-select: none;
+}
+.genre-radio input[type="radio"] {
+    margin-right: 5px;
+    margin-top: 12px;
 }
 .pwd{
-	color: #ffffff;
+	color: #4a1c2a;
 	font-size: 1em;
 	justify-content: center;
 	display: flex;
@@ -75,107 +200,13 @@ label{
 	transition: .5s ease-in-out;
 }
 
-
-input{
-	width: 85%;
-	height: 10px;
-	background: #ffffff80;
-	justify-content: center;
-	display: flex;
-	margin: 15px auto;
-	padding: 12px;
-	border: none;
-	outline: none;
-	border-radius: 5px;
-    
-    
-}
-.date{
-    width: 85%;
-    height: 10px;
-    justify-content: center;
-}
-
-button{
-	width: 60%;
-	height: 40px;
-	margin: 10px auto;
-	justify-content: center;
-	display: block;
-	color: #fff;
-	background: #4a1c2a;
-	font-size: 1em;
-	font-weight: bold;
-	margin-top: 30px;
-	outline: none;
-	border: none;
-	border-radius: 5px;
-	transition: .2s ease-in;
-	cursor: pointer;
-}
-button:hover{
-	background: #4a1c2ac7;
-}
-.genre-container {
-  display: flex;              /* affiche tout sur une ligne */
-  align-items: center;        /* centre verticalement le texte et les radios */
-  width: 85%;
-  margin: 15px auto; 
-  padding-left: 20px;         /* reprend le même margin que vos inputs */
-  font-weight: bold;
-}
-
-.genre-label {
-  margin-right: 10px;         /* espace entre "Genre:" et le 1er radio */
-  white-space: nowrap;        /* empêche le mot "Genre:" de se couper */
-}
-
-.genre-radio {
-  display: flex;              /* radio + texte côte-à-côte */
-  align-items: center;        /* centre verticalement la petite bulle radio avec le texte */
-  margin-right: 15px;         /* espace entre chaque option radio */
-  cursor: pointer;
-  user-select: none;
-}
-
-.genre-radio input[type="radio"] {
-  margin-right: 5px;          /* petit espace entre la bulle et le mot "Homme"/"Femme" */
-  margin-top: 12px;              /* s’assure que la bulle n’est pas un peu plus haute */
-}
-
-.login{
-	height: 600px;
-	background: #4b2530;
-	border-radius: 60% / 10%;
-	transform: translateY(-180px);
-	transition: .8s ease-in-out;
-}
-.login label{
-	color: #ffeddacb;
-	transform: scale(.6);
-}
-.login button{
-    	color: #4a1c2a;
-	background: #ffeddacb;
-}
-
-#chk:checked ~ .login{
-	transform: translateY(-620px);
-}
-#chk:checked ~ .login label{
-	transform: scale(1);	
-}
-#chk:checked ~ .signup label{
-	transform: scale(.6);
-}
-
-   @media (min-width: 768px) {
-      .logo {
+/* ===== Adaptation pour écrans ≥768px ===== */
+@media (min-width: 768px) {
+    .logo {
         text-align: right;
-        margin: 20px 20px 0 0; /* un peu de marge à droite pour le positionner */
-      }
-       
-.main{
-	width: 350px;
-}
+        margin: 20px 20px 0 0;
     }
+    .main {
+        width: 350px;
+    }
+}
