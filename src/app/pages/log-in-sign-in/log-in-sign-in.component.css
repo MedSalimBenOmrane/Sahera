@@ -79,7 +79,7 @@ label{
 input{
 	width: 85%;
 	height: 10px;
-	background: #e0dede;
+	background: #ffffff80;
 	justify-content: center;
 	display: flex;
 	margin: 15px auto;
@@ -87,6 +87,7 @@ input{
 	border: none;
 	outline: none;
 	border-radius: 5px;
+    
     
 }
 .date{

@@ -1,0 +1,208 @@
+.wrapper {
+  background: #ffffffcb;
+  border-radius: 16px 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  -webkit-backdrop-filter: blur(12.1px);
+  position: relative;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.26);
+  margin-bottom: 5px;
+}
+
+.text-container {
+  font-family: Helvetica, Arial, sans-serif;
+  line-height: 1.75rem;
+  max-height: 130px;
+  overflow: hidden;
+  padding: 20px 30px 60px 30px;
+  transition: max-height .5s ease;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.text-container.show {
+  max-height: 2000px;
+}
+
+.gradient::before {
+  content: '';
+  height: 100px;
+  position: absolute;
+  bottom: 0px;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255, 255, 255, 0.8) 70%);
+  transition: height .25s ease;
+  border-radius: 16px;
+}
+
+.text-container.show.gradient::before {
+  height: 50px;
+}
+
+.show-btn {
+  box-shadow: 0 2px 5px rgba(0,0,0,.6);
+  background-color: #4a1c2a;
+  border: none;
+  border-radius: 100%;
+  bottom: 10px;
+  color: #fff;
+  cursor: pointer;
+  height: 40px;
+  left: 50%;
+  margin-left: -20px;
+  position: absolute;
+  transition: background-color .25s ease;
+  width: 40px;
+  font-size: 20px;
+}
+
+.show-btn:hover {
+  background-color: #4a1c2a;
+}
+
+.show-btn.rotate {
+  transform: rotate(180deg);
+}
+
+/* Checkbox custom styling */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.container {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  font-size: 20px;
+  user-select: none;
+}
+
+.checkmark {
+  position: relative;
+  height: 1.4em;
+  width: 1.4em;
+  border: 2px solid #4a1c2a;
+  border-radius: 1rem 0rem 1rem;
+  transform: rotate(45deg);
+  transition: all .5s ease-in-out;
+}
+
+.container input:checked ~ .checkmark {
+  box-shadow: 0px 0px 40px 5px #4a1c2a;
+  background-color: #4a1c2a12;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.container .checkmark:after {
+  left: 0.35em;
+  top: 0.20em;
+  width: 0.25em;
+  height: 0.5em;
+  border: solid #4a1c2a;
+  border-width: 0 0.15em 0.15em 0;
+  transform: rotate(-5deg);
+  animation: upAnimate 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes upAnimate {
+  from {
+    transform: translate(-20px, -20px) rotate(-5deg);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, 0) rotate(-5deg);
+    opacity: 1;
+  }
+}
+@media (max-width: 45em) {
+ .text-container {
+
+  padding: 10px 15px 40px 15px;
+
+}
+}
+
+
+.check {
+  cursor: pointer;
+  position: relative;
+  margin: auto;
+  bottom: 5px;
+  width: 18px;
+  height: 18px;
+  -webkit-tap-highlight-color: transparent;
+  transform: translate3d(0, 0, 0);
+}
+
+.check:before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(34, 50, 84, 0.03);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.check svg {
+  position: relative;
+  z-index: 1;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke: #c8ccd4;
+  stroke-width: 1.5;
+  transform: translate3d(0, 0, 0);
+  transition: all 0.2s ease;
+}
+
+.check svg path {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 0;
+}
+
+.check svg polyline {
+  stroke-dasharray: 22;
+  stroke-dashoffset: 66;
+}
+
+.check:hover:before {
+  opacity: 1;
+}
+
+.check:hover svg {
+  stroke: var(--accent-color, #a3e583);
+}
+
+#cbx2:checked + .check svg {
+  stroke: var(--accent-color, #a3e583);
+}
+
+#cbx2:checked + .check svg path {
+  stroke-dashoffset: 60;
+  transition: all 0.3s linear;
+}
+
+#cbx2:checked + .check svg polyline {
+  stroke-dashoffset: 42;
+  transition: all 0.2s linear;
+  transition-delay: 0.15s;
+}
+
+

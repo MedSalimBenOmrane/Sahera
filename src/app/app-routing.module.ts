@@ -4,12 +4,14 @@ import { MesReponsesComponent } from './pages/mes-reponses/mes-reponses.componen
 import { QuestionnaireComponent } from './pages/questionnaire/questionnaire.component';
 import { QAndAComponent } from './pages/q-and-a/q-and-a.component';
 import { LogInSignINComponent } from './pages/log-in-sign-in/log-in-sign-in.component';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
 
 const routes: Routes = [
   {path: '',component: LogInSignINComponent},
   {path: 'mes-reponses', component: MesReponsesComponent ,},
   {path: 'questionnaire',component:QuestionnaireComponent ,},
   { path: 'questionnaire/:id/:titre', component: QAndAComponent },
+  { path: 'notifications', component: NotificationsComponent },
   
 ];
 

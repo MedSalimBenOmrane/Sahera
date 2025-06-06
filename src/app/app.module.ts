@@ -29,6 +29,8 @@ import { QuestionnaireComponent } from './pages/questionnaire/questionnaire.comp
 import { QAndAComponent } from './pages/q-and-a/q-and-a.component';
 import { LogInSignINComponent } from './pages/log-in-sign-in/log-in-sign-in.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { NotificationComponent } from './components/notification/notification.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -39,7 +41,9 @@ import { ReactiveFormsModule } from '@angular/forms';
     CardComponent,
     QuestionnaireComponent,
     QAndAComponent,
-    LogInSignINComponent
+    LogInSignINComponent,
+    NotificationsComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,
