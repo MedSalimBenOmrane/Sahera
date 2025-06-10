@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-log-in-sign-in',
@@ -15,7 +16,8 @@ export class LogInSignINComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -34,7 +36,8 @@ export class LogInSignINComponent implements OnInit {
     // === Formulaire de connexion ===
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      isAdmin: [false]
     });
   }
 
@@ -127,70 +130,74 @@ export class LogInSignINComponent implements OnInit {
 
     this.signupForm.reset();
   }
+onLogin(): void {
+  // …
+  const { isAdmin } = this.loginForm.value;
+  console.log(isAdmin);
 
-  onLogin(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      this.toastr.error(
-        'Email ou mot de passe incorrect.',
-        'Erreur',
-        { positionClass: 'toast-top-right' }
-      );
-      return;
-    }
+  this.toastr.success(
+    isAdmin ? 'Connexion admin réussie.' : 'Connexion réussie.',
+    'Succès',
+    { positionClass: 'toast-top-right' }
+  );
+  
+  this.authService.setAdmin(isAdmin);
+  this.loginForm.reset({ isAdmin: false });
 
-    // Ici, appel au service d’authentification…
-    this.toastr.success(
-      'Connexion réussie.',
-      'Succès',
-      { positionClass: 'toast-top-right' }
-    );
+  if (isAdmin) {
+    this.router.navigate(['/admin']);
+  } else {
     this.router.navigate(['/questionnaire']);
   }
 
+
+}
+
+    
+
   // ======== Méthodes utilitaires pour messages “required” ========
   private getLoginRequiredMessage(field: string): string {
-    switch (field) {
-      case 'email':    return 'L’email est obligatoire.';
-      case 'password': return 'Le mot de passe est obligatoire.';
-      default:         return 'Ce champ est obligatoire.';
-    }
+  switch (field) {
+    case 'email': return 'L’email est obligatoire.';
+    case 'password': return 'Le mot de passe est obligatoire.';
+    default: return 'Ce champ est obligatoire.';
   }
+}
 
   private getRequiredMessage(field: string): string {
-    switch (field) {
-      case 'nom':            return 'Le nom est obligatoire.';
-      case 'prenom':         return 'Le prénom est obligatoire.';
-      case 'email':          return 'L’email est obligatoire.';
-      case 'password':       return 'Le mot de passe est obligatoire.';
-      case 'telephone':      return 'Le téléphone est obligatoire.';
-      case 'dateNaissance':  return 'La date de naissance est obligatoire.';
-      case 'genre':          return 'Le genre est obligatoire.';
-      case 'role':           return 'Le rôle est obligatoire.';
-      default:               return 'Ce champ est obligatoire.';
-    }
+  switch (field) {
+    case 'nom': return 'Le nom est obligatoire.';
+    case 'prenom': return 'Le prénom est obligatoire.';
+    case 'email': return 'L’email est obligatoire.';
+    case 'password': return 'Le mot de passe est obligatoire.';
+    case 'telephone': return 'Le téléphone est obligatoire.';
+    case 'dateNaissance': return 'La date de naissance est obligatoire.';
+    case 'genre': return 'Le genre est obligatoire.';
+    case 'role': return 'Le rôle est obligatoire.';
+    default: return 'Ce champ est obligatoire.';
   }
+}
 
-  // ======== Helpers pour lier la classe “error-border” dans le template ========
-  isFieldInvalid(fieldName: string): boolean {
-    const control = this.signupForm.get(fieldName);
-    return !!(control && control.invalid && control.touched);
-  }
+// ======== Helpers pour lier la classe “error-border” dans le template ========
+isFieldInvalid(fieldName: string): boolean {
+  const control = this.signupForm.get(fieldName);
+  return !!(control && control.invalid && control.touched);
+}
 
-  isLoginFieldInvalid(fieldName: string): boolean {
-    const control = this.loginForm.get(fieldName);
-    return !!(control && control.invalid && control.touched);
-  }
+isLoginFieldInvalid(fieldName: string): boolean {
+  const control = this.loginForm.get(fieldName);
+  return !!(control && control.invalid && control.touched);
+}
 
   // Accès rapide aux controls dans le template, si besoin
   get s() { return this.signupForm.controls; }
   get l() { return this.loginForm.controls; }
 
-  toasterError(msg: string): void {
-    this.toastr.error(
-      msg,
-      'Erreur',
-      { positionClass: 'toast-top-right' }
-    );
-  }
+toasterError(msg: string): void {
+  this.toastr.error(
+    msg,
+    'Erreur',
+    { positionClass: 'toast-top-right' }
+  );
+}
 }

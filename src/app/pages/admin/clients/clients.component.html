@@ -1,0 +1,91 @@
+<main class="table" id="customers_table">
+  <section class="table__header">
+    <h1> Liste des participants</h1>
+    <div class="col-2">
+      <!-- Bouton “Create” -->
+      <button type="button" class="button" (click)="openCreateDialog()">
+  <span class="button__text">Ajouter</span>
+  <span class="button__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" height="24" fill="none" class="svg"><line y2="19" y1="5" x2="12" x1="12"></line><line y2="12" y1="12" x2="19" x1="5"></line></svg></span>
+</button>
+    </div>
+  </section>
+
+  <section class="table__body">
+    <table>
+      <thead>
+        <tr>
+          <!-- Vos colonnes existantes… -->
+          <th (click)="sortTable('id', true)">ID <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('nom', true)">Nom <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('prenom', true)">Prénom <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('email', true)">Email <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('telephone', true)">Téléphone <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('date_naissance', true)">Date de naissance <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('genre', true)">Genre <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('role', true)">Rôle <span class="icon-arrow">&UpArrow;</span></th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of clients">
+          <td>{{c.id}}</td>
+          <td>{{c.nom}}</td>
+          <td>{{c.prenom}}</td>
+          <td>{{c.email}}</td>
+          <td>{{c.telephone}}</td>
+          <td>{{c.date_naissance | date:'dd/MM/yyyy'}}</td>
+          <td>{{c.genre}}</td>
+          <td>{{c.role}}</td>
+          <td class="actions-cell">
+            <!-- Modifier ouvre le dialog en mode édition -->
+            <button class="btn-modifier"
+                    (click)="openEditDialog(c)">
+              Modifier
+            </button>
+            <!-- Supprimer appelle directement le service -->
+            <button class="btn-supprimer" (click)="confirmDelete(c)">
+              Supprimer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Le même dialog pour Create / Edit -->
+  <dialog #dialog>
+    <!-- Titre dynamique -->
+    <h2>{{ isEditMode ? 'modifier participant' : 'Crée nouveau participant' }}</h2>
+
+    <!-- Formulaire “template-driven” -->
+    <div class="row" *ngFor="let field of formFields">
+      <div class="col-5">{{ field.label }} :</div>
+      <div class="col-7">
+        <input
+          *ngIf="field.type!=='select'"
+          [type]="field.type"
+          class="input5"
+          [placeholder]="field.label"
+          [(ngModel)]="form[field.key]"
+          name="{{field.key}}"
+        />
+        <select
+          *ngIf="field.type==='select'"
+          class="input5"
+          [(ngModel)]="form[field.key]"
+          name="{{field.key}}"
+        >
+          <option value="" disabled selected>{{field.label}}</option>
+          <option *ngFor="let opt of field.options" [value]="opt">{{opt}}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="boton-elegante" (click)="saveClient()">
+        {{ isEditMode ? 'enregistrer les Changements' : 'Ajouter Client' }}
+      </button>
+    </div>
+    <button class="x" aria-label="close" (click)="closeDialog()">❌</button>
+  </dialog>
+</main>

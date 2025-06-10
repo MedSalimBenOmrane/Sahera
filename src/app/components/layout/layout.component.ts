@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -11,7 +12,7 @@ export class LayoutComponent implements OnInit {
 
   showNavbar = false;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router,public auth: AuthService) { }
 
   ngOnInit(): void {
     this.router.events

@@ -28,9 +28,13 @@ import { CardComponent } from './components/card/card.component';
 import { QuestionnaireComponent } from './pages/questionnaire/questionnaire.component';
 import { QAndAComponent } from './pages/q-and-a/q-and-a.component';
 import { LogInSignINComponent } from './pages/log-in-sign-in/log-in-sign-in.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { NotificationComponent } from './components/notification/notification.component';
+import { ClientsComponent } from './pages/admin/clients/clients.component';
+import { CreateNotificationComponent } from './pages/admin/create-notification/create-notification.component';
+import { AdminNavBarComponent } from './components/admin-nav-bar/admin-nav-bar.component';
+import { DashboardComponent } from './pages/admin/dashboard/dashboard.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -43,7 +47,12 @@ import { NotificationComponent } from './components/notification/notification.co
     QAndAComponent,
     LogInSignINComponent,
     NotificationsComponent,
-    NotificationComponent
+    NotificationComponent,
+    ClientsComponent,
+    CreateNotificationComponent,
+    AdminNavBarComponent,
+
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -70,6 +79,7 @@ import { NotificationComponent } from './components/notification/notification.co
     MdbTabsModule,
     MdbTooltipModule,
     MdbValidationModule,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -7,7 +7,7 @@ body {
     align-items: center;
     min-height: 100vh;
     font-family: 'Jost', sans-serif;
-    background: linear-gradient(-45deg, #ffffff, #ffeddacb, #ffd4abd8);
+    background: linear-gradient(-45deg, #ffffff, #fff6edcb, #ffe8d3d8);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
 }
@@ -72,9 +72,10 @@ body {
 
 .login {
     height: 600px;
-    background: #ffd4a4;
+    background: #eeeeee;
     border-radius: 60% / 10%;
     transform: translateY(-180px);
+    
     transition: .8s ease-in-out;
 	box-shadow: 15px 20px 20px #000;
 }
@@ -112,7 +113,7 @@ label.titleConnexion {
 }
 
 /* ===== Styles des inputs & bouton par défaut ===== */
-input {
+.input {
     width: 85%;
     height: 10px;
     background: #ffffff80;
@@ -126,6 +127,18 @@ input {
     box-sizing: border-box;
     transition: border-color .2s ease-in-out;
 }
+#dateNaissance{  width: 85%;
+    height: 10px;
+    background: #ffffff80;
+    justify-content: center;
+    display: flex;
+    margin: 15px auto;
+    padding: 12px;
+    border: 1px solid #000;      /* Bordure noire par défaut */
+    outline: none;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color .2s ease-in-out;}
 
 /* Classe appliquée en erreur */
 .error-border {
@@ -158,7 +171,12 @@ button {
     cursor: pointer;
 }
 .login button{
-	background: #ffeddacb;	
+	background: #ffe6cc;	
+	color: #4a1c2ac7;
+    
+}
+.login button:hover{
+	background: #ffedda;	
 	color: #4a1c2ac7;
 }
 button:hover {
@@ -209,4 +227,10 @@ button:hover {
     .main {
         width: 350px;
     }
+}
+.form-check-input {
+    margin: 15px 14px;
+}
+.form-check-label{
+    margin: 12px 10px;
 }
