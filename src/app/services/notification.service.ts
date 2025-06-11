@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Notification } from '../models/notification.model';
+import { Observable, of } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
@@ -7,6 +8,7 @@ export class NotificationService {
 // Tableau prérempli de deux notifications d'exemple
   private notifications: Notification[] = [
     {
+      id:1,
       objet: 'Lancement de la plateforme clinique',
       sender: 'Hera Care Solutions',
       date: new Date('2025-06-06T09:00:00'),
@@ -24,7 +26,7 @@ Cordialement,
 L’équipe Hera Care Solutions`,
       seen: false
     },
-    {
+    { id: 2,
       objet: 'Mise à jour de sécurité serveur',
       sender: 'Admin IT',
       date: new Date('2025-06-07T14:30:00'),
@@ -55,5 +57,13 @@ getAllNotifications(): Notification[] {
   getUnreadCount(): number {
     return this.notifications.filter(n => !n.seen).length;
   }
-
+deleteById(id: number): void {
+  const index = this.notifications.findIndex(n => n.id === id);
+  if (index !== -1) {
+    this.notifications.splice(index, 1);
+  }
+}
+addNotification(n: Notification): void {
+  this.notifications.unshift(n); // ou push(n) si tu veux en bas
+}
 }

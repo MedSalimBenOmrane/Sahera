@@ -1,11 +1,19 @@
 <main class="table" id="customers_table">
-  <section class="table__header">
+  <section class="table__header ">
     <h1> Liste des participants</h1>
-    <div class="col-2">
+    <div class="col-2 ">
       <!-- Bouton “Create” -->
-      <button type="button" class="button" (click)="openCreateDialog()">
-  <span class="button__text">Ajouter</span>
-  <span class="button__icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" height="24" fill="none" class="svg"><line y2="19" y1="5" x2="12" x1="12"></line><line y2="12" y1="12" x2="19" x1="5"></line></svg></span>
+<button class="cssbuttons-io-button" (click)="openCreateDialog()">
+  <svg
+    height="24"
+    width="24"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" fill="currentColor"></path>
+  </svg>
+  <span>Créer</span>
 </button>
     </div>
   </section>
@@ -83,7 +91,7 @@
 
     <div class="row">
       <button class="boton-elegante" (click)="saveClient()">
-        {{ isEditMode ? 'enregistrer les Changements' : 'Ajouter Client' }}
+        {{ isEditMode ? 'enregistrer les Changements' : 'Créer Participant' }}
       </button>
     </div>
     <button class="x" aria-label="close" (click)="closeDialog()">❌</button>

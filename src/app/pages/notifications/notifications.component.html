@@ -4,6 +4,7 @@
       *ngFor="let notif of notifications; let i = index"
       [notification]="notif"
       [index]="i"
+      [isAdminView]="false"
       (toggleSeen)="onToggleSeen($event)"
     ></app-notification>
   </div>

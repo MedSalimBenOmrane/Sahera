@@ -12,8 +12,6 @@ export class AdminNavBarComponent implements OnInit {
 
   ngOnInit(): void { }
 
-  /** Getter qui renvoie le nombre de notifications non lues */
-  get unreadCount(): number {
-    return this.notificationService.getUnreadCount();
-  }
+ 
+  
 }

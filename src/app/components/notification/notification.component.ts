@@ -1,6 +1,7 @@
 // src/app/components/notification/notification.component.ts
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Notification } from 'src/app/models/notification.model';
+import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-notification',
@@ -10,7 +11,12 @@ import { Notification } from 'src/app/models/notification.model';
 export class NotificationComponent implements OnInit {
   @Input() notification!: Notification;
   @Input() index!: number;
+  @Input() isAdminView: boolean = false;
+  @Output() deleteNotification = new EventEmitter<number>();
 
+  onDelete(id: number): void {
+  this.deleteNotification.emit(id);
+}
   /** 
    * On émet un objet { index: number, seen: boolean } 
    * vers le parent pour qu’il mette à jour le service. 
@@ -19,7 +25,7 @@ export class NotificationComponent implements OnInit {
 
   isShown = false; // pour basculer l’affichage du message complet
 
-  constructor() { }
+  constructor(private notificationServices: NotificationService) { }
 
   ngOnInit(): void { }
 
@@ -36,4 +42,5 @@ export class NotificationComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     this.toggleSeen.emit({ index: this.index, seen: input.checked });
   }
+ 
 }
