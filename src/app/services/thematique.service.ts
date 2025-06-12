@@ -22,13 +22,7 @@ export class ThematiqueService {
     new Date('2025-06-01'), 
     'Nous souhaitons mesurer la satisfaction globale…'
   ),
-  new Thematique(
-    3, 
-    'Évaluation formation', 
-    new Date('2025-04-15'), 
-    new Date('2025-07-15'), 
-    'Merci de répondre aux questions concernant la formation…'
-  )
+  
 ];
   constructor() { }
 

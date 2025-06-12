@@ -8,6 +8,8 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
 import { CreateNotificationComponent } from './pages/admin/create-notification/create-notification.component';
 import { ClientsComponent } from './pages/admin/clients/clients.component';
 import { DashboardComponent } from './pages/admin/dashboard/dashboard.component';
+import { GenrateQuestionnaireComponent } from './pages/admin/genrate-questionnaire/genrate-questionnaire.component';
+import { ThematiqueDetailsComponent } from './pages/admin/thematique-details/thematique-details.component';
 
 
 const routes: Routes = [
@@ -18,7 +20,8 @@ const routes: Routes = [
       { path: '', redirectTo: 'Dashbord', pathMatch: 'full' },
       {path:'Dashbored' , component:DashboardComponent },
       { path: 'participants', component: ClientsComponent },
-      { path: 'questionnaires', component: ClientsComponent },
+      { path: 'questionnaires', component: GenrateQuestionnaireComponent },
+      { path: 'thematique/:id/:titre', component: ThematiqueDetailsComponent },
       { path: 'messages', component: CreateNotificationComponent },
       
     ]

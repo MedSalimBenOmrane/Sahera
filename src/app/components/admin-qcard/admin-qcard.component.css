@@ -1,0 +1,391 @@
+/* ────────────────────────────────────────────────────────────── */
+/* card.component.css                                           */
+/* Design “smooth” / épuré / responsive                          */
+/* ────────────────────────────────────────────────────────────── */
+
+/* 1. Conteneur principal de la carte (wrapper Bootstrap override) */
+.custom-card {
+  border: none;
+  background-color: transparent;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 25vh;
+  /* Coins arrondis & ombre légère */
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.421);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Effet “lift” au hover */
+.custom-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+}
+
+.status-open,
+.status-closed {
+  display: inline-block;         /* devient inline-block au lieu de block */
+  font-size: 1rem;
+  font-weight: 500;
+  padding-bottom: 0.6em;           /* padding horizontal + vertical plus petit */
+  border-radius: 10px;           /* coins arrondis (ajustez à 8px ou 10px) */
+  
+  white-space: nowrap;           /* pas de retour à la ligne à l’intérieur */
+  margin-top: 0.25rem;  
+}
+
+/* – Badge “Ouvert” (vert) */
+.status-open {
+  color: #198754; 
+     /* vert Bootstrap “success” */
+}
+.status-open:hover {
+  color: #157347;      /* teinte légèrement plus foncée au survol */
+}
+
+/* – Badge “Fermé” (rouge) */
+.status-closed {
+   
+  color: #dc3545;      /* rouge Bootstrap “danger” */
+}
+.status-closed:hover {
+  color: #a71d2a;      /* plus foncé au survol */
+}
+/* 2. Contenu intérieur de la carte (verre dépoli) */
+.child {
+  background: rgba(255, 255, 255, 0.3); /* fond blanc semi-transparent */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.25rem;
+  color: #1a1a1a;
+}
+
+/* 3. Top-row : conteneur flex pour titre + badge, et dates */
+.top-row {
+  /* margin-bottom géré par mb-2 en HTML */
+}
+/* Bloc gauche sous Top-row : titre + badge */
+/* Pas de règle particulière ici : flex-column dans HTML suffit */
+
+/* 4. Titre */
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  color: #580c22;
+}
+
+
+/* 6. Bloc dates (à droite du titre) */
+.dates .small {
+  font-size: 0.82rem;
+  color: #555;
+  margin: 0;
+}
+/* Vous pouvez retirer les badges internes “bg-success”/“bg-danger” si redondant */
+
+/* 7. Description limitée à deux lignes (ellipsis) */
+.description {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.3rem;
+  color: #333;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.status-open mat-icon,
+.status-closed mat-icon {
+     margin-bottom: 0.5rem;
+  vertical-align: middle;     /* à ajuster si besoin afin que l’icône fasse la même hauteur que le texte */
+ /* “tire” un peu l’icône vers le bas ; à affiner selon votre police/tailles */
+}
+/* 8. Bottom-row : conteneur vertical pour status + actions */
+.bottom-row {
+  display: flex;
+  flex-direction: column;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin-top: auto;
+}
+
+/* 8.a. Statut (gauche) */
+.status span {
+  display: block;
+  font-size: 0.88rem;
+}
+
+.status .small {
+  font-size: 0.82rem;
+  color: #555;
+  margin-top: 0.15rem;
+}
+
+/* 8.b. Actions (droite sur desktop, centré sur mobile) */
+.actions {
+  display: flex;
+  justify-content: flex-end; /* desktop : alignement à droite */
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Style général des boutons (un peu plus lissé qu’un button Bootstrap pur) */
+.actions button {
+  font-size: 0.82rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+.actions button:hover {
+  transform: translateY(-1px);
+}
+
+/* 9. Boutons spécifiques */
+/* – Bouton “Modifier” (outline-primary) */
+.btn-outline-primary {
+  border: 1px solid #580c22;
+  color: white;
+  background-color: #580c22;
+}
+.btn-outline-primary:hover {
+    border: 1px solid #0d6efd ;
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+/* – Bouton “Supprimer” (outline-danger) */
+.btn-outline-danger{
+  border: 1px solid #580c22;
+  color: white;
+  background-color: #580c22;
+}
+.btn-outline-danger:hover {
+ border: 1px solid #dc3545 ;
+  background-color: #dc3545;
+  color: #fff;
+}
+
+/* – Bouton “Répondre” (success) */
+.btn-success {
+  background-color: #580c22;
+  border: 1px solid #580c22;
+  color: #fff;
+}
+.btn-success:hover {
+  background-color: #157347;
+  border-color: #157347;
+}
+
+/* 10. Responsive : ajustements pour très petit écran */
+@media (max-width: 991.98px) {
+  /* 10.a. Top-row → Colonne (titre + badge, puis dates) */
+  .top-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .top-row .dates {
+    text-align: left !important;
+    margin-top: 0.5rem;
+  }
+  /* Réduire légèrement la taille des polices sur mobile */
+  .card-title {
+    font-size: 1rem;
+  }
+  .dates .small,
+  .status span {
+    font-size: 0.82rem;
+  }
+  .status .small {
+    font-size: 0.75rem;
+  }
+  /* 10.b. Description */
+  .description {
+    font-size: 0.88rem;
+    line-height: 1.25rem;
+  }
+  /* 10.c. Bottom-row → Espacement entre statut et actions */
+  .bottom-row {
+    gap: 0.5rem;
+  }
+  /* 10.d. Actions → Centrage des boutons */
+  .actions {
+    justify-content: center !important;
+  }
+  .actions button {
+    font-size: 0.8rem;
+    padding: 0.3125rem 0.625rem;
+  }
+  /* 10.e. Si la carte n’a plus besoin d’une hauteur forcée */
+  .custom-card {
+    min-height: auto;
+  }
+  /* 10.f. Ajustement du padding du child pour gagner de l’espace */
+  .child {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* ─── Styles du <dialog> ─────────────────────────────────────── */
+dialog {
+  padding: 2rem;
+  background: #c7c7c7cd;
+  max-width: 100vh;
+  width: 90%;
+  margin: auto;
+  border-radius: 20px;
+  border: 0;
+  color: #1a1a1a;
+  box-shadow: 0 5px 30px rgb(0 0 0 / 10%);
+  animation: fadeIn 0.5s ease both;
+}
+dialog::backdrop {
+  background: rgba(89, 89, 89, 0.127);
+  backdrop-filter: blur(7px);
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* croix de fermeture */
+.x {
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+.x:hover {
+  transform: scale(1.1);
+}
+
+/* colonnes du formulaire */
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.col-5 { flex: 0 0 25%; max-width: 25%; }
+.col-7 { flex: 0 0 75%; max-width: 75%; }
+
+/* champs texte et date */
+.input5 {
+  width: 100%;
+  height: 2.5em;
+  padding: 0.5em;
+  border: 2px solid transparent;
+  background-color: #f3f3f3;
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+.input5:hover,
+.input5:focus {
+  border-color: #4a9dec;
+  box-shadow: 0 0 0 4px rgba(74, 157, 236, 0.2);
+  background-color: #fff;
+}
+
+/* textarea pour la description */
+.textarea-message {
+  resize: vertical;
+  min-height: 6em;
+  line-height: 1.4;
+}
+
+/* bouton de validation dans la modal */
+.boton-elegante {
+  padding: 0.75em 2em;
+  border: 2px solid #2c2c2c;
+  background-color: #1a1a1a;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 30px;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.4s ease;
+}
+.boton-elegante::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%);
+  transform: scale(0);
+  transition: transform 0.5s ease;
+}
+.boton-elegante:hover {
+  background: #4a1c2a;
+  border-color: #4a1c2a;
+}
+.boton-elegante:hover::after {
+  transform: scale(4);
+}
+
+.file-upload-form {
+  
+  display: flex;
+  align-items: center;
+  justify-content: center ;
+}
+.file-upload-label input {
+  display: none;
+}
+.file-upload-label svg {
+  height: 50px;
+  fill: rgb(82, 82, 82);
+  margin-bottom: 20px;
+}
+.file-upload-label {
+  cursor: pointer;
+  background-color: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center ;
+  width: 100%;
+  padding: 30px 50px;
+  border-radius: 40px;
+  border: 2px dashed rgb(82, 82, 82);
+  box-shadow: 0px 0px 200px -50px rgba(0, 0, 0, 0.719);
+}
+.file-upload-design {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.browse-button {
+  background-color: rgb(82, 82, 82);
+  padding: 5px 15px;
+  border-radius: 10px;
+  color: white;
+  transition: all 0.3s;
+}
+.browse-button:hover {
+  background-color: rgb(14, 14, 14);
+}
+
+/* responsive */
+@media (max-width: 575.98px) {
+  dialog { padding: 1rem; }
+  .row { flex-direction: column; align-items: flex-start; }
+  .col-5, .col-7 { max-width: 100%; flex: 1; }
+}
+
+
+

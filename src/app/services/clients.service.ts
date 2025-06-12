@@ -10,9 +10,9 @@ export class ClientsService {
 private clients: Client[] = [
     new Client(
       1,
-      'Doe',
-      'John',
-      'john.doe@example.com',
+      'Habib',
+      'Achraf',
+      'Achraf.Habib@gmail.com',
       'pass123',
       '0612345678',
       new Date(1990, 0, 1),  // mois indexé à 0
@@ -21,162 +21,15 @@ private clients: Client[] = [
     ),
     new Client(
       2,
-      'Dupont',
-      'Marie',
-      'marie.dupont@example.com',
+      'Ben Omrane',
+      'Salim',
+      'benomrane.salim@gmail.com',
       'password',
       '0698765432',
       new Date(1985, 4, 15),
       'Female',
-      'client'
-    ),new Client(
-      1,
-      'Doe',
-      'John',
-      'john.doe@example.com',
-      'pass123',
-      '0612345678',
-      new Date(1990, 0, 1),  // mois indexé à 0
-      'Male',
       'client'
     ),
-    new Client(
-      2,
-      'Dupont',
-      'Marie',
-      'marie.dupont@example.com',
-      'password',
-      '0698765432',
-      new Date(1985, 4, 15),
-      'Female',
-      'client'
-    ),new Client(
-      1,
-      'Doe',
-      'John',
-      'john.doe@example.com',
-      'pass123',
-      '0612345678',
-      new Date(1990, 0, 1),  // mois indexé à 0
-      'Male',
-      'client'
-    ),
-    new Client(
-      2,
-      'Dupont',
-      'Marie',
-      'marie.dupont@example.com',
-      'password',
-      '0698765432',
-      new Date(1985, 4, 15),
-      'Female',
-      'client'
-    ),new Client(
-      1,
-      'Doe',
-      'John',
-      'john.doe@example.com',
-      'pass123',
-      '0612345678',
-      new Date(1990, 0, 1),  // mois indexé à 0
-      'Male',
-      'client'
-    ),
-    new Client(
-      2,
-      'Dupont',
-      'Marie',
-      'marie.dupont@example.com',
-      'password',
-      '0698765432',
-      new Date(1985, 4, 15),
-      'Female',
-      'client'
-    ),new Client(
-      1,
-      'Doe',
-      'John',
-      'john.doe@example.com',
-      'pass123',
-      '0612345678',
-      new Date(1990, 0, 1),  // mois indexé à 0
-      'Male',
-      'client'
-    ),
-    new Client(
-      2,
-      'Dupont',
-      'Marie',
-      'marie.dupont@example.com',
-      'password',
-      '0698765432',
-      new Date(1985, 4, 15),
-      'Female',
-      'client'
-    ),new Client(
-      1,
-      'Doe',
-      'John',
-      'john.doe@example.com',
-      'pass123',
-      '0612345678',
-      new Date(1990, 0, 1),  // mois indexé à 0
-      'Male',
-      'client'
-    ),
-    new Client(
-      2,
-      'Dupont',
-      'Marie',
-      'marie.dupont@example.com',
-      'password',
-      '0698765432',
-      new Date(1985, 4, 15),
-      'Female',
-      'client'
-    ),new Client(
-      1,
-      'Doe',
-      'John',
-      'john.doe@example.com',
-      'pass123',
-      '0612345678',
-      new Date(1990, 0, 1),  // mois indexé à 0
-      'Male',
-      'client'
-    ),
-    new Client(
-      2,
-      'Dupont',
-      'Marie',
-      'marie.dupont@example.com',
-      'password',
-      '0698765432',
-      new Date(1985, 4, 15),
-      'Female',
-      'client'
-    ),new Client(
-      1,
-      'Doe',
-      'John',
-      'john.doe@example.com',
-      'pass123',
-      '0612345678',
-      new Date(1990, 0, 1),  // mois indexé à 0
-      'Male',
-      'client'
-    ),
-    new Client(
-      2,
-      'Dupont',
-      'Marie',
-      'marie.dupont@example.com',
-      'password',
-      '0698765432',
-      new Date(1985, 4, 15),
-      'Female',
-      'client'
-    )
   ];
 
   constructor() { }

@@ -35,6 +35,10 @@ import { ClientsComponent } from './pages/admin/clients/clients.component';
 import { CreateNotificationComponent } from './pages/admin/create-notification/create-notification.component';
 import { AdminNavBarComponent } from './components/admin-nav-bar/admin-nav-bar.component';
 import { DashboardComponent } from './pages/admin/dashboard/dashboard.component';
+import { GenrateQuestionnaireComponent } from './pages/admin/genrate-questionnaire/genrate-questionnaire.component';
+import { AdminQCardComponent } from './components/admin-qcard/admin-qcard.component';
+import { ThematiqueDetailsComponent } from './pages/admin/thematique-details/thematique-details.component';
+import { QuestionDetailsComponent } from './pages/admin/question-details/question-details.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -52,7 +56,11 @@ import { DashboardComponent } from './pages/admin/dashboard/dashboard.component'
     CreateNotificationComponent,
     AdminNavBarComponent,
 
-    DashboardComponent
+    DashboardComponent,
+     GenrateQuestionnaireComponent,
+     AdminQCardComponent,
+     ThematiqueDetailsComponent,
+     QuestionDetailsComponent
   ],
   imports: [
     BrowserModule,

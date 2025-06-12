@@ -42,24 +42,7 @@ export class MesReponsesComponent implements OnInit {
         isAnswered: true,
         responseDate: '2025-05-18T14:23:00'
       },
-      {
-        title: 'Enquête de satisfaction Client B2B',
-        description: 'Merci de répondre à ces quelques questions pour nous aider à améliorer notre service…',
-        publicationDate:  new Date('2025-04-15'),
-        isSessionOpen: true,
-        sessionCloseDate: new Date('2025-09-15'),
-        isAnswered: false
-        // responseDate n’est pas défini ici car isAnswered === false
-      },
-      {
-        title: 'Audit interne Qualité',
-        description: 'Votre retour sur les procédures internes est précieux. Cette enquête est confidentielle…',
-        publicationDate:  new Date('2025-04-15'),
-        isSessionOpen: false,
-        sessionCloseDate: new Date('2025-09-15'),
-        isAnswered: true,
-        responseDate: '2025-05-18T14:23:00'
-      },
+    
       // … 4 autres objets similaires
     ];
   }
