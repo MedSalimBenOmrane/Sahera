@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SousThematique } from 'src/app/models/sous-thematique.model';
 import { Question } from 'src/app/models/question.model';
 import { SousThematiqueService } from 'src/app/services/sous-thematique.service';
@@ -31,7 +31,8 @@ export class ThematiqueDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private stService: SousThematiqueService,
     private qService: QuestionService,
-    private rService: ReponseService
+    private rService: ReponseService,
+     private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -96,4 +97,11 @@ export class ThematiqueDetailsComponent implements OnInit {
     }
     this.applySort();
   }
+  goToQuestionDetails(q: Question): void {
+  this.router.navigate(
+    ['/admin/question', q.id],
+    { queryParams: { titre: q.question } }
+  );
+     
+}
 }

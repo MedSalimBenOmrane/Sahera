@@ -10,6 +10,7 @@ import { ClientsComponent } from './pages/admin/clients/clients.component';
 import { DashboardComponent } from './pages/admin/dashboard/dashboard.component';
 import { GenrateQuestionnaireComponent } from './pages/admin/genrate-questionnaire/genrate-questionnaire.component';
 import { ThematiqueDetailsComponent } from './pages/admin/thematique-details/thematique-details.component';
+import { QuestionDetailsComponent } from './pages/admin/question-details/question-details.component';
 
 
 const routes: Routes = [
@@ -22,6 +23,7 @@ const routes: Routes = [
       { path: 'participants', component: ClientsComponent },
       { path: 'questionnaires', component: GenrateQuestionnaireComponent },
       { path: 'thematique/:id/:titre', component: ThematiqueDetailsComponent },
+      { path: 'question/:id', component: QuestionDetailsComponent },
       { path: 'messages', component: CreateNotificationComponent },
       
     ]

@@ -1,66 +1,60 @@
 <main class="table" id="customers_table">
-  <section class="table__header ">
-    <h1> Détails de la thématique « {{ thematiqueTitre }} »</h1>
-    <div class="col-2 ">
-     
-    </div>
-  </section>
+    <section class="table__header ">
+        <h1> Détails de la thématique « {{ thematiqueTitre }} »</h1>
+    </section>
 
-  <section class="table__body">
-    <table>
-        <thead>
-        <tr>
-          <th>Sous-thématique</th>
-          <th>Question</th>
-         <th
-            (click)="sortTable('count')"
-            [class.active]="sortColumn==='count'"
-            [class.asc]="sortAsc"
-          >
-            Nombre de réponses
-            <span class="icon-arrow">&uarr;</span>
-          </th>
-          
-        </tr>
-      </thead>
-      <tbody>
-        <ng-container *ngFor="let st of sousThematiques">
-          <!-- si pas de questions, on affiche une ligne simple -->
-          <tr *ngIf="!questionsMap[st.id]?.length">
-            <td>{{ st.titre }}</td>
-            <td colspan="2">Aucune question</td>
-          </tr>
+    <section class="table__body">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sous-thématique</th>
+                    <th>Question</th>
+                    <th (click)="sortTable('count')" [class.active]="sortColumn==='count'" [class.asc]="sortAsc">
+                        Nombre de réponses
+                        <span class="icon-arrow">&uarr;</span>
+                    </th>
 
-          <!-- sinon, on fusionne la première cellule -->
-          <ng-container *ngIf="questionsMap[st.id]?.length">
-            <tr>
-              <td [attr.rowspan]="questionsMap[st.id].length">
-                {{ st.titre }}
-              </td>
-              <td>
-                {{ questionsMap[st.id][0].question }}
-              </td>
-              <td>
-                {{ responseCountMap[questionsMap[st.id][0].id] || 0 }}
-              </td>
-            </tr>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let st of sousThematiques">
+                    <!-- si pas de questions, on affiche une ligne simple -->
+                    <tr *ngIf="!questionsMap[st.id]?.length">
+                        <td>{{ st.titre }}</td>
+                        <td colspan="2">Aucune question</td>
+                    </tr>
 
-            <!-- lignes suivantes pour cette sous-thématique -->
-            <tr
-              *ngFor="
+                    <!-- sinon, on fusionne la première cellule -->
+                    <ng-container *ngIf="questionsMap[st.id]?.length">
+                        <tr>
+                            <td [attr.rowspan]="questionsMap[st.id].length">
+                                {{ st.titre }}
+                            </td>
+                            <td>
+                                {{ questionsMap[st.id][0].question }}
+                            </td>
+                            <td>
+                                {{ responseCountMap[questionsMap[st.id][0].id] || 0 }}
+                                <button class="btn btn-sm btn-outline-primary"
+                                    (click)="goToQuestionDetails(questionsMap[st.id][0])">
+                                    Voir Réponse
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- lignes suivantes pour cette sous-thématique -->
+                        <tr *ngFor="
                 let q of questionsMap[st.id];
                 let i = index
-              "
-              [hidden]="i === 0"
-            >
-              <td>{{ q.question }}</td>
-              <td>{{ responseCountMap[q.id] || 0 }}</td>
-            </tr>
-          </ng-container>
-        </ng-container>
-      </tbody>
-    </table>
-  </section>
-
-
-   
+              " [hidden]="i === 0">
+                            <td>{{ q.question }}</td>
+                            <td>{{ responseCountMap[q.id] || 0 }} <button class="btn btn-sm btn-outline-primary"
+                                    (click)="goToQuestionDetails(q)">
+                                    Voir Réponse
+                                </button></td>
+                        </tr>
+                    </ng-container>
+                </ng-container>
+            </tbody>
+        </table>
+    </section>

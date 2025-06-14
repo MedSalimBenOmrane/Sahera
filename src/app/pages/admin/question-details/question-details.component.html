@@ -1,1 +1,35 @@
-<p>question-details works!</p>
+<main class="table">
+  <section class="table__header">
+    <h1>Détails de la question : “{{ questionTitre }}”</h1>
+  </section>
+
+  <section class="table__body">
+    <table>
+        <colgroup>
+    <col style="width: 10%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 60%;">
+  </colgroup>
+      <thead>
+        <tr>
+          <th>ID Utilisateur</th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Réponse</th>    <!-- ← nouvelle colonne -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="rows.length === 0">
+          <td colspan="4">Aucune réponse pour cette question.</td>
+        </tr>
+        <tr *ngFor="let row of rows">
+          <td>{{ row.userId }}</td>
+          <td>{{ row.nom }}</td>
+          <td>{{ row.prenom }}</td>
+          <td>{{ row.valeur }}</td>    <!-- ← affichage de la réponse -->
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>

@@ -251,3 +251,17 @@ table {
 table, th, td {
   border: 1px solid #ccc;
 }
+
+.btn-outline-primary {
+    margin: 0px 20px;
+    padding: 3px  5px ;
+  border: 1px solid #580c22;
+  color: white;
+  background-color: #580c22;
+  
+}
+.btn-outline-primary:hover {
+    border: 1px solid #0d6efd ;
+  background-color: #0d6efd;
+  color: #fff;
+}
