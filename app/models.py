@@ -1,0 +1,72 @@
+from .extensions import db
+from datetime import date
+
+class Thematique(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    date_ouverture = db.Column(db.Date, nullable=True)
+    date_cloture = db.Column(db.Date, nullable=True)
+
+    sous_thematiques = db.relationship("SousThematique", backref="thematique", cascade="all, delete-orphan")
+
+
+class SousThematique(db.Model):
+    __tablename__ = "sousthematique"
+
+    id = db.Column(db.Integer, primary_key=True)
+    titre = db.Column(db.String(200), nullable=False)
+    thematique_id = db.Column(db.Integer, db.ForeignKey("thematique.id"), nullable=False)
+
+    questions = db.relationship("Question", backref="sous_thematique", cascade="all, delete-orphan")
+
+
+class Question(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    texte = db.Column(db.Text, nullable=False)
+    sous_thematique_id = db.Column(db.Integer, db.ForeignKey("sousthematique.id"), nullable=False)
+
+    reponses = db.relationship("Reponse", backref="question", cascade="all, delete-orphan")
+
+
+class Utilisateur(db.Model):
+    __tablename__ = 'utilisateur'
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    nom = db.Column(db.String(120), nullable=False)
+    prenom = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    mot_de_passe = db.Column(db.String(255), nullable=False)
+    date_naissance = db.Column(db.Date, nullable=True)
+    ethnicite = db.Column(db.String(120), nullable=True)
+    genre = db.Column(db.String(20), nullable=True)
+    role = db.Column(db.String(50), nullable=False, default="utilisateur")
+    type = db.Column(db.String(50))  # Pour le polymorphisme
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'utilisateur',
+        'polymorphic_on': type
+    }
+
+    reponses = db.relationship("Reponse", backref="utilisateur", cascade="all, delete-orphan")
+
+
+class Admin(Utilisateur):
+    __tablename__ = 'admin'
+
+    id = db.Column(db.Integer, db.ForeignKey('utilisateur.id'), primary_key=True)
+    
+    # champs spécifiques à Admin (si nécessaire)
+    niveau_acces = db.Column(db.String(50), default="élevé")
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'admin',
+    }
+
+class Reponse(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    contenu = db.Column(db.Text, nullable=False)
+    date_creation = db.Column(db.Date, nullable= True)
+
+    question_id = db.Column(db.Integer, db.ForeignKey("question.id"), nullable=False)
+    utilisateur_id = db.Column(db.Integer, db.ForeignKey("utilisateur.id"), nullable=False)
