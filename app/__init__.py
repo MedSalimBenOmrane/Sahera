@@ -6,6 +6,7 @@ from flask import Flask
 from .extensions import db
 from .routes import api_bp
 from dotenv import load_dotenv
+from flask_cors import CORS
 import os
 
 def create_app():
@@ -18,6 +19,7 @@ def create_app():
     load_dotenv()  # Load environment variables from .env file
 
     app = Flask(__name__)
+    CORS(app)
 
     # Database configuration
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
