@@ -4,6 +4,7 @@ from datetime import date
 class Thematique(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
+    description = db.Column(db.Text, nullable=True) 
     date_ouverture = db.Column(db.Date, nullable=True)
     date_cloture = db.Column(db.Date, nullable=True)
 
@@ -40,6 +41,7 @@ class Utilisateur(db.Model):
     date_naissance = db.Column(db.Date, nullable=True)
     ethnicite = db.Column(db.String(120), nullable=True)
     genre = db.Column(db.String(20), nullable=True)
+    telephone = db.Column(db.String(20), nullable=True) 
     role = db.Column(db.String(50), nullable=False, default="utilisateur")
     type = db.Column(db.String(50))  # Pour le polymorphisme
 
