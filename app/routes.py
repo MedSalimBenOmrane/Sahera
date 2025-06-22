@@ -27,24 +27,18 @@ api_bp = Blueprint("api", __name__)
 def get_thematiques():
     """
     Get a list of all thematiques with full information.
-    Returns:
-        JSON list of thematiques with id, name, date_ouverture, and date_cloture.
     """
     thematiques = Thematique.query.all()
-
     result = []
     for t in thematiques:
         result.append({
             "id": t.id,
             "name": t.name,
+            "description": t.description,
             "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
             "date_cloture": t.date_cloture.isoformat() if t.date_cloture else None
         })
-
     return jsonify(result)
-
-
-
 #Récupérer les thématiques ouvertes
 @api_bp.route("/thematiques/ouvertes", methods=["GET"])
 def get_thematiques_ouvertes():
@@ -60,6 +54,7 @@ def get_thematiques_ouvertes():
         {
             "id": t.id,
             "name": t.name,
+            "description": t.description,
             "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
             "date_cloture": t.date_cloture.isoformat() if t.date_cloture else None
         }
@@ -82,12 +77,12 @@ def get_thematiques_fermees():
         {
             "id": t.id,
             "name": t.name,
+            "description": t.description,
             "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
             "date_cloture": t.date_cloture.isoformat()
         }
         for t in thematiques
     ])
-
 #Pour une thématique sélectionnée :
 #Récupérer toutes les sous-thématiques associées
 #Pour chaque sous-thématique : récupérer toutes les questions liées
@@ -98,6 +93,7 @@ def get_sous_thematiques_with_questions(thematique_id):
     response = {
         "id": thematique.id,
         "name": thematique.name,
+        "description": thematique.description,
         "date_ouverture": thematique.date_ouverture.isoformat() if thematique.date_ouverture else None,
         "date_cloture": thematique.date_cloture.isoformat() if thematique.date_cloture else None,
         "sous_thematiques": []
@@ -113,70 +109,74 @@ def get_sous_thematiques_with_questions(thematique_id):
 
     return jsonify(response)
 
-
-
 @api_bp.route("/thematiques/<int:id>", methods=["GET"])
 def get_thematique(id):
-    """
-    Get a single thematique by ID.
-    Args:
-        id (int): Thematique ID.
-    Returns:
-        JSON of the thematique data or 404 if not found.
-    """
     thematique = Thematique.query.get_or_404(id)
-    return jsonify({"id": thematique.id, "name": thematique.name})
+    return jsonify({
+        "id": thematique.id,
+        "name": thematique.name,
+        "description": thematique.description,
+        "date_ouverture": thematique.date_ouverture.isoformat() if thematique.date_ouverture else None,
+        "date_cloture": thematique.date_cloture.isoformat() if thematique.date_cloture else None
+    })
+
 
 @api_bp.route("/thematiques/<string:name>", methods=["GET"])
 def get_thematique_by_name(name):
-    """
-    Get a single thematique by name.
-    Args:
-        name (str): Thematique name.
-    Returns:
-        JSON of the thematique data or 404 if not found.
-    """
     thematique = Thematique.query.filter_by(name=name).first()
     if not thematique:
         return jsonify({"message": "Thématique non trouvée"}), 404
-    return jsonify({"id": thematique.id, "name": thematique.name})
+    return jsonify({
+        "id": thematique.id,
+        "name": thematique.name,
+        "description": thematique.description,
+        "date_ouverture": thematique.date_ouverture.isoformat() if thematique.date_ouverture else None,
+        "date_cloture": thematique.date_cloture.isoformat() if thematique.date_cloture else None
+    })
+
 
 #Ajouter une nouvelle thématique
 @api_bp.route("/thematiques", methods=["POST"])
 def create_thematique():
-    """
-    Create a new thematique.
-    Request JSON:
-        { "name": "Some Name" }
-    Returns:
-        JSON of the created thematique with 201 status.
-    """
     data = request.get_json()
     if not data or "name" not in data:
         abort(400, description="Missing 'name'")
-    thematique = Thematique(name=data["name"])
+    
+    thematique = Thematique(
+        name=data["name"],
+        description=data.get("description"),
+        date_ouverture=data.get("date_ouverture"),
+        date_cloture=data.get("date_cloture")
+    )
     db.session.add(thematique)
     db.session.commit()
-    return jsonify({"id": thematique.id, "name": thematique.name}), 201
+
+    return jsonify({
+        "id": thematique.id,
+        "name": thematique.name,
+        "description": thematique.description
+    }), 201
+
 
 @api_bp.route("/thematiques/<int:id>", methods=["PUT"])
 def update_thematique(id):
-    """
-    Update a thematique by ID.
-    Args:
-        id (int): Thematique ID.
-    Request JSON:
-        { "name": "Updated Name" }
-    Returns:
-        JSON of the updated thematique.
-    """
     thematique = Thematique.query.get_or_404(id)
     data = request.get_json()
     if not data or "name" not in data:
         abort(400, description="Missing 'name'")
+
     thematique.name = data["name"]
+    thematique.description = data.get("description", thematique.description)
+    thematique.date_ouverture = data.get("date_ouverture", thematique.date_ouverture)
+    thematique.date_cloture = data.get("date_cloture", thematique.date_cloture)
     db.session.commit()
-    return jsonify({"id": thematique.id, "name": thematique.name})
+
+    return jsonify({
+        "id": thematique.id,
+        "name": thematique.name,
+        "description": thematique.description
+    })
+
 #Supprimer une thématique existante
 @api_bp.route("/thematiques/<int:id>", methods=["DELETE"])
 def delete_thematique(id):
@@ -420,6 +420,7 @@ def delete_question(id):
 
 
 #Récupérer la liste de tous les utilisateurs (clients) et leurs informations de base
+# Get all users
 @api_bp.route("/utilisateurs", methods=["GET"])
 def get_utilisateurs():
     utilisateurs = Utilisateur.query.all()
@@ -435,6 +436,8 @@ def get_utilisateurs():
             "role": u.role
         } for u in utilisateurs
     ])
+
+# Get a single user by ID
 @api_bp.route("/utilisateurs/<int:id>", methods=["GET"])
 def get_utilisateur(id):
     u = Utilisateur.query.get_or_404(id)
@@ -449,14 +452,19 @@ def get_utilisateur(id):
         "role": u.role
     })
 
+# Create a new user
 @api_bp.route("/utilisateurs", methods=["POST"])
 def create_utilisateur():
     data = request.get_json()
+    required_fields = ["nom", "prenom", "email", "mot_de_passe"]
+    if not all(field in data for field in required_fields):
+        abort(400, description="Champs requis manquants")
+
     u = Utilisateur(
-        nom=data.get("nom"),
-        prenom=data.get("prenom"),
-        email=data.get("email"),
-        mot_de_passe=data.get("mot_de_passe"),
+        nom=data["nom"],
+        prenom=data["prenom"],
+        email=data["email"],
+        mot_de_passe=data["mot_de_passe"],
         date_naissance=data.get("date_naissance"),
         ethnicite=data.get("ethnicite"),
         genre=data.get("genre"),
@@ -464,12 +472,19 @@ def create_utilisateur():
     )
     db.session.add(u)
     db.session.commit()
-    return jsonify({"id": u.id}), 201
-#Mettre à jour les coordonnées d’un utilisateur (modifier ses données)
+    return jsonify({
+        "id": u.id,
+        "nom": u.nom,
+        "prenom": u.prenom,
+        "email": u.email
+    }), 201
+
+# Update an existing user
 @api_bp.route("/utilisateurs/<int:id>", methods=["PUT"])
 def update_utilisateur(id):
     u = Utilisateur.query.get_or_404(id)
     data = request.get_json()
+
     u.nom = data.get("nom", u.nom)
     u.prenom = data.get("prenom", u.prenom)
     u.email = data.get("email", u.email)
@@ -478,17 +493,17 @@ def update_utilisateur(id):
     u.ethnicite = data.get("ethnicite", u.ethnicite)
     u.genre = data.get("genre", u.genre)
     u.role = data.get("role", u.role)
+
     db.session.commit()
-    return jsonify({"id": u.id})
-#Supprimer un utilisateur
+    return jsonify({"message": "Utilisateur mis à jour", "id": u.id})
+
+# Delete a user
 @api_bp.route("/utilisateurs/<int:id>", methods=["DELETE"])
 def delete_utilisateur(id):
     u = Utilisateur.query.get_or_404(id)
     db.session.delete(u)
     db.session.commit()
     return jsonify({"message": "Utilisateur supprimé"}), 204
-
-
 #admin
 @api_bp.route("/admins", methods=["GET"])
 def get_admins():
