@@ -284,81 +284,63 @@ def get_completed_thematiques(client_id):
     return jsonify(completed_thematiques)
 
 # SousThematique routes
-@api_bp.route("/sousthematiques", methods=["GET"])
-def get_sousthematiques():
+@api_bp.route("/thematiques/<int:thematique_id>/sousthematiques", methods=["GET"])
+def get_sousthematiques(thematique_id):
     """
-    Get a list of all sous thematiques.
-    Returns:
-        JSON list of sous thematiques with their thematique_id.
+    Get all sous-thematiques under a specific thematique.
     """
-    sous_thematiques = SousThematique.query.all()
+    thematique = Thematique.query.get_or_404(thematique_id)
+    sous_thematiques = SousThematique.query.filter_by(thematique_id=thematique.id).all()
     return jsonify([
         {"id": s.id, "titre": s.titre, "thematique_id": s.thematique_id} for s in sous_thematiques
     ])
 
-@api_bp.route("/sousthematiques/<int:id>", methods=["GET"])
-def get_sousthematique(id):
+@api_bp.route("/thematiques/<int:thematique_id>/sousthematiques/<int:id>", methods=["GET"])
+def get_sousthematique(thematique_id, id):
     """
-    Get a single sous thematique by ID.
-    Args:
-        id (int): SousThematique ID.
-    Returns:
-        JSON of the sous thematique data or 404 if not found.
+    Get a specific sous-thematique under a thematique.
     """
-    sous_thematique = SousThematique.query.get_or_404(id)
+    sous_thematique = SousThematique.query.filter_by(id=id, thematique_id=thematique_id).first_or_404()
     return jsonify({"id": sous_thematique.id, "titre": sous_thematique.titre, "thematique_id": sous_thematique.thematique_id})
 
-@api_bp.route("/sousthematiques", methods=["POST"])
-def create_sousthematique():
+@api_bp.route("/thematiques/<int:thematique_id>/sousthematiques", methods=["POST"])
+def create_sousthematique(thematique_id):
     """
-    Create a new sous thematique.
-    Request JSON:
-        { "titre": "Some Title", "thematique_id": 1 }
-    Returns:
-        JSON of the created sous thematique with 201 status.
+    Create a new sous-thematique under a given thematique.
     """
+    thematique = Thematique.query.get_or_404(thematique_id)
     data = request.get_json()
-    if not data or "titre" not in data or "thematique_id" not in data:
-        abort(400, description="Missing 'titre' or 'thematique_id'")
-    sous_thematique = SousThematique(titre=data["titre"], thematique_id=data["thematique_id"])
+    if not data or "titre" not in data:
+        abort(400, description="Missing 'titre'")
+    
+    sous_thematique = SousThematique(titre=data["titre"], thematique_id=thematique.id)
     db.session.add(sous_thematique)
     db.session.commit()
     return jsonify({"id": sous_thematique.id, "titre": sous_thematique.titre, "thematique_id": sous_thematique.thematique_id}), 201
 
-@api_bp.route("/sousthematiques/<int:id>", methods=["PUT"])
-def update_sousthematique(id):
+@api_bp.route("/thematiques/<int:thematique_id>/sousthematiques/<int:id>", methods=["PUT"])
+def update_sousthematique(thematique_id, id):
     """
-    Update a sous thematique by ID.
-    Args:
-        id (int): SousThematique ID.
-    Request JSON:
-        { "titre": "Updated Title", "thematique_id": 2 }
-    Returns:
-        JSON of the updated sous thematique.
+    Update a sous-thematique that belongs to a specific thematique.
     """
-    sous_thematique = SousThematique.query.get_or_404(id)
+    sous_thematique = SousThematique.query.filter_by(id=id, thematique_id=thematique_id).first_or_404()
     data = request.get_json()
-    if not data or "titre" not in data or "thematique_id" not in data:
-        abort(400, description="Missing 'titre' or 'thematique_id'")
+    if not data or "titre" not in data:
+        abort(400, description="Missing 'titre'")
+    
     sous_thematique.titre = data["titre"]
-    sous_thematique.thematique_id = data["thematique_id"]
     db.session.commit()
     return jsonify({"id": sous_thematique.id, "titre": sous_thematique.titre, "thematique_id": sous_thematique.thematique_id})
 
-@api_bp.route("/sousthematiques/<int:id>", methods=["DELETE"])
-def delete_sousthematique(id):
+@api_bp.route("/thematiques/<int:thematique_id>/sousthematiques/<int:id>", methods=["DELETE"])
+def delete_sousthematique(thematique_id, id):
     """
-    Delete a sous thematique by ID.
-    Args:
-        id (int): SousThematique ID.
-    Returns:
-        JSON success message with 204 status.
+    Delete a sous-thematique that belongs to a specific thematique.
     """
-    sous_thematique = SousThematique.query.get_or_404(id)
+    sous_thematique = SousThematique.query.filter_by(id=id, thematique_id=thematique_id).first_or_404()
     db.session.delete(sous_thematique)
     db.session.commit()
     return jsonify({"message": "Deleted"}), 204
-
 
 # Question routes
 @api_bp.route("/questions", methods=["GET"])
