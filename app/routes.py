@@ -4,19 +4,116 @@ from .extensions import db
 from datetime import datetime 
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
+from datetime import date
+from sqlalchemy.orm import joinedload
+from sqlalchemy import func
 
 api_bp = Blueprint("api", __name__)
 
-# Thematique routes
+# @api_bp.route("/thematiques", methods=["GET"])
+# def get_thematiques():
+#     """
+#     Get a list of all thematiques.
+#     Returns:
+#         JSON list of thematiques.
+#     """
+#     thematiques = Thematique.query.all()
+#     return jsonify([{"id": t.id, "name": t.name} for t in thematiques])
+
+
+#Récupérer la liste de toutes les thématiques (avec leurs informations)
+
 @api_bp.route("/thematiques", methods=["GET"])
 def get_thematiques():
     """
-    Get a list of all thematiques.
+    Get a list of all thematiques with full information.
     Returns:
-        JSON list of thematiques.
+        JSON list of thematiques with id, name, date_ouverture, and date_cloture.
     """
     thematiques = Thematique.query.all()
-    return jsonify([{"id": t.id, "name": t.name} for t in thematiques])
+
+    result = []
+    for t in thematiques:
+        result.append({
+            "id": t.id,
+            "name": t.name,
+            "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
+            "date_cloture": t.date_cloture.isoformat() if t.date_cloture else None
+        })
+
+    return jsonify(result)
+
+
+
+#Récupérer les thématiques ouvertes
+@api_bp.route("/thematiques/ouvertes", methods=["GET"])
+def get_thematiques_ouvertes():
+    """
+    Récupérer les thématiques ouvertes (pas de date_cloture ou date_cloture future).
+    """
+    today = date.today()
+    thematiques = Thematique.query.filter(
+        (Thematique.date_cloture == None) | (Thematique.date_cloture > today)
+    ).all()
+
+    return jsonify([
+        {
+            "id": t.id,
+            "name": t.name,
+            "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
+            "date_cloture": t.date_cloture.isoformat() if t.date_cloture else None
+        }
+        for t in thematiques
+    ])
+
+#Récupérer les thématiques fermees
+@api_bp.route("/thematiques/fermees", methods=["GET"])
+def get_thematiques_fermees():
+    """
+    Récupérer les thématiques fermées (date_cloture <= aujourd'hui).
+    """
+    today = date.today()
+    thematiques = Thematique.query.filter(
+        Thematique.date_cloture != None,
+        Thematique.date_cloture <= today
+    ).all()
+
+    return jsonify([
+        {
+            "id": t.id,
+            "name": t.name,
+            "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
+            "date_cloture": t.date_cloture.isoformat()
+        }
+        for t in thematiques
+    ])
+
+#Pour une thématique sélectionnée :
+#Récupérer toutes les sous-thématiques associées
+#Pour chaque sous-thématique : récupérer toutes les questions liées
+@api_bp.route("/thematiques/<int:thematique_id>/details", methods=["GET"])
+def get_sous_thematiques_with_questions(thematique_id):
+    thematique = Thematique.query.get_or_404(thematique_id)
+
+    response = {
+        "id": thematique.id,
+        "name": thematique.name,
+        "date_ouverture": thematique.date_ouverture.isoformat() if thematique.date_ouverture else None,
+        "date_cloture": thematique.date_cloture.isoformat() if thematique.date_cloture else None,
+        "sous_thematiques": []
+    }
+
+    for sous in thematique.sous_thematiques:
+        sous_data = {
+            "id": sous.id,
+            "titre": sous.titre,
+            "questions": [{"id": q.id, "texte": q.texte} for q in sous.questions]
+        }
+        response["sous_thematiques"].append(sous_data)
+
+    return jsonify(response)
+
+
 
 @api_bp.route("/thematiques/<int:id>", methods=["GET"])
 def get_thematique(id):
@@ -44,6 +141,7 @@ def get_thematique_by_name(name):
         return jsonify({"message": "Thématique non trouvée"}), 404
     return jsonify({"id": thematique.id, "name": thematique.name})
 
+#Ajouter une nouvelle thématique
 @api_bp.route("/thematiques", methods=["POST"])
 def create_thematique():
     """
@@ -79,7 +177,7 @@ def update_thematique(id):
     thematique.name = data["name"]
     db.session.commit()
     return jsonify({"id": thematique.id, "name": thematique.name})
-
+#Supprimer une thématique existante
 @api_bp.route("/thematiques/<int:id>", methods=["DELETE"])
 def delete_thematique(id):
     """
@@ -95,8 +193,83 @@ def delete_thematique(id):
     return jsonify({"message": "Deleted"}), 204
 
 
-# SousThematique routes
+#Récupérer toutes les thématiques non complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique 
+@api_bp.route("/thematiques/non-completes/<int:client_id>", methods=["GET"])
+def get_incomplete_thematiques(client_id):
+    """
+    Récupère les thématiques non complétées par un client.
+    Une thématique est complétée si le client a répondu à toutes les questions de toutes les sous-thématiques.
+    """
+    thematiques = Thematique.query.options(joinedload(Thematique.sous_thematiques).joinedload("questions")).all()
+    incomplete_thematiques = []
 
+    for t in thematiques:
+        total_questions = 0
+        question_ids = []
+
+        for st in t.sous_thematiques:
+            for q in st.questions:
+                question_ids.append(q.id)
+                total_questions += 1
+
+        if total_questions == 0:
+            # Pas de questions => considérée comme non complétée
+            incomplete_thematiques.append({
+                "id": t.id,
+                "name": t.name
+            })
+            continue
+
+        reponses_client = Reponse.query.filter(
+            Reponse.client_id == client_id,
+            Reponse.question_id.in_(question_ids)
+        ).count()
+
+        if reponses_client < total_questions:
+            incomplete_thematiques.append({
+                "id": t.id,
+                "name": t.name
+            })
+
+    return jsonify(incomplete_thematiques)
+
+#Récupérer toutes les thématiques complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
+@api_bp.route("/thematiques/completes/<int:client_id>", methods=["GET"])
+def get_completed_thematiques(client_id):
+    """
+    Récupère les thématiques complétées par un client.
+    Une thématique est complète si le client a répondu à toutes les questions de toutes les sous-thématiques.
+    """
+    thematiques = Thematique.query.options(joinedload(Thematique.sous_thematiques).joinedload("questions")).all()
+    completed_thematiques = []
+
+    for t in thematiques:
+        question_ids = [
+            q.id
+            for st in t.sous_thematiques
+            for q in st.questions
+        ]
+
+        if not question_ids:
+            continue  # Une thématique sans questions ne peut pas être complète
+
+        nb_questions = len(question_ids)
+
+        nb_reponses_client = Reponse.query.filter(
+            Reponse.client_id == client_id,
+            Reponse.question_id.in_(question_ids)
+        ).count()
+
+        if nb_reponses_client == nb_questions:
+            completed_thematiques.append({
+                "id": t.id,
+                "name": t.name
+            })
+
+    return jsonify(completed_thematiques)
+
+
+# SousThematique routes
 @api_bp.route("/sousthematiques", methods=["GET"])
 def get_sousthematiques():
     """
@@ -250,7 +423,7 @@ def delete_question(id):
     return jsonify({"message": "Deleted"}), 204
 
 
-#utilisateurs
+#Récupérer la liste de tous les utilisateurs (clients) et leurs informations de base
 @api_bp.route("/utilisateurs", methods=["GET"])
 def get_utilisateurs():
     utilisateurs = Utilisateur.query.all()
@@ -266,7 +439,6 @@ def get_utilisateurs():
             "role": u.role
         } for u in utilisateurs
     ])
-
 @api_bp.route("/utilisateurs/<int:id>", methods=["GET"])
 def get_utilisateur(id):
     u = Utilisateur.query.get_or_404(id)
@@ -297,7 +469,7 @@ def create_utilisateur():
     db.session.add(u)
     db.session.commit()
     return jsonify({"id": u.id}), 201
-
+#Mettre à jour les coordonnées d’un utilisateur (modifier ses données)
 @api_bp.route("/utilisateurs/<int:id>", methods=["PUT"])
 def update_utilisateur(id):
     u = Utilisateur.query.get_or_404(id)
@@ -312,7 +484,7 @@ def update_utilisateur(id):
     u.role = data.get("role", u.role)
     db.session.commit()
     return jsonify({"id": u.id})
-
+#Supprimer un utilisateur
 @api_bp.route("/utilisateurs/<int:id>", methods=["DELETE"])
 def delete_utilisateur(id):
     u = Utilisateur.query.get_or_404(id)
@@ -449,3 +621,40 @@ def login():
     access_token = create_access_token(identity=user.id)
     return jsonify(access_token=access_token), 200
 
+
+
+#Récupérer toutes les réponses existantes du client pour une sous-thématique (afin d’afficher
+#ses réponses précédentes)
+@api_bp.route("/clients/<int:client_id>/sousthematiques/<int:sous_id>/reponses", methods=["GET"])
+def get_reponses_client_sousthematique(client_id, sous_id):
+    # Récupérer toutes les questions de la sous-thématique
+    questions = Question.query.filter_by(sous_thematique_id=sous_id).all()
+    question_ids = [q.id for q in questions]
+
+    # Récupérer toutes les réponses du client liées à ces questions
+    reponses = Reponse.query.filter(
+        Reponse.client_id == client_id,
+        Reponse.question_id.in_(question_ids)
+    ).all()
+
+    response_data = [
+        {
+            "reponse_id": rep.id,
+            "question_id": rep.question_id,
+            "texte_reponse": rep.texte
+        } for rep in reponses
+    ]
+
+    return jsonify(response_data)
+
+#Récupérer toutes les questions (pour la sous-thématique sélectionnée)
+@api_bp.route("/sousthematiques/<int:sous_id>/questions", methods=["GET"])
+def get_questions_by_sousthematique(sous_id):
+    questions = Question.query.filter_by(sous_thematique_id=sous_id).all()
+
+    results = [{
+        "id": q.id,
+        "texte": q.texte
+    } for q in questions]
+
+    return jsonify(results)
