@@ -200,7 +200,14 @@ def get_incomplete_thematiques(client_id):
     Récupère les thématiques non complétées par un client.
     Une thématique est complétée si le client a répondu à toutes les questions de toutes les sous-thématiques.
     """
-    thematiques = Thematique.query.options(joinedload(Thematique.sous_thematiques).joinedload("questions")).all()
+    thematiques = (
+        Thematique.query
+        .options(
+            joinedload(Thematique.sous_thematiques).joinedload(SousThematique.questions)
+        )
+        .all()
+    )
+
     incomplete_thematiques = []
 
     for t in thematiques:
@@ -233,6 +240,7 @@ def get_incomplete_thematiques(client_id):
 
     return jsonify(incomplete_thematiques)
 
+
 #Récupérer toutes les thématiques complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
 @api_bp.route("/thematiques/completes/<int:client_id>", methods=["GET"])
 def get_completed_thematiques(client_id):
@@ -240,7 +248,14 @@ def get_completed_thematiques(client_id):
     Récupère les thématiques complétées par un client.
     Une thématique est complète si le client a répondu à toutes les questions de toutes les sous-thématiques.
     """
-    thematiques = Thematique.query.options(joinedload(Thematique.sous_thematiques).joinedload("questions")).all()
+    thematiques = (
+        Thematique.query
+        .options(
+            joinedload(Thematique.sous_thematiques).joinedload(SousThematique.questions)
+        )
+        .all()
+    )
+
     completed_thematiques = []
 
     for t in thematiques:
@@ -267,7 +282,6 @@ def get_completed_thematiques(client_id):
             })
 
     return jsonify(completed_thematiques)
-
 
 # SousThematique routes
 @api_bp.route("/sousthematiques", methods=["GET"])
@@ -633,7 +647,7 @@ def get_reponses_client_sousthematique(client_id, sous_id):
 
     # Récupérer toutes les réponses du client liées à ces questions
     reponses = Reponse.query.filter(
-        Reponse.client_id == client_id,
+        Reponse.utilisateur_id == client_id,
         Reponse.question_id.in_(question_ids)
     ).all()
 
