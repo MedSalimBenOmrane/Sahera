@@ -68,6 +68,5 @@ class Reponse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contenu = db.Column(db.Text, nullable=False)
     date_creation = db.Column(db.Date, nullable= True)
-
     question_id = db.Column(db.Integer, db.ForeignKey("question.id"), nullable=False)
     utilisateur_id = db.Column(db.Integer, db.ForeignKey("utilisateur.id"), nullable=False)

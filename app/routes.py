@@ -421,6 +421,7 @@ def delete_question(id):
 
 #Récupérer la liste de tous les utilisateurs (clients) et leurs informations de base
 # Get all users
+# Récupérer la liste de tous les utilisateurs (clients) et leurs informations de base
 @api_bp.route("/utilisateurs", methods=["GET"])
 def get_utilisateurs():
     utilisateurs = Utilisateur.query.all()
@@ -430,6 +431,7 @@ def get_utilisateurs():
             "nom": u.nom,
             "prenom": u.prenom,
             "email": u.email,
+            "telephone": u.telephone,
             "date_naissance": u.date_naissance.isoformat() if u.date_naissance else None,
             "ethnicite": u.ethnicite,
             "genre": u.genre,
@@ -437,7 +439,8 @@ def get_utilisateurs():
         } for u in utilisateurs
     ])
 
-# Get a single user by ID
+
+# Récupérer un seul utilisateur par ID
 @api_bp.route("/utilisateurs/<int:id>", methods=["GET"])
 def get_utilisateur(id):
     u = Utilisateur.query.get_or_404(id)
@@ -446,13 +449,15 @@ def get_utilisateur(id):
         "nom": u.nom,
         "prenom": u.prenom,
         "email": u.email,
+        "telephone": u.telephone,
         "date_naissance": u.date_naissance.isoformat() if u.date_naissance else None,
         "ethnicite": u.ethnicite,
         "genre": u.genre,
         "role": u.role
     })
 
-# Create a new user
+
+# Créer un nouvel utilisateur
 @api_bp.route("/utilisateurs", methods=["POST"])
 def create_utilisateur():
     data = request.get_json()
@@ -468,6 +473,7 @@ def create_utilisateur():
         date_naissance=data.get("date_naissance"),
         ethnicite=data.get("ethnicite"),
         genre=data.get("genre"),
+        telephone=data.get("telephone"),
         role=data.get("role", "utilisateur")
     )
     db.session.add(u)
@@ -476,10 +482,12 @@ def create_utilisateur():
         "id": u.id,
         "nom": u.nom,
         "prenom": u.prenom,
-        "email": u.email
+        "email": u.email,
+        "telephone": u.telephone
     }), 201
 
-# Update an existing user
+
+# Mettre à jour un utilisateur existant
 @api_bp.route("/utilisateurs/<int:id>", methods=["PUT"])
 def update_utilisateur(id):
     u = Utilisateur.query.get_or_404(id)
@@ -492,18 +500,25 @@ def update_utilisateur(id):
     u.date_naissance = data.get("date_naissance", u.date_naissance)
     u.ethnicite = data.get("ethnicite", u.ethnicite)
     u.genre = data.get("genre", u.genre)
+    u.telephone = data.get("telephone", u.telephone)
     u.role = data.get("role", u.role)
 
     db.session.commit()
-    return jsonify({"message": "Utilisateur mis à jour", "id": u.id})
+    return jsonify({
+        "message": "Utilisateur mis à jour",
+        "id": u.id,
+        "telephone": u.telephone
+    })
 
-# Delete a user
+
+# Supprimer un utilisateur
 @api_bp.route("/utilisateurs/<int:id>", methods=["DELETE"])
 def delete_utilisateur(id):
     u = Utilisateur.query.get_or_404(id)
     db.session.delete(u)
     db.session.commit()
     return jsonify({"message": "Utilisateur supprimé"}), 204
+
 #admin
 @api_bp.route("/admins", methods=["GET"])
 def get_admins():
@@ -570,51 +585,93 @@ def delete_admin(id):
     return jsonify({"message": "Admin supprimé"}), 204
 
 
-#Reponses
+# Obtenir toutes les réponses
 @api_bp.route("/reponses", methods=["GET"])
 def get_reponses():
     reponses = Reponse.query.all()
     return jsonify([
         {
             "id": r.id,
-            "texte": r.texte,
+            "contenu": r.contenu,
+            "date_creation": r.date_creation.isoformat() if r.date_creation else None,
             "question_id": r.question_id,
             "utilisateur_id": r.utilisateur_id
         } for r in reponses
     ])
 
+# Obtenir une réponse par ID
 @api_bp.route("/reponses/<int:id>", methods=["GET"])
 def get_reponse(id):
     r = Reponse.query.get_or_404(id)
     return jsonify({
         "id": r.id,
-        "texte": r.texte,
+        "contenu": r.contenu,
+        "date_creation": r.date_creation.isoformat() if r.date_creation else None,
         "question_id": r.question_id,
         "utilisateur_id": r.utilisateur_id
     })
 
+# Créer une nouvelle réponse
 @api_bp.route("/reponses", methods=["POST"])
 def create_reponse():
     data = request.get_json()
+    required_fields = ["contenu", "question_id", "utilisateur_id"]
+    if not all(field in data for field in required_fields):
+        abort(400, description="Champs requis manquants : contenu, question_id, utilisateur_id")
+
+    # parsing de date_creation si fourni, sinon date du jour
+    if "date_creation" in data:
+        try:
+            date_creation = datetime.fromisoformat(data["date_creation"]).date()
+        except ValueError:
+            abort(400, description="Format de date_creation invalide, attendu YYYY-MM-DD")
+    else:
+        date_creation = date.today()
+
     r = Reponse(
-        texte=data.get("texte"),
-        question_id=data.get("question_id"),
-        utilisateur_id=data.get("utilisateur_id")
+        contenu=data["contenu"],
+        date_creation=date_creation,
+        question_id=data["question_id"],
+        utilisateur_id=data["utilisateur_id"]
     )
     db.session.add(r)
     db.session.commit()
-    return jsonify({"id": r.id}), 201
 
+    return jsonify({
+        "id": r.id,
+        "contenu": r.contenu,
+        "date_creation": r.date_creation.isoformat(),
+        "question_id": r.question_id,
+        "utilisateur_id": r.utilisateur_id
+    }), 201
+
+# Mettre à jour une réponse existante
 @api_bp.route("/reponses/<int:id>", methods=["PUT"])
 def update_reponse(id):
     r = Reponse.query.get_or_404(id)
     data = request.get_json()
-    r.texte = data.get("texte", r.texte)
+
+    if "contenu" in data:
+        r.contenu = data["contenu"]
+    if "date_creation" in data:
+        try:
+            r.date_creation = datetime.fromisoformat(data["date_creation"]).date()
+        except ValueError:
+            abort(400, description="Format de date_creation invalide, attendu YYYY-MM-DD")
+
     r.question_id = data.get("question_id", r.question_id)
     r.utilisateur_id = data.get("utilisateur_id", r.utilisateur_id)
-    db.session.commit()
-    return jsonify({"id": r.id})
 
+    db.session.commit()
+    return jsonify({
+        "id": r.id,
+        "contenu": r.contenu,
+        "date_creation": r.date_creation.isoformat() if r.date_creation else None,
+        "question_id": r.question_id,
+        "utilisateur_id": r.utilisateur_id
+    })
+
+# Supprimer une réponse
 @api_bp.route("/reponses/<int:id>", methods=["DELETE"])
 def delete_reponse(id):
     r = Reponse.query.get_or_404(id)
@@ -622,27 +679,11 @@ def delete_reponse(id):
     db.session.commit()
     return jsonify({"message": "Réponse supprimée"}), 204
 
-@api_bp.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    user = Utilisateur.query.filter_by(email=data['email']).first()
-    if not user or not Bcrypt.check_password_hash(user.mot_de_passe, data['mot_de_passe']):
-        return jsonify({"message": "Identifiants invalides"}), 401
-
-    access_token = create_access_token(identity=user.id)
-    return jsonify(access_token=access_token), 200
-
-
-
-#Récupérer toutes les réponses existantes du client pour une sous-thématique (afin d’afficher
-#ses réponses précédentes)
+# Récupérer les réponses d’un client pour une sous-thématique
 @api_bp.route("/clients/<int:client_id>/sousthematiques/<int:sous_id>/reponses", methods=["GET"])
 def get_reponses_client_sousthematique(client_id, sous_id):
-    # Récupérer toutes les questions de la sous-thématique
     questions = Question.query.filter_by(sous_thematique_id=sous_id).all()
     question_ids = [q.id for q in questions]
-
-    # Récupérer toutes les réponses du client liées à ces questions
     reponses = Reponse.query.filter(
         Reponse.utilisateur_id == client_id,
         Reponse.question_id.in_(question_ids)
@@ -652,12 +693,11 @@ def get_reponses_client_sousthematique(client_id, sous_id):
         {
             "reponse_id": rep.id,
             "question_id": rep.question_id,
-            "texte_reponse": rep.texte
+            "contenu": rep.contenu,
+            "date_creation": rep.date_creation.isoformat() if rep.date_creation else None
         } for rep in reponses
     ]
-
     return jsonify(response_data)
-
 #Récupérer toutes les questions (pour la sous-thématique sélectionnée)
 @api_bp.route("/sousthematiques/<int:sous_id>/questions", methods=["GET"])
 def get_questions_by_sousthematique(sous_id):
