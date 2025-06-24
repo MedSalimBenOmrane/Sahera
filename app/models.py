@@ -7,7 +7,6 @@ class Thematique(db.Model):
     description = db.Column(db.Text, nullable=True) 
     date_ouverture = db.Column(db.Date, nullable=True)
     date_cloture = db.Column(db.Date, nullable=True)
-
     sous_thematiques = db.relationship("SousThematique", backref="thematique", cascade="all, delete-orphan")
 
 
