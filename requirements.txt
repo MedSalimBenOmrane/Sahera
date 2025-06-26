@@ -6,4 +6,4 @@ flask-bcrypt
 flask-jwt-extended
 flask-cors
 bcrypt
-jwt
+PyJWT

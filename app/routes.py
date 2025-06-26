@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, abort
 from .models import Thematique, SousThematique, Question, Utilisateur, Admin, Reponse
 from .extensions import db
-from datetime import datetime 
+from datetime import datetime, timedelta
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
 from datetime import date
@@ -730,7 +730,7 @@ def login():
     if utilisateur and bcrypt.checkpw(mot_de_passe.encode('utf-8'), utilisateur.mot_de_passe.encode('utf-8')):
         token = jwt.encode({
             'id': utilisateur.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+            'exp': datetime.utcnow() + timedelta(hours=24)
         }, current_app.config['SECRET_KEY'], algorithm='HS256')
 
         return jsonify({
