@@ -7,6 +7,10 @@ from flask_jwt_extended import create_access_token
 from datetime import date
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
+import bcrypt
+import jwt
+from flask import current_app, request, jsonify, abort
+import os
 
 api_bp = Blueprint("api", __name__)
 
@@ -465,11 +469,13 @@ def create_utilisateur():
     if not all(field in data for field in required_fields):
         abort(400, description="Champs requis manquants")
 
+    hashed_password = bcrypt.hashpw(data["mot_de_passe"].encode('utf-8'), bcrypt.gensalt())
+
     u = Utilisateur(
         nom=data["nom"],
         prenom=data["prenom"],
         email=data["email"],
-        mot_de_passe=data["mot_de_passe"],
+        mot_de_passe=hashed_password.decode('utf-8'),
         date_naissance=data.get("date_naissance"),
         ethnicite=data.get("ethnicite"),
         genre=data.get("genre"),
@@ -478,13 +484,8 @@ def create_utilisateur():
     )
     db.session.add(u)
     db.session.commit()
-    return jsonify({
-        "id": u.id,
-        "nom": u.nom,
-        "prenom": u.prenom,
-        "email": u.email,
-        "telephone": u.telephone
-    }), 201
+    return jsonify({"id": u.id}), 201
+
 
 
 # Mettre à jour un utilisateur existant
@@ -496,7 +497,12 @@ def update_utilisateur(id):
     u.nom = data.get("nom", u.nom)
     u.prenom = data.get("prenom", u.prenom)
     u.email = data.get("email", u.email)
-    u.mot_de_passe = data.get("mot_de_passe", u.mot_de_passe)
+
+    # Hash the password only if a new one is provided
+    if "mot_de_passe" in data and data["mot_de_passe"]:
+        hashed_password = bcrypt.hashpw(data["mot_de_passe"].encode('utf-8'), bcrypt.gensalt())
+        u.mot_de_passe = hashed_password.decode('utf-8')
+
     u.date_naissance = data.get("date_naissance", u.date_naissance)
     u.ethnicite = data.get("ethnicite", u.ethnicite)
     u.genre = data.get("genre", u.genre)
@@ -505,10 +511,13 @@ def update_utilisateur(id):
 
     db.session.commit()
     return jsonify({
-        "message": "Utilisateur mis à jour",
+        "message": "Utilisateur mis à jour avec succès",
         "id": u.id,
+        "nom": u.nom,
+        "prenom": u.prenom,
+        "email": u.email,
         "telephone": u.telephone
-    })
+    }), 200
 
 
 # Supprimer un utilisateur
@@ -709,3 +718,27 @@ def get_questions_by_sousthematique(sous_id):
     } for q in questions]
 
     return jsonify(results)
+
+#Authentification: Login
+@api_bp.route("/auth/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    email = data.get("email")
+    mot_de_passe = data.get("mot_de_passe")
+
+    utilisateur = Utilisateur.query.filter_by(email=email).first()
+    if utilisateur and bcrypt.checkpw(mot_de_passe.encode('utf-8'), utilisateur.mot_de_passe.encode('utf-8')):
+        token = jwt.encode({
+            'id': utilisateur.id,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+        }, current_app.config['SECRET_KEY'], algorithm='HS256')
+
+        return jsonify({
+            "token": token,
+            "id": utilisateur.id,
+            "nom": utilisateur.nom,
+            "prenom": utilisateur.prenom,
+            "email": utilisateur.email
+        }), 200
+    else:
+        return jsonify({"message": "Email ou mot de passe incorrect"}), 401

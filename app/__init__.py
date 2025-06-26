@@ -6,7 +6,6 @@ from flask import Flask
 from .extensions import db
 from .routes import api_bp
 from dotenv import load_dotenv
-from flask_cors import CORS
 import os
 
 def create_app():
@@ -23,9 +22,8 @@ def create_app():
     # Database configuration
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SECRET_KEY"]=os.getenv('SECRET_KEY')
     app.config.from_prefixed_env()  # Load other environment variables with prefix
-
-    CORS(app)
 
     # Initialize extensions
     db.init_app(app)
