@@ -1,8 +1,7 @@
-"""
-Application factory module for initializing the Flask app and registering components.
-"""
+# app/__init__.py
 
 from flask import Flask
+from flask_cors import CORS           # ← ajoute cet import
 from .extensions import db
 from .routes import api_bp
 from dotenv import load_dotenv
@@ -11,27 +10,27 @@ import os
 def create_app():
     """
     Create and configure the Flask application.
-    
-    Returns:
-        Flask: The configured Flask app instance.
     """
-    load_dotenv()  # Load environment variables from .env file
+    load_dotenv()  # Charge les variables d'env
 
     app = Flask(__name__)
 
-    # Database configuration
+    # ← active CORS pour tous les /api/*
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+    # Configuration de la BDD et du secret
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SECRET_KEY"]=os.getenv('SECRET_KEY')
-    app.config.from_prefixed_env()  # Load other environment variables with prefix
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+    app.config.from_prefixed_env()
 
-    # Initialize extensions
+    # Initialise SQLAlchemy
     db.init_app(app)
 
-    # Register blueprints
+    # Enregistre tes routes sur /api
     app.register_blueprint(api_bp, url_prefix="/api")
 
-    # Create all tables
+    # Crée les tables si besoin
     with app.app_context():
         db.create_all()
 
