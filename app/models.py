@@ -96,6 +96,7 @@ class Notification(db.Model):
     __tablename__ = 'notification'
 
     id = db.Column(db.Integer, primary_key=True)
+    titre = db.Column(db.String(255), nullable=False) 
     contenu = db.Column(db.Text, nullable=False)
     date_envoi = db.Column(db.DateTime, nullable=False, default=db.func.now())
 

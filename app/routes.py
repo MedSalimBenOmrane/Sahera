@@ -793,18 +793,16 @@ def login_login():
 @api_bp.route('/notifications/send', methods=['POST'])
 def send_notification():
     data = request.get_json()
+    titre = data.get('titre')
     contenu = data.get('contenu')
-    utilisateur_ids = data.get('utilisateur_ids')  # Should be a list
+    utilisateur_ids = data.get('utilisateur_ids')
 
-    if not contenu or not utilisateur_ids:
-        return jsonify({"message": "Contenu and utilisateur_ids are required"}), 400
-    
-    if not isinstance(utilisateur_ids, list):
-        return jsonify({"message": "utilisateur_ids must be a list"}), 400
+    if not titre or not contenu or not utilisateur_ids:
+        return jsonify({"message": "titre, contenu et utilisateur_ids sont requis"}), 400
 
-    notif = Notification(contenu=contenu)
+    notif = Notification(titre=titre, contenu=contenu)
     db.session.add(notif)
-    db.session.flush()  # To get notif.id before commit if needed
+    db.session.flush()
 
     for uid in utilisateur_ids:
         user = Utilisateur.query.get(uid)
@@ -813,7 +811,15 @@ def send_notification():
             db.session.add(liaison)
 
     db.session.commit()
-    return jsonify({"message": "Notification envoyée"}), 201
+    return jsonify({
+        "message": "Notification envoyée",
+        "notification": {
+          "id": notif.id,
+          "titre": notif.titre,
+          "contenu": notif.contenu,
+          "date_envoi": notif.date_envoi.isoformat()
+        }
+    }), 201
 
 # Get notifications for a user
 @api_bp.route('/notifications/<int:user_id>', methods=['GET'])
@@ -822,16 +828,16 @@ def get_notifications_for_user(user_id):
     notifications = []
 
     for liaison in user.liaisons_notifications:
-        date_envoi = liaison.notification.date_envoi
+        n = liaison.notification
         notifications.append({
-            "notification_id": liaison.notification.id,
-            "contenu": liaison.notification.contenu,
-            "date_envoi": date_envoi.isoformat() if date_envoi else None,
-            "est_lu": liaison.est_lu
+            "notification_id": n.id,
+            "titre":           n.titre,
+            "contenu":         n.contenu,
+            "date_envoi":      n.date_envoi.isoformat() if n.date_envoi else None,
+            "est_lu":          liaison.est_lu
         })
 
     return jsonify(notifications)
-
 # Mark a notification as read
 @api_bp.route('/notifications/<int:user_id>/<int:notification_id>/read', methods=['PUT'])
 def mark_as_read(user_id, notification_id):
@@ -842,4 +848,12 @@ def mark_as_read(user_id, notification_id):
 
     liaison.est_lu = True
     db.session.commit()
-    return jsonify({"message": "Notification marquée comme lue"})
+
+    notif = liaison.notification
+    return jsonify({
+      "message": "Notification marquée comme lue",
+      "notification": {
+        "id":    notif.id,
+        "titre": notif.titre
+      }
+    })
