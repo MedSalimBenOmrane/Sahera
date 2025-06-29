@@ -4,6 +4,7 @@ import {
   ViewChild,
   ElementRef
 } from '@angular/core';
+import { finalize } from 'rxjs';
 import { Thematique } from 'src/app/models/thematique.model';
 import { ThematiqueService } from 'src/app/services/thematique.service';
 
@@ -14,6 +15,7 @@ import { ThematiqueService } from 'src/app/services/thematique.service';
 })
 export class GenrateQuestionnaireComponent implements OnInit {
   thematiques: Thematique[] = [];
+  isLoading = false;
 
   newThematique: {
     titre: string;
@@ -34,11 +36,17 @@ export class GenrateQuestionnaireComponent implements OnInit {
     this.loadThematiques();
   }
 
-  private loadThematiques(): void {
-    this.thematiqueService.getAll().subscribe({
-      next: data => this.thematiques = data,
-      error: err => console.error('Erreur chargement thématiques', err)
-    });
+private loadThematiques(): void {
+    this.isLoading = true;
+    this.thematiqueService.getAll()
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: data  => this.thematiques = data,
+        error: err  => {
+          console.error('Erreur chargement thématiques', err);
+          // eventuellement afficher un message d'erreur ici
+        }
+      });
   }
 
   isSessionOpen(t: Thematique): boolean {

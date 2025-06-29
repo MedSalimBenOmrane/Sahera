@@ -30,11 +30,35 @@
           <th (click)="sortTable('telephone', true)">Téléphone <span class="icon-arrow">&UpArrow;</span></th>
           <th (click)="sortTable('date_naissance', true)">Date de naissance <span class="icon-arrow">&UpArrow;</span></th>
           <th (click)="sortTable('genre', true)">Genre <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('ethnicite', true)">Ethnicité <span class="icon-arrow">&UpArrow;</span></th>
           <th (click)="sortTable('role', true)">Rôle <span class="icon-arrow">&UpArrow;</span></th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
+        <ng-container *ngIf="isLoading; else dataRows">
+    <tr>
+      <!-- colspan = nombre total de colonnes (ici 9) -->
+      <td colspan="10" style="text-align: center; padding: 1.5em;">
+        <!-- Tu peux remplacer ce texte par un spinner -->
+        <div class="loader">
+    <div class="bar1"></div>
+    <div class="bar2"></div>
+    <div class="bar3"></div>
+    <div class="bar4"></div>
+    <div class="bar5"></div>
+    <div class="bar6"></div>
+    <div class="bar7"></div>
+    <div class="bar8"></div>
+    <div class="bar9"></div>
+    <div class="bar10"></div>
+    <div class="bar11"></div>
+    <div class="bar12"></div>
+</div>
+      </td>
+    </tr>
+  </ng-container>
+   <ng-template #dataRows>
         <tr *ngFor="let c of clients">
           <td>{{c.id}}</td>
           <td>{{c.nom}}</td>
@@ -43,6 +67,7 @@
           <td>{{c.telephone}}</td>
           <td>{{c.date_naissance | date:'dd/MM/yyyy'}}</td>
           <td>{{c.genre}}</td>
+          <td>{{c.ethnicite}}</td>
           <td>{{c.role}}</td>
           <td class="actions-cell">
             <!-- Modifier ouvre le dialog en mode édition -->
@@ -56,6 +81,7 @@
             </button>
           </td>
         </tr>
+        </ng-template>
       </tbody>
     </table>
   </section>
@@ -69,6 +95,7 @@
     <div class="row" *ngFor="let field of formFields">
       <div class="col-5">{{ field.label }} :</div>
       <div class="col-7">
+       
         <input
           *ngIf="field.type!=='select'"
           [type]="field.type"

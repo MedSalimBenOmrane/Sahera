@@ -8,6 +8,7 @@ export class Client {
   date_naissance: Date;
   genre: string;
   role: string;
+  ethnicite: string;     
 
   constructor(
     id: number = 0,
@@ -18,7 +19,8 @@ export class Client {
     telephone: string = '',
     date_naissance: Date = new Date(),
     genre: string = '',
-    role: string = ''
+    role: string = '',
+    ethnicite: string = ''
   ) {
     this.id = id;
     this.nom = nom;
@@ -29,5 +31,6 @@ export class Client {
     this.date_naissance = date_naissance;
     this.genre = genre;
     this.role = role;
+    this.ethnicite = ethnicite; 
   }
 }

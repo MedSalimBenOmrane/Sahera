@@ -254,9 +254,101 @@ button:hover {
     width: clamp(400px, 40vw, 700px);
     height: auto;
     object-fit: contain;
+    
+
+  /* Ombre qui suit la transparence du PNG */
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+
   }
 
   /* si vous voulez un décalage vertical différent : */
   .side-img--left { margin-right: 0rem; }
   .side-img--right { margin-left: 1rem; }
+}
+
+/* Dialog Styles */
+dialog {
+    padding: 1rem 3rem;
+    background: #c7c7c7cd;
+    max-width: 100%;
+    min-width: 40%;
+    margin: auto; /* Center the dialog */
+    padding: 10%;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    border-radius: 20px;
+    border: 0;
+    color: black;
+    box-shadow: 0 5px 30px 0 rgb(0 0 0 / 10%);
+    animation: fadeIn 1s ease both;
+      padding: 50px 20px;
+  text-align: center;
+}
+
+dialog::backdrop {
+    animation: fadeIn 1s ease both;
+    background: rgba(89, 89, 89, 0.127);
+    z-index: 2;
+    backdrop-filter: blur(7px);
+}
+#x {
+    filter: grayscale(1);
+    width: 0%;
+    height: 0px;
+    border: none;
+    margin: 0px;
+    background: none;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    transition: ease filter, transform 0.3s;
+    cursor: pointer;
+    transform-origin: center;
+}
+
+#x:hover {
+    filter: grayscale(0);
+    transform: scale(1.1);
+}
+.title {
+  font-size: 25px;
+  margin-bottom: 30px;
+}
+#otp-form {
+  width: 100%;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+}
+#otp-form input {
+  border: none;
+  background-color: #1215172c;
+  color: white;
+  font-size: 32px;
+  text-align: center;
+  padding: 10px;
+  width: 100%;
+  max-width: 70px;
+  height: 70px;
+  border-radius: 4px;
+  outline: 2px solid rgb(66, 66, 66);
+}
+#otp-form input:focus-visible {
+  outline: 2px solid royalblue;
+}
+#otp-form input.filled {
+  outline: 2px solid rgb(7, 192, 99);
+}
+#verify-btn {
+  cursor: pointer;
+  display: inline-block;
+  align-self: center;
+  margin-top: 30px;
+  background: royalblue;
+  color: white;
+  padding: 7px 10px;
+  border-radius: 4px;
+  font-size: 16px;
+  border: none;
 }

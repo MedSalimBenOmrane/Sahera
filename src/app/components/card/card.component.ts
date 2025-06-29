@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-card',
@@ -45,7 +46,7 @@ export class CardComponent implements OnInit {
    */
   @Input() responseDate!: string;
 
-  constructor(private router: Router ) { }
+  constructor(private router: Router ,private toastr: ToastrService   ) { }
 
   ngOnInit(): void {
     // Vous pouvez faire un formatage local ici si nécessaire
@@ -60,7 +61,19 @@ export class CardComponent implements OnInit {
     const yyyy = d.getFullYear();
     return `${dd}/${mm}/${yyyy}`;
   }
-  repondre(){
+ onRespond(): void {
+    if (!this.isSessionOpen) {
+      this.toastr.error('La session est fermée', 'Erreur',{ positionClass: 'toast-top-right' });
+      return;
+    }
+    this.router.navigate(['/questionnaire', this.id, this.title]);
+  }
+
+  onModify(): void {
+    if (!this.isSessionOpen) {
+      this.toastr.error('La session est fermée', 'Erreur',{ positionClass: 'toast-top-right' });
+      return;
+    }
     this.router.navigate(['/questionnaire', this.id, this.title]);
   }
   }

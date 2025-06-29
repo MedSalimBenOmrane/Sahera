@@ -2,20 +2,47 @@
 <div class="container my-4">
   <div class="glass-container p-4">
     <h1>Mes Réponses :</h1>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="selectedTab==='all'"
+          (click)="selectTab('all')"
+          href="javascript:void(0)"
+        >Tous</a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="selectedTab==='completed'"
+          (click)="selectTab('completed')"
+          href="javascript:void(0)"
+        >Complétés</a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          [class.active]="selectedTab==='incomplete'"
+          (click)="selectTab('incomplete')"
+          href="javascript:void(0)"
+        >Incomplétés</a>
+      </li>
+    </ul>
+
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-2">
-      
-      <!-- row-cols-md-3 → pour avoir 3 colonnes sur >= 768px -->
-      <div class="col mb-3" *ngFor="let response of responses; let i = index">
-        <!-- On appelle désormais le composant CardComponent -->
-      <app-card
+      <div class="col mb-3" *ngFor="let r of displayedThematiques">
+        <app-card
           [mode]="'mes-reponses'"
-          [title]="response.title"
-          [description]="response.description"
-          [publicationDate]="response.publicationDate"
-          [isSessionOpen]="response.isSessionOpen"
-          [sessionCloseDate]="response.sessionCloseDate"
-          [isAnswered]="response.isAnswered"
-          [responseDate]="response.responseDate || ''"
+          [id]="r.id"
+          [title]="r.title"
+          [description]="r.description"
+          [publicationDate]="r.publicationDate"
+          [isSessionOpen]="r.isSessionOpen"
+          [sessionCloseDate]="r.sessionCloseDate"
+          [isAnswered]="r.isAnswered"
+          [responseDate]="r.responseDate || ''"
         ></app-card>
       </div>
     </div>

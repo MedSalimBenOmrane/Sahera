@@ -164,3 +164,24 @@
      
   </div>
 </body>
+ <dialog #dialog>
+       <h1 class="title">Entrer le code envoyer sur votre boite mail</h1>
+    <form id="otp-form">
+      <input type="text" class="otp-input" maxlength="1">
+      <input type="text" class="otp-input" maxlength="1">
+      <input type="text" class="otp-input" maxlength="1">
+      <input type="text" class="otp-input" maxlength="1">
+      <input type="text" class="otp-input" maxlength="1">
+    </form>
+    <div class="row">
+      <div class="col-6">
+    <button id="verify-btn">Verifier mail</button>
+    </div>
+    <div class="col-6">
+    <button id="verify-btn">Renvoyer code</button>
+    </div>
+    </div>
+  
+
+    <button id="x" aria-label="close" (click)="closeDialog()">❌</button>
+  </dialog>

@@ -6,43 +6,49 @@
       <h1>Thème : {{ thematiqueTitre }}</h1>
     </div>
 
-    <div class="tabs p-1">
-      <ng-container *ngFor="let st of sousThematiques; let i = index">
-        <!-- 1) Input radio (invisible) -->
-        <input
-          type="radio"
-          name="tabs"
-          [id]="'tab' + i"
-          [checked]="i === 0"
-        />
-        <!-- 2) Label pour l’onglet (desktop) / entête (mobile) -->
-        <label [for]="'tab' + i">{{ st.titre }}</label>
-        <!-- 3) Contenu de l’onglet / accordéon -->
-        <div class="tab">
-           <div class="title">
-      <h2 >Questions pour « {{ st.titre }} »</h2>
+<div class="tabs p-1">
+  <ng-container *ngFor="let st of sousThematiques; let i = index">
+    <input
+      type="radio"
+      name="tabs"
+      [id]="'tab' + i"
+      [checked]="i === 0"
+    />
+    <label [for]="'tab' + i">{{ st.titre }}</label>
+    <div class="tab">
+      <div class="title">
+        <h2>Questions pour « {{ st.titre }} »</h2>
+      </div>
+
+      <div *ngIf="questionsMap[st.id] === undefined">
+        Chargement des questions...
+      </div>
+
+      <ul *ngIf="getQuestions(st).length > 0">
+        <li *ngFor="let q of getQuestions(st)">
+          {{ q.question }}<br>
+          <input
+            class="input"
+            type="text"
+            [(ngModel)]="reponses[st.id][q.id]"
+            name="resp-{{st.id}}-{{q.id}}"
+            placeholder="Votre réponse"
+          />
+        </li>
+      </ul>
+
+ <div *ngIf="questionsMap[st.id] !== undefined && getQuestions(st).length === 0">
+   Aucune question…
+y </div>
+
+      <!-- BOUTON ENREGISTRER -->
+      <div class="actions text-end  mt-2">
+        <button (click)="saveReponses(st)" class="btn btn-primary" >
+          Enregistrer les réponses
+        </button>
+      </div>
     </div>
-
-          <!-- 3.1) En attente de chargement -->
-          <div *ngIf="questionsMap[st.id] === undefined">
-            Chargement des questions...
-          </div>
-
-          <!-- 3.2) Affichage de la liste de questions si au moins une existe -->
-          <ul *ngIf="questionsMap[st.id] && questionsMap[st.id].length > 0">
-            <li *ngFor="let q of getQuestions(st)">
-              {{ q.question }}<br>
-              <input class="input" name="text" type="text">
-            </li>
-            
-          </ul>
-
-          <!-- 3.3) Si le tableau est vide après chargement -->
-          <div *ngIf="questionsMap[st.id] && questionsMap[st.id].length === 0">
-            Aucune question pour cette sous-thématique.
-          </div>
-        </div>
-      </ng-container>
-    </div>
+  </ng-container>
+</div>
   </div>
 </div>

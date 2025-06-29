@@ -1,30 +1,28 @@
+// src/app/pages/admin/create-notification/create-notification.component.ts
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { NotificationService } from 'src/app/services/notification.service';
-import { Notification } from 'src/app/models/notification.model';
+import { NotificationService } from '../../../services/notification.service';
+import { Notification } from '../../../models/notification.model';
+
 @Component({
   selector: 'app-create-notification',
   templateUrl: './create-notification.component.html',
   styleUrls: ['./create-notification.component.css']
 })
 export class CreateNotificationComponent implements OnInit {
-notifications: Notification[] = [];
+  notifications: Notification[] = [];
+  newNotif = { titre: '', contenu: '' };
 
-  newNotif: Partial<Notification> = {
-    objet: '',
-    message: ''
-  };
-
-  @ViewChild('dialog', { static: true })
-  dialogRef!: ElementRef<HTMLDialogElement>;
+  @ViewChild('dialog', { static: true }) dialogRef!: ElementRef<HTMLDialogElement>;
 
   constructor(private notificationService: NotificationService) {}
 
   ngOnInit(): void {
-    this.notifications = this.notificationService.getAllNotifications();
+    this.notificationService.getAllNotifications()
+      .subscribe(list => this.notifications = list);
   }
 
   openCreateDialog(): void {
-    this.newNotif = {};
+    this.newNotif = { titre: '', contenu: '' };
     (this.dialogRef.nativeElement as any).showModal();
   }
 
@@ -33,31 +31,28 @@ notifications: Notification[] = [];
   }
 
   sendNotification(): void {
-    const now = new Date();
-    const newMessage: Notification = {
-      id: this.generateUid(),
-      objet: this.newNotif.objet || 'Sans objet',
-      message: this.newNotif.message || '',
-      date: now,
-      seen: false,
-      sender: 'admin'
-    };
-
-    this.notificationService.addNotification(newMessage);
-    this.notifications = this.notificationService.getAllNotifications();
-    this.closeDialog();
-  }
-
-  generateUid(): number {
-    return Math.floor(Math.random() * 1000000);
+    const userIds = [1, 2, 3];  // toujours admin
+    this.notificationService
+      .sendNotification(this.newNotif.titre, this.newNotif.contenu, userIds)
+      .subscribe(res => {
+        const dto = res.notification;
+        const notif = new Notification(
+          dto.id,
+          dto.titre,
+          dto.contenu,
+          dto.date_envoi,
+          false
+        );
+        this.notificationService.addNotification(notif);
+        this.notifications = [...this.notificationService['notifications']];
+        this.closeDialog();
+      });
   }
 
   onDeleteNotification(id: number): void {
     this.notificationService.deleteById(id);
-    this.notifications = this.notificationService.getAllNotifications();
+    this.notifications = [...this.notificationService['notifications']];
   }
 
-  onToggleSeen(payload: { index: number; seen: boolean }): void {
-    this.notificationService.setSeen(payload.index, payload.seen);
-  }
+
 }

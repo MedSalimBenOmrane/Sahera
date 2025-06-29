@@ -2,9 +2,15 @@
     <section class="table__header ">
         <h1> Détails de la thématique « {{ thematiqueTitre }} »</h1>
     </section>
-
+        <div *ngIf="isLoading" class="spinner-container">
+      <div class="loader"></div>
+    </div>
     <section class="table__body">
-        <table>
+
+
+    <!-- Tableau quand les données sont prêtes -->
+    <table *ngIf="!isLoading">
+
             <thead>
                 <tr>
                     <th>Sous-thématique</th>
@@ -57,4 +63,5 @@
                 </ng-container>
             </tbody>
         </table>
+        
     </section>

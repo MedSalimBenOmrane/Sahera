@@ -1,101 +1,68 @@
+// src/app/services/sous-thematique.service.ts
 import { Injectable } from '@angular/core';
-import { SousThematique } from '../models/sous-thematique.model';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { SousThematique } from '../models/sous-thematique.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SousThematiqueService {
-  private sousThematiques: SousThematique[] = [
- 
-  new SousThematique( 1,'Qualité du service',1 ),
-  new SousThematique( 2,'Délai de réponse',1 ),
-  new SousThematique( 3,'Accessibilité du site',1 ),
-  new SousThematique( 4,'Clarté des informations',1 ),
-  new SousThematique( 5,'Amabilité du personnel',1 ),
-  new SousThematique( 6,'Satisfaction globale',1 ),
-  new SousThematique( 7, 'SousTh 2-1', 2),
-  new SousThematique( 8, 'SousTh 2-2', 2),
-  new SousThematique( 9, 'SousTh 2-3', 2),
-  new SousThematique(10, 'SousTh 2-4', 2),
-  new SousThematique(11, 'SousTh 2-5', 2),
-  new SousThematique(12, 'SousTh 2-6', 2),
-  new SousThematique(13, 'SousTh 3-1', 3),
-  new SousThematique(14, 'SousTh 3-2', 3),
-  new SousThematique(15, 'SousTh 3-3', 3),
-  new SousThematique(16, 'SousTh 3-4', 3),
-  new SousThematique(17, 'SousTh 3-5', 3),
-  new SousThematique(18, 'SousTh 3-6', 3)
-];
+  private baseUrl = 'http://localhost:5000/api';
 
-  constructor() { }
-/**
-   * GET / sous-thématiques (en mémoire)
-   */
-  getAll(): Observable<SousThematique[]> {
-    return of(this.sousThematiques.map(st => Object.assign(
-      new SousThematique(0, '', 0),
-      st
-    )));
-  }
+  constructor(private http: HttpClient) {}
 
-  /**
-   * GET /sous-thématiques/:id
-   */
-  getById(id: number): Observable<SousThematique | undefined> {
-    const found = this.sousThematiques.find(st => st.id === id);
-    return of(
-      found
-        ? Object.assign(new SousThematique(0, '', 0), found)
-        : undefined
+  /** GET /thematiques/:thematiqueId/sousthematiques */
+  getByThematique(thematiqueId: number): Observable<SousThematique[]> {
+    const url = `${this.baseUrl}/thematiques/${thematiqueId}/sousthematiques`;
+    return this.http.get<any[]>(url).pipe(
+      map(list => list.map(item => this.adapt(item))),
+      catchError(() => of([]))
     );
   }
 
-  /**
-   * GET /sous-thématiques?thematiqueId=XX
-   * Filtre toutes les ST dont thematiqueId === argument.
-   */
-  getByThematique(thematiqueId: number): Observable<SousThematique[]> {
-    const filtered = this.sousThematiques.filter(st => st.thematiqueId === thematiqueId);
-    return of(filtered.map(st => Object.assign(
-      new SousThematique(0, '', 0),
-      st
-    )));
+  /** GET /thematiques/:thematiqueId/sousthematiques/:id */
+  getById(thematiqueId: number, id: number): Observable<SousThematique|undefined> {
+    const url = `${this.baseUrl}/thematiques/${thematiqueId}/sousthematiques/${id}`;
+    return this.http.get<any>(url).pipe(
+      map(item => this.adapt(item)),
+      catchError(() => of(undefined))
+    );
   }
 
-  /**
-   * CREATE (en mémoire)
-   */
-  create(sousThematique: SousThematique): Observable<SousThematique> {
-    const newId = this.sousThematiques.length > 0
-      ? Math.max(...this.sousThematiques.map(st => st.id)) + 1
-      : 1;
-    const nouvelle = new SousThematique(newId, sousThematique.titre, sousThematique.thematiqueId);
-    this.sousThematiques.push(nouvelle);
-    return of(nouvelle);
+  /** POST /thematiques/:thematiqueId/sousthematiques */
+  create(thematiqueId: number, titre: string): Observable<SousThematique> {
+    const url = `${this.baseUrl}/thematiques/${thematiqueId}/sousthematiques`;
+    return this.http.post<any>(url, { titre }).pipe(
+      map(item => this.adapt(item))
+    );
   }
 
-  /**
-   * UPDATE (en mémoire)
-   */
-  update(sousThematique: SousThematique): Observable<SousThematique | undefined> {
-    const index = this.sousThematiques.findIndex(st => st.id === sousThematique.id);
-    if (index === -1) {
-      return of(undefined);
-    }
-    this.sousThematiques[index] = Object.assign(new SousThematique(0, '', 0), sousThematique);
-    return of(this.sousThematiques[index]);
+  /** PUT /thematiques/:thematiqueId/sousthematiques/:id */
+  update(thematiqueId: number, st: SousThematique): Observable<SousThematique> {
+    const url = `${this.baseUrl}/thematiques/${thematiqueId}/sousthematiques/${st.id}`;
+    return this.http.put<any>(url, { titre: st.titre }).pipe(
+      map(item => this.adapt(item))
+    );
   }
 
-  /**
-   * DELETE (en mémoire)
-   */
-  delete(id: number): Observable<boolean> {
-    const index = this.sousThematiques.findIndex(st => st.id === id);
-    if (index === -1) {
-      return of(false);
-    }
-    this.sousThematiques.splice(index, 1);
-    return of(true);
+  /** DELETE /thematiques/:thematiqueId/sousthematiques/:id */
+  delete(thematiqueId: number, id: number): Observable<boolean> {
+    const url = `${this.baseUrl}/thematiques/${thematiqueId}/sousthematiques/${id}`;
+    return this.http.delete<void>(url).pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
+  }
+
+  /** Convertit le JSON du back (snake_case) en instance TS (camelCase) */
+  private adapt(item: any): SousThematique {
+    return new SousThematique(
+      item.id,
+      item.titre,
+      // l’API renvoie "thematique_id"
+      item.thematique_id
+    );
   }
 }

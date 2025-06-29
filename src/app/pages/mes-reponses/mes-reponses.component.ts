@@ -1,54 +1,88 @@
+// src/app/pages/mes-reponses/mes-reponses.component.ts
 import { Component, OnInit } from '@angular/core';
-
+import { forkJoin } from 'rxjs';
+import { MesreponcesService, ThematiqueLite } from 'src/app/services/mesreponces.service';
+import { ThematiqueService } from 'src/app/services/thematique.service'; // ou HttpClient direct
 
 interface ResponseCard {
+  id: number;
   title: string;
   description: string;
-  publicationDate: Date;   // ISO string ou « 2025-05-01T12:00:00 »
+  publicationDate: Date;
   isSessionOpen: boolean;
   sessionCloseDate: Date;
-  isAnswered: boolean;       // true si l’utilisateur a déjà fini
-  responseDate?: string;     // date de réponse, uniquement si isAnswered === true
-  // (optionnel) id ou tout autre champ pour identifier la réponse à modifier/supprimer
+  isAnswered: boolean;
+  responseDate?: string;
 }
+
 @Component({
   selector: 'app-mes-reponses',
   templateUrl: './mes-reponses.component.html',
   styleUrls: ['./mes-reponses.component.css']
 })
 export class MesReponsesComponent implements OnInit {
-    /** Exemple de données pour illustrer 6 cartes */
-  responses: ResponseCard[] = [];
+  // choix de l’onglet
+  selectedTab: 'all' | 'completed' | 'incomplete' = 'all';
 
-  constructor() { }
+  // toutes les thématiques chargées de l’API
+  allThematiques: ResponseCard[] = [];
+  // subset selon onglet
+  completedThematiques: ResponseCard[] = [];
+  incompleteThematiques: ResponseCard[] = [];
+
+  clientId!: number;
+
+  constructor(
+    private svc: MesreponcesService,
+    private thematiqueSvc: ThematiqueService
+  ) {}
 
   ngOnInit(): void {
-    this.responses = [
-      {
-        title: 'Enquête satisfaction clients',
-        description: 'Nous souhaitons mesurer la satisfaction globale…',
-        publicationDate: new Date('2025-04-01'),
-        isSessionOpen: true,
-        sessionCloseDate:new Date('2025-06-01'),
-        isAnswered: false
-        // responseDate n’est pas défini ici car isAnswered === false
-      },
+    // on récupère l’id utilisateur en session
+    const usr = JSON.parse(localStorage.getItem('user') || '{}');
+    this.clientId = usr.id;
 
-    
-      // … 4 autres objets similaires
-    ];
+    // on veut récupérer :
+    // 1) la liste complète des thématiques
+    // 2) la liste des ids complétés
+    // 3) la liste des ids incomplétés
+    forkJoin({
+      all:      this.thematiqueSvc.getAll(),
+      comp:     this.svc.getCompletedThematiqueIds(this.clientId),
+      incomp:   this.svc.getIncompleteThematiqueIds(this.clientId)
+    }).subscribe(({ all, comp, incomp }) => {
+      // transformer en ResponseCard
+      this.allThematiques = all
+        .map(t => ({
+          id: t.id,
+          title: t.titre,
+          description: t.description,
+          publicationDate: new Date(t.dateCreation!),
+          sessionCloseDate: new Date(t.dateFermetureSession!),
+          isSessionOpen: !t.dateFermetureSession || new Date(t.dateFermetureSession) > new Date(),
+          isAnswered:    comp.some(x=> x.id === t.id),
+          responseDate:  undefined // éventuellement à compléter
+        }))
+        // tri plus récent publication en premier
+        .sort((a,b)=> b.publicationDate.getTime() - a.publicationDate.getTime());
+
+      // sous-listes
+      this.completedThematiques = this.allThematiques.filter(r=> r.isAnswered);
+      this.incompleteThematiques = this.allThematiques.filter(r=> !r.isAnswered);
+    });
   }
 
-  /** Méthode à appeler quand l’utilisateur clique sur Modifier (par ex.) */
-  onModify(response: ResponseCard) {
-    console.log('Modifier la réponse pour :', response);
-    // redirection vers le formulaire pré-rempli, etc.
+  // appelé par le template pour switcher
+  selectTab(tab: 'all'|'completed'|'incomplete') {
+    this.selectedTab = tab;
   }
 
-  /** Méthode à appeler quand l’utilisateur clique sur Supprimer */
-  onDelete(response: ResponseCard) {
-    console.log('Supprimer la réponse pour :', response);
-    // affichage d’une modale de confirmation, puis suppression réelle, etc.
+  // exposer la liste à afficher
+  get displayedThematiques(): ResponseCard[] {
+    switch (this.selectedTab) {
+      case 'completed':   return this.completedThematiques;
+      case 'incomplete':  return this.incompleteThematiques;
+      default:            return this.allThematiques;
+    }
   }
-
 }

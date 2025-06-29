@@ -22,13 +22,7 @@
         >
           <div class="d-flex align-items-center gap-2">
   <!-- Admin : bouton supprimer -->
-  <button 
-    *ngIf="isAdminView" 
-    class="btn btn-danger btn-sm" 
-    (click)="onDelete(notification.id)"
-  >
-    Supprimer
-  </button>
+  
 
   <!-- Utilisateur : case à cocher -->
   <ng-container *ngIf="!isAdminView">

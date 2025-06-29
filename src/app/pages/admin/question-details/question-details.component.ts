@@ -39,6 +39,7 @@ export class QuestionDetailsComponent implements OnInit {
         this.rows = [];
         return;
       }
+      console.log("reponses",reps)
       // Pour chaque réponse, on récupère le client correspondant
       const calls = reps.map(rep =>
         this.clientsService.getClientById(rep.userId)

@@ -1,7 +1,6 @@
 // src/app/components/notification/notification.component.ts
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Notification } from 'src/app/models/notification.model';
-import { NotificationService } from 'src/app/services/notification.service';
+import { Notification } from '../../models/notification.model';
 
 @Component({
   selector: 'app-notification',
@@ -11,36 +10,25 @@ import { NotificationService } from 'src/app/services/notification.service';
 export class NotificationComponent implements OnInit {
   @Input() notification!: Notification;
   @Input() index!: number;
-  @Input() isAdminView: boolean = false;
+  @Input() isAdminView = false;
+
   @Output() deleteNotification = new EventEmitter<number>();
+  @Output() toggleSeen        = new EventEmitter<{ index: number; seen: boolean }>();
 
-  onDelete(id: number): void {
-  this.deleteNotification.emit(id);
-}
-  /** 
-   * On émet un objet { index: number, seen: boolean } 
-   * vers le parent pour qu’il mette à jour le service. 
-   */
-  @Output() toggleSeen = new EventEmitter<{ index: number; seen: boolean }>();
+  isShown = false;
 
-  isShown = false; // pour basculer l’affichage du message complet
+  ngOnInit(): void {}
 
-  constructor(private notificationServices: NotificationService) { }
-
-  ngOnInit(): void { }
-
-  /** Affiche ou masque le texte complet */
   toggleText(): void {
     this.isShown = !this.isShown;
   }
 
-  /**
-   * Quand l’utilisateur coche/décoche la “cyberpunk-checkbox”,
-   * on émet l’événement vers le composant parent.
-   */
-  onCheckboxChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.toggleSeen.emit({ index: this.index, seen: input.checked });
+  onDelete(id: number): void {
+    this.deleteNotification.emit(id);
   }
- 
+
+  onCheckboxChange(event: Event): void {
+    const seen = (event.target as HTMLInputElement).checked;
+    this.toggleSeen.emit({ index: this.index, seen });
+  }
 }

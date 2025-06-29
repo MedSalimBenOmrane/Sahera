@@ -13,16 +13,25 @@ export class NotificationsComponent implements OnInit {
   constructor(private notificationService: NotificationService) { }
 
   ngOnInit(): void {
-    this.notifications = this.notificationService.getAllNotifications();
+  this.notificationService.getAllNotifications()
+      .subscribe(list => this.notifications = list);
   }
 
   /**
    * Réception de l’événement depuis NotificationComponent.
    * @param payload contient l’indice dans le tableau ET la nouvelle valeur seen.
    */
-  onToggleSeen(payload: { index: number, seen: boolean }): void {
-    this.notificationService.setSeen(payload.index, payload.seen);
-    // Comme notifications[] est une référence directe,
-    // la propriété seen a déjà été mise à jour. Angular rafraîchira le badge.
-  }
+onToggleSeen(payload: { index: number; seen: boolean }): void {
+  const notif = this.notifications[payload.index];
+  this.notificationService
+    .setSeen(notif.id, payload.seen)
+    .subscribe({
+      next: () => { /* tout est à jour */ },
+      error: err => {
+        console.error('Impossible de changer le statut', err);
+        // on revert local si besoin
+        notif.est_lu = !payload.seen;
+      }
+    });
+}
 }

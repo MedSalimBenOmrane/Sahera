@@ -47,16 +47,10 @@
           <span class="text-success d-flex align-items-center">
              Questionnaire complété
           </span>
-          <span class="text-muted small">
-            Date réponse : {{ formatDate(responseDate) }}
-          </span>
         </ng-container>
         <ng-template #notYet>
           <span class="text-danger">
              En attente de réponses
-          </span>
-          <span class="text-muted small">
-            Date réponse : {{ formatDate(responseDate) }}
           </span>
         </ng-template>
       </div>
@@ -65,17 +59,15 @@
       <div class="actions d-flex">
         <!-- Si mode “mes-reponses”, on affiche “Modifier” + “Supprimer” -->
         <ng-container *ngIf="mode === 'mes-reponses'">
-          <button type="button" class="btn btn-sm btn-outline-primary me-2">
+
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="onModify()">
             Modifier
-          </button>
-          <button type="button" class="btn btn-sm btn-outline-danger">
-            Supprimer
           </button>
         </ng-container>
 
         <!-- Si mode “questionnaire”, on affiche un seul bouton “Répondre” -->
         <ng-container *ngIf="mode === 'questionnaire'">
-          <button type="button" class="btn btn-sm btn-success" (click)="repondre()">
+          <button type="button" class="btn btn-sm btn-success" (click)="onRespond()">
             Répondre
           </button>
         </ng-container>

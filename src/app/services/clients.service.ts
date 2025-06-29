@@ -7,6 +7,7 @@ import { Client } from '../models/client.model';
   providedIn: 'root'
 })
 export class ClientsService {
+private apiUrl = 'http://localhost:5000/api/utilisateurs';  // ← l’endpoint Flask
 private clients: Client[] = [
     new Client(
       1,
@@ -32,41 +33,33 @@ private clients: Client[] = [
     ),
   ];
 
-  constructor() { }
-
+  constructor(private http: HttpClient) { }
+  getClientsapi(): Observable<Client[]> {
+    return this.http.get<Client[]>(this.apiUrl);
+  }
   /** Récupère tous les clients depuis la mémoire */
   getClients(): Observable<Client[]> {
     return of(this.clients);
   }
 
   /** Récupère un client par son ID */
-  getClientById(id: number): Observable<Client | undefined> {
-    const client = this.clients.find(c => c.id === id);
-    return of(client);
+  /** Récupère un client par son ID */
+  getClientById(id: number): Observable<Client> {
+    return this.http.get<Client>(`${this.apiUrl}/${id}`);
   }
 
-  /** Crée un nouveau client en mémoire */
+  /** Crée un nouveau client via POST */
   createClient(client: Client): Observable<Client> {
-    // Auto-incrément ID
-    client.id = this.clients.length
-      ? Math.max(...this.clients.map(c => c.id)) + 1
-      : 1;
-    this.clients.push(client);
-    return of(client);
+    return this.http.post<Client>(this.apiUrl, client);
   }
 
-  /** Met à jour un client existant en mémoire */
+  /** Met à jour un client existant via PUT */
   updateClient(client: Client): Observable<Client> {
-    const idx = this.clients.findIndex(c => c.id === client.id);
-    if (idx !== -1) {
-      this.clients[idx] = client;
-    }
-    return of(client);
+    return this.http.put<Client>(`${this.apiUrl}/${client.id}`, client);
   }
 
-  /** Supprime un client en mémoire */
+  /** Supprime un client via DELETE */
   deleteClient(id: number): Observable<void> {
-    this.clients = this.clients.filter(c => c.id !== id);
-    return of(undefined);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

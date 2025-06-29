@@ -11,6 +11,7 @@ import { DashboardComponent } from './pages/admin/dashboard/dashboard.component'
 import { GenrateQuestionnaireComponent } from './pages/admin/genrate-questionnaire/genrate-questionnaire.component';
 import { ThematiqueDetailsComponent } from './pages/admin/thematique-details/thematique-details.component';
 import { QuestionDetailsComponent } from './pages/admin/question-details/question-details.component';
+import { ComingSoonPageComponent } from './pages/coming-soon-page/coming-soon-page.component';
 
 
 const routes: Routes = [
@@ -29,6 +30,7 @@ const routes: Routes = [
     ]
   },
   {path: '',component: LogInSignINComponent},
+  {path:"coming_soon",component:ComingSoonPageComponent},
   {path: 'mes-reponses', component: MesReponsesComponent ,},
   {path: 'questionnaire',component:QuestionnaireComponent ,},
   { path: 'questionnaire/:id/:titre', component: QAndAComponent },

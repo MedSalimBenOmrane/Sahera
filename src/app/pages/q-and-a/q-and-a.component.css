@@ -133,3 +133,7 @@ input:focus {
 input:hover {
   outline: 1px solid lightgrey;
 }
+.actions {
+  text-align: right;
+  margin-right :5%;
+}

@@ -1,69 +1,98 @@
+// src/app/services/notification.service.ts
 import { Injectable } from '@angular/core';
-import { Notification } from '../models/notification.model';
-import { Observable, of } from 'rxjs';
-@Injectable({
-  providedIn: 'root'
-})
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+import { NotificationDto, Notification } from '../models/notification.model';
+
+@Injectable({ providedIn: 'root' })
 export class NotificationService {
-// Tableau prérempli de deux notifications d'exemple
-  private notifications: Notification[] = [
-    {
-      id:1,
-      objet: 'Lancement de la plateforme clinique',
-      sender: 'Hera Care Solutions',
-      date: new Date('2025-06-06T09:00:00'),
-      message: `Bonjour,
+  private baseUrl = 'http://localhost:5000/api';
+  private userId: number | null;
+  private notifications: Notification[] = [];
 
-Nous avons le plaisir de vous informer que dans le cadre de notre étude clinique sur le dispositif médical Sahera, nous venons de lancer une plateforme web sécurisée destinée à recueillir les données des participantes tout au long de la période d’évaluation. Cette plateforme a été développée afin de garantir une collecte fiable, structurée et conforme aux exigences réglementaires en matière de données de santé, notamment le RGPD.
-
-L’outil permettra à 50 participantes d’accéder à un questionnaire thématique et personnalisé. Côté administration, il offre la possibilité de gérer dynamiquement les utilisateurs, les questions et les thématiques, tout en assurant un suivi analytique des réponses avec des visualisations et des exports en temps réel. La conception technique repose sur une architecture robuste combinant Angular pour le frontend, Flask pour le backend, et une base de données MySQL hébergée sur l’infrastructure sécurisée d’AWS.
-
-Ce projet s’inscrit dans notre engagement à proposer une solution innovante, non médicamenteuse et personnalisée, visant à soulager efficacement les douleurs menstruelles et à accompagner les femmes dans la gestion de leur cycle hormonal.
-
-Nous restons disponibles pour vous fournir un accès à la plateforme dans le cadre de collaborations, de tests ou de validation réglementaire. N'hésitez pas à nous contacter pour toute information complémentaire.
-
-Cordialement,
-L’équipe Hera Care Solutions`,
-      seen: false
-    },
-    { id: 2,
-      objet: 'Mise à jour de sécurité serveur',
-      sender: 'Admin IT',
-      date: new Date('2025-06-07T14:30:00'),
-      message: `Chère utilisatrice, cher utilisateur,
-
-Nous souhaitons vous informer qu’une maintenance de sécurité sera effectuée sur nos serveurs le 08/06/2025 de 01:00 à 03:00. Durant cette plage horaire, la plateforme pourrait être temporairement indisponible. Veuillez prendre vos dispositions pour sauvegarder vos données avant cette intervention.
-
-Merci de votre compréhension.
-
-Cordialement,
-L’équipe IT`,
-      seen: false
-    }
-  ];
-
-  constructor() { }
-getAllNotifications(): Notification[] {
-    return this.notifications;
+  constructor(private http: HttpClient) {
+    const usr = JSON.parse(localStorage.getItem('user') || 'null');
+    this.userId = usr?.id ?? null;
   }
 
-   setSeen(idx: number, seen: boolean): void {
-    if (idx >= 0 && idx < this.notifications.length) {
-      this.notifications[idx].seen = seen;
-    }
+  sendNotification(
+    titre: string,
+    contenu: string,
+    utilisateurIds: number[]
+  ): Observable<{ message: string; notification: any }> {
+    return this.http.post<{ message: string; notification: any }>(
+      `${this.baseUrl}/notifications/send`,
+      { titre, contenu, utilisateur_ids: utilisateurIds }
+    );
   }
 
-  /** Renvoie le nombre de notifications non lues */
+  /** Récupère du back et stocke localement */
+getAllNotifications(): Observable<Notification[]> {
+  if (this.userId === null) return of([]);
+  return this.http
+    .get<NotificationDto[]>(`${this.baseUrl}/notifications/${this.userId}`)
+    .pipe(
+      map(dtos =>
+        dtos
+          // On transforme en Notification
+          .map(dto =>
+            new Notification(
+              dto.notification_id,
+              dto.titre,
+              dto.contenu,
+              dto.date_envoi,
+              dto.est_lu
+            )
+          )
+          // Tri du plus récent au plus ancien
+          .sort((a, b) => b.date.getTime() - a.date.getTime())
+      ),
+      tap(sortedList => this.notifications = sortedList)
+    );
+}
+
+
+  /**
+   * Surcharge :
+   *  - (idx, seen) mets à jour localement.
+   *  - (notificationId) renvoie l’Observable pour marquer comme lu au back.
+   */
+setSeen(notificationId: number, seen: boolean): Observable<any> {
+  if (!this.userId) {
+    return throwError(() => new Error('Utilisateur non identifié'));
+  }
+
+  const action = seen ? 'read' : 'unread';
+  return this.http
+    .put<{ message: string; notification: any }>(
+      `${this.baseUrl}/notifications/${this.userId}/${notificationId}/${action}`,
+      {}
+    )
+    .pipe(
+      tap(() => {
+        // Mise à jour locale
+        const n = this.notifications.find(x => x.notification_id === notificationId);
+        if (n) {
+          n.est_lu = seen;
+        }
+      })
+    );
+}
+
+  /** Compte localement les non–lues */
   getUnreadCount(): number {
-    return this.notifications.filter(n => !n.seen).length;
+    return this.notifications.filter(n => !n.est_lu).length;
   }
-deleteById(id: number): void {
-  const index = this.notifications.findIndex(n => n.id === id);
-  if (index !== -1) {
-    this.notifications.splice(index, 1);
+
+  /** Supprime localement */
+  deleteById(id: number): void {
+    const i = this.notifications.findIndex(n => n.notification_id === id);
+    if (i !== -1) this.notifications.splice(i, 1);
   }
-}
-addNotification(n: Notification): void {
-  this.notifications.unshift(n); // ou push(n) si tu veux en bas
-}
+
+  /** Ajoute localement en tête de liste */
+  addNotification(n: Notification): void {
+    this.notifications.unshift(n);
+  }
 }

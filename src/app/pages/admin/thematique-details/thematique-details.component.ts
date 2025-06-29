@@ -5,6 +5,7 @@ import { Question } from 'src/app/models/question.model';
 import { SousThematiqueService } from 'src/app/services/sous-thematique.service';
 import { QuestionService } from 'src/app/services/question.service';
 import { ReponseService } from 'src/app/services/reponse.service';  // à créer
+import { Console } from 'console';
 
 
 interface Row {
@@ -26,7 +27,7 @@ export class ThematiqueDetailsComponent implements OnInit {
    rows: Row[] = [];
   questionsMap: { [stId: number]: Question[] } = {};
   responseCountMap: { [qId: number]: number } = {};
-
+isLoading = false;
   constructor(
     private route: ActivatedRoute,
     private stService: SousThematiqueService,
@@ -46,14 +47,23 @@ export class ThematiqueDetailsComponent implements OnInit {
   }
 
   private loadSousThematiques(): void {
+    this.isLoading = true; 
     this.stService.getByThematique(this.thematiqueId).subscribe(
       sts => {
         this.sousThematiques = sts;
         for (const st of sts) {
           this.loadQuestions(st.id);
         }
+      
+        this.isLoading = false;
+    
+
       },
-      err => console.error('Erreur chargement sous-thématiques', err)
+      err => {
+         console.error('Erreur chargement sous-thématiques', err);
+        this.isLoading = false;  // ← et même en cas d’erreur
+       }
+      
     );
   }
 
@@ -74,10 +84,12 @@ export class ThematiqueDetailsComponent implements OnInit {
 
   private loadResponseCount(qId: number): void {
     this.rService.getCountByQuestion(qId).subscribe({
-      next: cnt => { this.responseCountMap[qId] = cnt; },
-      error: () => { this.responseCountMap[qId] = 0; }
+      next: cnt => { this.responseCountMap[qId] = cnt; console.log("nombre de reponse",cnt)},
+      error: () => { this.responseCountMap[qId] = 0;  console.log("pas de reponse pour ",qId) }
     });
+    
   }
+
   private applySort() {
     this.rows.sort((a, b) => {
       const va = (a as any)[this.sortColumn];
