@@ -857,3 +857,21 @@ def mark_as_read(user_id, notification_id):
         "titre": notif.titre
       }
     })
+@api_bp.route('/notifications/<int:user_id>/<int:notification_id>/unread', methods=['PUT'])
+def mark_as_unread(user_id, notification_id):
+    liaison = NotificationUtilisateur.query.filter_by(
+        utilisateur_id=user_id,
+        notification_id=notification_id
+    ).first_or_404()
+
+    liaison.est_lu = False
+    db.session.commit()
+
+    notif = liaison.notification
+    return jsonify({
+        "message": "Notification marquée comme non lue",
+        "notification": {
+            "id":    notif.id,
+            "titre": notif.titre
+        }
+    }), 200
