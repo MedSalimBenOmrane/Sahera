@@ -191,7 +191,7 @@ def delete_thematique(id):
 #Récupérer toutes les thématiques non complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
 #Admin, User 
 @api_bp.route("/thematiques/non-completes/<int:client_id>", methods=["GET"])
-def get_incomplete_thematiques(client_id):
+def get_incomplete_thematiques(utilisateur_id):
     """
     Récupère les thématiques non complétées par un client.
     Une thématique est complétée si le client a répondu à toutes les questions de toutes les sous-thématiques.
@@ -224,7 +224,7 @@ def get_incomplete_thematiques(client_id):
             continue
 
         reponses_client = Reponse.query.filter(
-            Reponse.client_id == client_id,
+            Reponse.utilisateur_id == utilisateur_id,
             Reponse.question_id.in_(question_ids)
         ).count()
 
@@ -239,7 +239,7 @@ def get_incomplete_thematiques(client_id):
 #Admin, user
 #Récupérer toutes les thématiques complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
 @api_bp.route("/thematiques/completes/<int:client_id>", methods=["GET"])
-def get_completed_thematiques(client_id):
+def get_completed_thematiques(utilisateur_id):
     """
     Récupère les thématiques complétées par un client.
     Une thématique est complète si le client a répondu à toutes les questions de toutes les sous-thématiques.
@@ -267,7 +267,7 @@ def get_completed_thematiques(client_id):
         nb_questions = len(question_ids)
 
         nb_reponses_client = Reponse.query.filter(
-            Reponse.client_id == client_id,
+            Reponse.utilisateur_id == utilisateur_id,
             Reponse.question_id.in_(question_ids)
         ).count()
 
