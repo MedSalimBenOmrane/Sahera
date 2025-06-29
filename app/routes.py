@@ -190,7 +190,7 @@ def delete_thematique(id):
 #User, 
 #Récupérer toutes les thématiques non complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
 #Admin, User 
-@api_bp.route("/thematiques/non-completes/<int:client_id>", methods=["GET"])
+@api_bp.route("/thematiques/non-completes/<int:utilisateur_id>", methods=["GET"])
 def get_incomplete_thematiques(utilisateur_id):
     """
     Récupère les thématiques non complétées par un client.
@@ -238,7 +238,7 @@ def get_incomplete_thematiques(utilisateur_id):
 
 #Admin, user
 #Récupérer toutes les thématiques complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
-@api_bp.route("/thematiques/completes/<int:client_id>", methods=["GET"])
+@api_bp.route("/thematiques/completes/<int:utilisateur_id>", methods=["GET"])
 def get_completed_thematiques(utilisateur_id):
     """
     Récupère les thématiques complétées par un client.
@@ -704,12 +704,12 @@ def delete_reponse(id):
     return jsonify({"message": "Réponse supprimée"}), 204
 #User, Admin
 # Récupérer les réponses d’un client pour une sous-thématique
-@api_bp.route("/clients/<int:client_id>/sousthematiques/<int:sous_id>/reponses", methods=["GET"])
-def get_reponses_client_sousthematique(client_id, sous_id):
+@api_bp.route("/clients/<int:utilisateur_id>/sousthematiques/<int:sous_id>/reponses", methods=["GET"])
+def get_reponses_client_sousthematique(utilisateur_id, sous_id):
     questions = Question.query.filter_by(sous_thematique_id=sous_id).all()
     question_ids = [q.id for q in questions]
     reponses = Reponse.query.filter(
-        Reponse.utilisateur_id == client_id,
+        Reponse.utilisateur_id == utilisateur_id,
         Reponse.question_id.in_(question_ids)
     ).all()
 
