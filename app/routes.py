@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, abort
-from .models import Thematique, SousThematique, Question, Utilisateur, Admin, Reponse
+from .models import Thematique, SousThematique, Question, Utilisateur, Admin, Reponse,Notification, NotificationUtilisateur
 from .extensions import db
 from datetime import datetime, timedelta
 from flask_bcrypt import Bcrypt
@@ -14,19 +14,8 @@ import os
 
 api_bp = Blueprint("api", __name__)
 
-# @api_bp.route("/thematiques", methods=["GET"])
-# def get_thematiques():
-#     """
-#     Get a list of all thematiques.
-#     Returns:
-#         JSON list of thematiques.
-#     """
-#     thematiques = Thematique.query.all()
-#     return jsonify([{"id": t.id, "name": t.name} for t in thematiques])
-
-
 #Récupérer la liste de toutes les thématiques (avec leurs informations)
-
+#Admin , User
 @api_bp.route("/thematiques", methods=["GET"])
 def get_thematiques():
     """
@@ -90,6 +79,7 @@ def get_thematiques_fermees():
 #Pour une thématique sélectionnée :
 #Récupérer toutes les sous-thématiques associées
 #Pour chaque sous-thématique : récupérer toutes les questions liées
+#User,Admin
 @api_bp.route("/thematiques/<int:thematique_id>/details", methods=["GET"])
 def get_sous_thematiques_with_questions(thematique_id):
     thematique = Thematique.query.get_or_404(thematique_id)
@@ -112,7 +102,7 @@ def get_sous_thematiques_with_questions(thematique_id):
         response["sous_thematiques"].append(sous_data)
 
     return jsonify(response)
-
+#User,Admin
 @api_bp.route("/thematiques/<int:id>", methods=["GET"])
 def get_thematique(id):
     thematique = Thematique.query.get_or_404(id)
@@ -124,7 +114,7 @@ def get_thematique(id):
         "date_cloture": thematique.date_cloture.isoformat() if thematique.date_cloture else None
     })
 
-
+#User,Admin
 @api_bp.route("/thematiques/<string:name>", methods=["GET"])
 def get_thematique_by_name(name):
     thematique = Thematique.query.filter_by(name=name).first()
@@ -140,6 +130,7 @@ def get_thematique_by_name(name):
 
 
 #Ajouter une nouvelle thématique
+#Admin
 @api_bp.route("/thematiques", methods=["POST"])
 def create_thematique():
     data = request.get_json()
@@ -161,7 +152,7 @@ def create_thematique():
         "description": thematique.description
     }), 201
 
-
+#Admin
 @api_bp.route("/thematiques/<int:id>", methods=["PUT"])
 def update_thematique(id):
     thematique = Thematique.query.get_or_404(id)
@@ -180,7 +171,7 @@ def update_thematique(id):
         "name": thematique.name,
         "description": thematique.description
     })
-
+#Admin
 #Supprimer une thématique existante
 @api_bp.route("/thematiques/<int:id>", methods=["DELETE"])
 def delete_thematique(id):
@@ -196,8 +187,9 @@ def delete_thematique(id):
     db.session.commit()
     return jsonify({"message": "Deleted"}), 204
 
-
-#Récupérer toutes les thématiques non complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique 
+#User, 
+#Récupérer toutes les thématiques non complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
+#Admin, User 
 @api_bp.route("/thematiques/non-completes/<int:client_id>", methods=["GET"])
 def get_incomplete_thematiques(client_id):
     """
@@ -244,7 +236,7 @@ def get_incomplete_thematiques(client_id):
 
     return jsonify(incomplete_thematiques)
 
-
+#Admin, user
 #Récupérer toutes les thématiques complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
 @api_bp.route("/thematiques/completes/<int:client_id>", methods=["GET"])
 def get_completed_thematiques(client_id):
@@ -288,6 +280,7 @@ def get_completed_thematiques(client_id):
     return jsonify(completed_thematiques)
 
 # SousThematique routes
+##User,Admin
 @api_bp.route("/thematiques/<int:thematique_id>/sousthematiques", methods=["GET"])
 def get_sousthematiques(thematique_id):
     """
@@ -298,7 +291,7 @@ def get_sousthematiques(thematique_id):
     return jsonify([
         {"id": s.id, "titre": s.titre, "thematique_id": s.thematique_id} for s in sous_thematiques
     ])
-
+#User,Admin
 @api_bp.route("/thematiques/<int:thematique_id>/sousthematiques/<int:id>", methods=["GET"])
 def get_sousthematique(thematique_id, id):
     """
@@ -306,7 +299,7 @@ def get_sousthematique(thematique_id, id):
     """
     sous_thematique = SousThematique.query.filter_by(id=id, thematique_id=thematique_id).first_or_404()
     return jsonify({"id": sous_thematique.id, "titre": sous_thematique.titre, "thematique_id": sous_thematique.thematique_id})
-
+#Admin
 @api_bp.route("/thematiques/<int:thematique_id>/sousthematiques", methods=["POST"])
 def create_sousthematique(thematique_id):
     """
@@ -321,7 +314,7 @@ def create_sousthematique(thematique_id):
     db.session.add(sous_thematique)
     db.session.commit()
     return jsonify({"id": sous_thematique.id, "titre": sous_thematique.titre, "thematique_id": sous_thematique.thematique_id}), 201
-
+#Admin
 @api_bp.route("/thematiques/<int:thematique_id>/sousthematiques/<int:id>", methods=["PUT"])
 def update_sousthematique(thematique_id, id):
     """
@@ -335,7 +328,7 @@ def update_sousthematique(thematique_id, id):
     sous_thematique.titre = data["titre"]
     db.session.commit()
     return jsonify({"id": sous_thematique.id, "titre": sous_thematique.titre, "thematique_id": sous_thematique.thematique_id})
-
+#Admin
 @api_bp.route("/thematiques/<int:thematique_id>/sousthematiques/<int:id>", methods=["DELETE"])
 def delete_sousthematique(thematique_id, id):
     """
@@ -347,6 +340,7 @@ def delete_sousthematique(thematique_id, id):
     return jsonify({"message": "Deleted"}), 204
 
 # Question routes
+#Admin,User
 @api_bp.route("/questions", methods=["GET"])
 def get_questions():
     """
@@ -358,7 +352,7 @@ def get_questions():
     return jsonify([
         {"id": q.id, "texte": q.texte, "sous_thematique_id": q.sous_thematique_id} for q in questions
     ])
-
+#Admin,User
 @api_bp.route("/questions/<int:id>", methods=["GET"])
 def get_question(id):
     """
@@ -370,7 +364,7 @@ def get_question(id):
     """
     question = Question.query.get_or_404(id)
     return jsonify({"id": question.id, "texte": question.texte, "sous_thematique_id": question.sous_thematique_id})
-
+#Admin
 @api_bp.route("/questions", methods=["POST"])
 def create_question():
     """
@@ -387,7 +381,7 @@ def create_question():
     db.session.add(question)
     db.session.commit()
     return jsonify({"id": question.id, "texte": question.texte, "sous_thematique_id": question.sous_thematique_id}), 201
-
+#Admin
 @api_bp.route("/questions/<int:id>", methods=["PUT"])
 def update_question(id):
     """
@@ -407,7 +401,7 @@ def update_question(id):
     question.sous_thematique_id = data["sous_thematique_id"]
     db.session.commit()
     return jsonify({"id": question.id, "texte": question.texte, "sous_thematique_id": question.sous_thematique_id})
-
+#Admin
 @api_bp.route("/questions/<int:id>", methods=["DELETE"])
 def delete_question(id):
     """
@@ -426,6 +420,7 @@ def delete_question(id):
 #Récupérer la liste de tous les utilisateurs (clients) et leurs informations de base
 # Get all users
 # Récupérer la liste de tous les utilisateurs (clients) et leurs informations de base
+#Admin
 @api_bp.route("/utilisateurs", methods=["GET"])
 def get_utilisateurs():
     utilisateurs = Utilisateur.query.all()
@@ -443,7 +438,7 @@ def get_utilisateurs():
         } for u in utilisateurs
     ])
 
-
+#Admin
 # Récupérer un seul utilisateur par ID
 @api_bp.route("/utilisateurs/<int:id>", methods=["GET"])
 def get_utilisateur(id):
@@ -460,7 +455,7 @@ def get_utilisateur(id):
         "role": u.role
     })
 
-
+#Admin, User
 # Créer un nouvel utilisateur
 @api_bp.route("/utilisateurs", methods=["POST"])
 def create_utilisateur():
@@ -487,7 +482,7 @@ def create_utilisateur():
     return jsonify({"id": u.id}), 201
 
 
-
+#Admin, User
 # Mettre à jour un utilisateur existant
 @api_bp.route("/utilisateurs/<int:id>", methods=["PUT"])
 def update_utilisateur(id):
@@ -519,7 +514,7 @@ def update_utilisateur(id):
         "telephone": u.telephone
     }), 200
 
-
+#Admin
 # Supprimer un utilisateur
 @api_bp.route("/utilisateurs/<int:id>", methods=["DELETE"])
 def delete_utilisateur(id):
@@ -529,6 +524,7 @@ def delete_utilisateur(id):
     return jsonify({"message": "Utilisateur supprimé"}), 204
 
 #admin
+# Get all admins
 @api_bp.route("/admins", methods=["GET"])
 def get_admins():
     admins = Admin.query.all()
@@ -538,10 +534,12 @@ def get_admins():
             "nom": a.nom,
             "prenom": a.prenom,
             "email": a.email,
-            "niveau_acces": a.niveau_acces
+            "date_naissance": a.date_naissance.isoformat() if a.date_naissance else None,
+            "telephone": a.telephone
         } for a in admins
     ])
 
+# GET a specific admin
 @api_bp.route("/admins/<int:id>", methods=["GET"])
 def get_admin(id):
     a = Admin.query.get_or_404(id)
@@ -550,42 +548,59 @@ def get_admin(id):
         "nom": a.nom,
         "prenom": a.prenom,
         "email": a.email,
-        "niveau_acces": a.niveau_acces
+        "date_naissance": a.date_naissance.isoformat() if a.date_naissance else None,
+        "telephone": a.telephone
     })
 
+# POST create a new admin
 @api_bp.route("/admins", methods=["POST"])
 def create_admin():
     data = request.get_json()
+    mot_de_passe_en_clair = data.get("mot_de_passe")
+
+    if not mot_de_passe_en_clair:
+        return jsonify({"error": "Mot de passe est requis"}), 400
+
+    mot_de_passe_hash = bcrypt.hashpw(
+        mot_de_passe_en_clair.encode('utf-8'),
+        bcrypt.gensalt()
+    ).decode('utf-8')
+
     admin = Admin(
         nom=data.get("nom"),
         prenom=data.get("prenom"),
         email=data.get("email"),
-        mot_de_passe=data.get("mot_de_passe"),
+        mot_de_passe=mot_de_passe_hash,
         date_naissance=data.get("date_naissance"),
-        ethnicite=data.get("ethnicite"),
-        genre=data.get("genre"),
-        role="admin",
-        niveau_acces=data.get("niveau_acces", "élevé")
+        telephone=data.get("telephone")
     )
     db.session.add(admin)
     db.session.commit()
     return jsonify({"id": admin.id}), 201
 
+# PUT update an existing admin
 @api_bp.route("/admins/<int:id>", methods=["PUT"])
 def update_admin(id):
     admin = Admin.query.get_or_404(id)
     data = request.get_json()
+
     admin.nom = data.get("nom", admin.nom)
     admin.prenom = data.get("prenom", admin.prenom)
     admin.email = data.get("email", admin.email)
-    admin.mot_de_passe = data.get("mot_de_passe", admin.mot_de_passe)
     admin.date_naissance = data.get("date_naissance", admin.date_naissance)
-    admin.ethnicite = data.get("ethnicite", admin.ethnicite)
-    admin.genre = data.get("genre", admin.genre)
-    admin.niveau_acces = data.get("niveau_acces", admin.niveau_acces)
+    admin.telephone = data.get("telephone", admin.telephone)
+
+    nouveau_mot_de_passe = data.get("mot_de_passe")
+    if nouveau_mot_de_passe:
+        admin.mot_de_passe = bcrypt.hashpw(
+            nouveau_mot_de_passe.encode('utf-8'),
+            bcrypt.gensalt()
+        ).decode('utf-8')
+
     db.session.commit()
     return jsonify({"id": admin.id})
 
+# DELETE an admin
 @api_bp.route("/admins/<int:id>", methods=["DELETE"])
 def delete_admin(id):
     admin = Admin.query.get_or_404(id)
@@ -593,8 +608,8 @@ def delete_admin(id):
     db.session.commit()
     return jsonify({"message": "Admin supprimé"}), 204
 
-
 # Obtenir toutes les réponses
+#Admin, User
 @api_bp.route("/reponses", methods=["GET"])
 def get_reponses():
     reponses = Reponse.query.all()
@@ -607,7 +622,7 @@ def get_reponses():
             "utilisateur_id": r.utilisateur_id
         } for r in reponses
     ])
-
+#Admin, User
 # Obtenir une réponse par ID
 @api_bp.route("/reponses/<int:id>", methods=["GET"])
 def get_reponse(id):
@@ -619,7 +634,7 @@ def get_reponse(id):
         "question_id": r.question_id,
         "utilisateur_id": r.utilisateur_id
     })
-
+#User
 # Créer une nouvelle réponse
 @api_bp.route("/reponses", methods=["POST"])
 def create_reponse():
@@ -653,7 +668,7 @@ def create_reponse():
         "question_id": r.question_id,
         "utilisateur_id": r.utilisateur_id
     }), 201
-
+#User
 # Mettre à jour une réponse existante
 @api_bp.route("/reponses/<int:id>", methods=["PUT"])
 def update_reponse(id):
@@ -679,7 +694,7 @@ def update_reponse(id):
         "question_id": r.question_id,
         "utilisateur_id": r.utilisateur_id
     })
-
+#User
 # Supprimer une réponse
 @api_bp.route("/reponses/<int:id>", methods=["DELETE"])
 def delete_reponse(id):
@@ -687,7 +702,7 @@ def delete_reponse(id):
     db.session.delete(r)
     db.session.commit()
     return jsonify({"message": "Réponse supprimée"}), 204
-
+#User, Admin
 # Récupérer les réponses d’un client pour une sous-thématique
 @api_bp.route("/clients/<int:client_id>/sousthematiques/<int:sous_id>/reponses", methods=["GET"])
 def get_reponses_client_sousthematique(client_id, sous_id):
@@ -707,6 +722,7 @@ def get_reponses_client_sousthematique(client_id, sous_id):
         } for rep in reponses
     ]
     return jsonify(response_data)
+#User, Admin
 #Récupérer toutes les questions (pour la sous-thématique sélectionnée)
 @api_bp.route("/sousthematiques/<int:sous_id>/questions", methods=["GET"])
 def get_questions_by_sousthematique(sous_id):
@@ -742,3 +758,88 @@ def login():
         }), 200
     else:
         return jsonify({"message": "Email ou mot de passe incorrect"}), 401
+
+# Assuming these are imported at the top:
+# from yourapp.models import Admin, Utilisateur, Notification, NotificationUtilisateur
+# from flask import request, jsonify
+# from yourapp.extensions import db
+
+# Login route (unchanged, already good)
+@api_bp.route("/auth/admin/login", methods=["POST"])
+def login_login():
+    data = request.get_json()
+    email = data.get("email")
+    mot_de_passe = data.get("mot_de_passe")
+
+    admin = Admin.query.filter_by(email=email).first()
+    if admin and bcrypt.checkpw(mot_de_passe.encode('utf-8'), admin.mot_de_passe.encode('utf-8')):
+        token = jwt.encode({
+            'id': admin.id,
+            'exp': datetime.utcnow() + timedelta(hours=24)
+        }, current_app.config['SECRET_KEY'], algorithm='HS256')
+
+        return jsonify({
+            "token": token,
+            "id": admin.id,
+            "nom": admin.nom,
+            "prenom": admin.prenom,
+            "email": admin.email
+        }), 200
+    else:
+        return jsonify({"message": "Email ou mot de passe incorrect"}), 401
+
+# Send notification
+#Admin
+@api_bp.route('/notifications/send', methods=['POST'])
+def send_notification():
+    data = request.get_json()
+    contenu = data.get('contenu')
+    utilisateur_ids = data.get('utilisateur_ids')  # Should be a list
+
+    if not contenu or not utilisateur_ids:
+        return jsonify({"message": "Contenu and utilisateur_ids are required"}), 400
+    
+    if not isinstance(utilisateur_ids, list):
+        return jsonify({"message": "utilisateur_ids must be a list"}), 400
+
+    notif = Notification(contenu=contenu)
+    db.session.add(notif)
+    db.session.flush()  # To get notif.id before commit if needed
+
+    for uid in utilisateur_ids:
+        user = Utilisateur.query.get(uid)
+        if user:
+            liaison = NotificationUtilisateur(utilisateur=user, notification=notif)
+            db.session.add(liaison)
+
+    db.session.commit()
+    return jsonify({"message": "Notification envoyée"}), 201
+
+# Get notifications for a user
+@api_bp.route('/notifications/<int:user_id>', methods=['GET'])
+def get_notifications_for_user(user_id):
+    user = Utilisateur.query.get_or_404(user_id)
+    notifications = []
+
+    for liaison in user.liaisons_notifications:
+        date_envoi = liaison.notification.date_envoi
+        notifications.append({
+            "notification_id": liaison.notification.id,
+            "contenu": liaison.notification.contenu,
+            "date_envoi": date_envoi.isoformat() if date_envoi else None,
+            "est_lu": liaison.est_lu
+        })
+
+    return jsonify(notifications)
+
+# Mark a notification as read
+@api_bp.route('/notifications/<int:user_id>/<int:notification_id>/read', methods=['PUT'])
+def mark_as_read(user_id, notification_id):
+    liaison = NotificationUtilisateur.query.filter_by(
+        utilisateur_id=user_id,
+        notification_id=notification_id
+    ).first_or_404()
+
+    liaison.est_lu = True
+    db.session.commit()
+    return jsonify({"message": "Notification marquée comme lue"})
