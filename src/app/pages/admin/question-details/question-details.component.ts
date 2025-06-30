@@ -17,13 +17,14 @@ interface Row {
 export class QuestionDetailsComponent implements OnInit {
   questionId!: number;
   questionTitre!: string;
+  isLoading = false;
   rows: Row[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private reponseService: ReponseService,
     private clientsService: ClientsService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -33,29 +34,44 @@ export class QuestionDetailsComponent implements OnInit {
     });
   }
 
-  private loadResponses(): void {
-    this.reponseService.getByQuestion(this.questionId).subscribe(reps => {
-      if (reps.length === 0) {
+private loadResponses(): void {
+    this.isLoading = true;  // ← démarrage du loader
+
+    this.reponseService.getByQuestion(this.questionId).subscribe(
+      reps => {
+        if (reps.length === 0) {
+          this.rows = [];
+          this.isLoading = false;  // ← on arrête le loader
+          return;
+        }
+        const calls = reps.map(rep =>
+          this.clientsService.getClientById(rep.userId)
+        );
+        forkJoin(calls).subscribe(
+          clients => {
+            this.rows = reps.map((rep, i) => {
+              const c = clients[i];
+              return {
+                userId: c?.id   ?? rep.userId,
+                nom:    c?.nom  ?? '—',
+                prenom: c?.prenom ?? '—',
+                valeur: rep.valeur
+              };
+            });
+            this.isLoading = false;  // ← on arrête le loader
+          },
+          err => {
+            console.error(err);
+            this.rows = [];
+            this.isLoading = false;  // ← aussi en cas d'erreur
+          }
+        );
+      },
+      err => {
+        console.error(err);
         this.rows = [];
-        return;
+        this.isLoading = false;  // ← idem erreur
       }
-      console.log("reponses",reps)
-      // Pour chaque réponse, on récupère le client correspondant
-      const calls = reps.map(rep =>
-        this.clientsService.getClientById(rep.userId)
-      );
-      forkJoin(calls).subscribe(clients => {
-        // On aligne chaque réponse avec son client
-        this.rows = reps.map((rep, i) => {
-          const c = clients[i];
-          return {
-            userId: c?.id ?? rep.userId,
-            nom:    c?.nom ?? '—',
-            prenom: c?.prenom ?? '—',
-            valeur: rep.valeur     // ← on remonte la réponse
-          };
-        });
-      });
-    });
+    );
   }
 }

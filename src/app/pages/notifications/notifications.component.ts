@@ -9,12 +9,27 @@ import { NotificationService } from 'src/app/services/notification.service';
 })
 export class NotificationsComponent implements OnInit {
   notifications: Notification[] = [];
+  isLoading = false; 
 
   constructor(private notificationService: NotificationService) { }
 
   ngOnInit(): void {
-  this.notificationService.getAllNotifications()
-      .subscribe(list => this.notifications = list);
+    this.loadNotifications();
+  }
+
+  private loadNotifications(): void {
+    this.isLoading = true;
+    this.notificationService.getNotificationsForCurrentUser().subscribe({
+      next: list => {
+        this.notifications = list;
+        this.isLoading = false;
+      },
+      error: err => {
+        console.error('Erreur chargement notifications', err);
+        this.notifications = [];
+        this.isLoading = false;
+      }
+    });
   }
 
   /**

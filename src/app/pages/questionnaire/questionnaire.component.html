@@ -1,23 +1,60 @@
-<!-- questionnaire.component.html -->
 <div class="container my-4">
   <div class="glass-container p-4">
-    <h1>Questionnaire à Faire:</h1>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-2">
-      <div class="col mb-3" *ngFor="let t of thematiques; let i = index">
-        <!-- Wrapper relatif pour le badge -->
-        <div class="card-wrapper h-100">
-          <!-- Appel à CardComponent en mode “questionnaire” -->
-          <app-card
-            [mode]="'questionnaire'"
-            [id]="t.id"
-            [title]="t.titre"
-            [description]="t.description"
-            [publicationDate]="t.dateCreation"
-            [isSessionOpen]="isSessionOpen(t)"
-            [sessionCloseDate]="t.dateFermetureSession"
-          ></app-card>
-        </div>
+    <h1>Questionnaire à Faire :</h1>
+
+    <!-- 1) Loader centré -->
+    <div
+      *ngIf="isLoading"
+      class="d-flex justify-content-center align-items-center"
+      style="min-height: 60vh;"
+    >
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Chargement…</span>
       </div>
     </div>
+
+    <!-- 2) Contenu ou état vide -->
+    <ng-container *ngIf="!isLoading">
+      <!-- a) Grille de cartes si j’ai des thématiques -->
+      <div
+        *ngIf="thematiques && thematiques.length > 0; else emptyState"
+        class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-2"
+      >
+        <div class="col mb-3" *ngFor="let t of thematiques; let i = index">
+          <div class="card-wrapper h-100">
+            <app-card
+              [mode]="'questionnaire'"
+              [id]="t.id"
+              [title]="t.titre"
+              [description]="t.description"
+              [publicationDate]="t.dateCreation"
+              [isSessionOpen]="isSessionOpen(t)"
+              [sessionCloseDate]="t.dateFermetureSession"
+              
+            ></app-card>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- 3) État vide si aucune thématique -->
+    <ng-template #emptyState>
+      <div
+        class="d-flex flex-column justify-content-center align-items-center"
+        style="min-height: 60vh;"
+      >
+        <p class="mb-3 fs-5">
+          Vous n’avez aucun questionnaire disponible pour le moment.
+        </p>
+        <h2 class="mb-3">Aucun questionnaire</h2>
+        <img
+          src="assets/images/empty-folder.png"
+          alt="Aucun questionnaire"
+          class="img-fluid"
+          style="max-width: 200px;"
+        />
+      </div>
+    </ng-template>
+
   </div>
 </div>

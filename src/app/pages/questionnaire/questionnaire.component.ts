@@ -17,7 +17,7 @@ interface QuestionnaireCard {
   styleUrls: ['./questionnaire.component.css']
 })
 export class QuestionnaireComponent implements OnInit {
-
+isLoading = false; 
   /** Tableau de démonstration */
   questionnaires: QuestionnaireCard[] = [];
   thematiques: Thematique[] = [];
@@ -29,15 +29,19 @@ export class QuestionnaireComponent implements OnInit {
     this.loadThematiques();
   }
 
-  private loadThematiques(): void {
-    this.thematiqueService.getAll().subscribe(
-      (data: Thematique[]) => {
+private loadThematiques(): void {
+    this.isLoading = true;          // ← démarrage du loader
+    this.thematiqueService.getAll().subscribe({
+      next: (data: Thematique[]) => {
         this.thematiques = data;
+        this.isLoading = false;     // ← arrêt du loader
       },
-      (error) => {
-        console.error('Erreur lors de la récupération des thématiques :', error);
+      error: err => {
+        console.error('Erreur récupération thématiques :', err);
+        this.thematiques = [];
+        this.isLoading = false;     // ← aussi en cas d’erreur
       }
-    );
+    });
   }
 
   /**
@@ -50,10 +54,6 @@ export class QuestionnaireComponent implements OnInit {
   }
 
   /** Méthode appelée lorsqu’on clique sur “Répondre” (éventuellement) */
-  onRespond(t: Thematique): void {
-    // On encode le titre pour qu’il soit URL-safe
-    const titreEncode = encodeURIComponent(t.titre);
-    this.router.navigate(['/questionnaire', t.id, titreEncode]);
-  }
+
 
 }

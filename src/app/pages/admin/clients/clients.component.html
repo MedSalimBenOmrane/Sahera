@@ -39,26 +39,36 @@
         <ng-container *ngIf="isLoading; else dataRows">
     <tr>
       <!-- colspan = nombre total de colonnes (ici 9) -->
-      <td colspan="10" style="text-align: center; padding: 1.5em;">
-        <!-- Tu peux remplacer ce texte par un spinner -->
-        <div class="loader">
-    <div class="bar1"></div>
-    <div class="bar2"></div>
-    <div class="bar3"></div>
-    <div class="bar4"></div>
-    <div class="bar5"></div>
-    <div class="bar6"></div>
-    <div class="bar7"></div>
-    <div class="bar8"></div>
-    <div class="bar9"></div>
-    <div class="bar10"></div>
-    <div class="bar11"></div>
-    <div class="bar12"></div>
-</div>
-      </td>
+          <td colspan="10" class="p-0">
+      <div
+        class="d-flex justify-content-center align-items-center"
+        style="height: 200px;"
+      >
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Chargement…</span>
+        </div>
+      </div>
+    </td>
     </tr>
   </ng-container>
    <ng-template #dataRows>
+        <tr *ngIf="clients.length === 0">
+      <td colspan="10" class="p-0">
+        <div
+          class="d-flex flex-column justify-content-center align-items-center"
+          style="height: 200px;"
+        >
+          <img
+            src="assets/images/empty-folder.png"
+            alt="Aucun participant"
+            style="max-width: 150px;"
+            class="mb-2"
+          />
+          <p class="mb-0">Aucun participant trouvé pour le moment.</p>
+        </div>
+      </td>
+    </tr>
+
         <tr *ngFor="let c of clients">
           <td>{{c.id}}</td>
           <td>{{c.nom}}</td>

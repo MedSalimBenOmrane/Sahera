@@ -2,7 +2,7 @@
 
 /* === Styles du conteneur global === */
 .wrapper {
-  background: #ffffffcb;
+  background: #ffffff65;
   border-radius: 16px 20px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(12.1px);
@@ -19,7 +19,7 @@
   line-height: 1.75rem;
   max-height: 130px;         /* tronque le contenu si trop long */
   overflow: hidden;
-  padding: 20px 30px 60px 30px;
+  padding: 10px 15px 60px 15px;
   transition: max-height 0.5s ease;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
@@ -125,7 +125,7 @@ input.cyberpunk-checkbox:checked + .cyberpunk-checkbox-label:before {
 @media (max-width: 45em) {
  .text-container {
 
-  padding: 5px 10px 40px 10px;
+  padding: 5px 10px 180px 10px;
 
 }
 }

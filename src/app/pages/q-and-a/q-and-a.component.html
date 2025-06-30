@@ -1,54 +1,77 @@
-<!-- src/app/pages/q-and-a/q-and-a.component.html -->
-
 <div class="container my-4">
   <div class="glass-container">
     <div class="title p-4">
       <h1>Thème : {{ thematiqueTitre }}</h1>
     </div>
 
-<div class="tabs p-1">
-  <ng-container *ngFor="let st of sousThematiques; let i = index">
-    <input
-      type="radio"
-      name="tabs"
-      [id]="'tab' + i"
-      [checked]="i === 0"
-    />
-    <label [for]="'tab' + i">{{ st.titre }}</label>
-    <div class="tab">
-      <div class="title">
-        <h2>Questions pour « {{ st.titre }} »</h2>
-      </div>
-
-      <div *ngIf="questionsMap[st.id] === undefined">
-        Chargement des questions...
-      </div>
-
-      <ul *ngIf="getQuestions(st).length > 0">
-        <li *ngFor="let q of getQuestions(st)">
-          {{ q.question }}<br>
-          <input
-            class="input"
-            type="text"
-            [(ngModel)]="reponses[st.id][q.id]"
-            name="resp-{{st.id}}-{{q.id}}"
-            placeholder="Votre réponse"
-          />
-        </li>
-      </ul>
-
- <div *ngIf="questionsMap[st.id] !== undefined && getQuestions(st).length === 0">
-   Aucune question…
-y </div>
-
-      <!-- BOUTON ENREGISTRER -->
-      <div class="actions text-end  mt-2">
-        <button (click)="saveReponses(st)" class="btn btn-primary" >
-          Enregistrer les réponses
-        </button>
+    <!-- ─── 1) Loader page / état vide sous-thématiques ─── -->
+    <div *ngIf="isLoadingST" class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Chargement des sous-thématiques…</span>
       </div>
     </div>
-  </ng-container>
-</div>
+
+    <ng-container *ngIf="!isLoadingST">
+      <!-- Aucun ST -->
+      <ng-container *ngIf="sousThematiques.length > 0; else emptyST">
+        <!-- ─── 2) Tabs ─────────────────────────────────── -->
+        <div class="tabs p-1">
+          <ng-container *ngFor="let st of sousThematiques; let i = index">
+            <input type="radio" name="tabs" [id]="'tab' + i" [checked]="i===0" />
+            <label [for]="'tab' + i">{{ st.titre }}</label>
+            <div class="tab">
+
+              <div class="title">
+                <h2>Questions pour « {{ st.titre }} »</h2>
+              </div>
+
+              <!-- 2a) Loader questions -->
+              <div *ngIf="loadingQuestionsMap[st.id]" class="d-flex justify-content-center align-items-center"
+                style="min-height: 20vh;">
+                <div class="spinner-border" role="status">
+                  <span class="visually-hidden">Chargement des questions…</span>
+                </div>
+              </div>
+
+              <!-- 2b) Questions existantes -->
+              <ul *ngIf="!loadingQuestionsMap[st.id] && getQuestions(st).length > 0">
+                <li *ngFor="let q of getQuestions(st)">
+                  {{ q.question }}<br />
+                  <input class="input" type="text" [(ngModel)]="reponses[st.id][q.id]" name="resp-{{st.id}}-{{q.id}}"
+                    placeholder="Votre réponse" />
+                </li>
+              </ul>
+
+              <!-- 2c) État vide questions -->
+              <div *ngIf="!loadingQuestionsMap[st.id] && getQuestions(st).length===0"
+                class="d-flex flex-column justify-content-center align-items-center" style="min-height: 20vh;">
+                <img src="assets/images/empty-folder.png" alt="Pas de question" class="mb-2"
+                  style="max-width: 150px;" />
+                <p class="mb-0">Aucune question pour cette sous-thématique.</p>
+              </div>
+
+              <!-- Bouton enregistrer -->
+              <div class="actions text-end mt-2" *ngIf="!loadingQuestionsMap[st.id] && getQuestions(st).length > 0">
+                <button (click)="saveReponses(st)" class="btn btn-primary">
+                  Enregistrer les réponses
+                </button>
+              </div>
+
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <!-- template état vide ST -->
+    <ng-template #emptyST>
+      <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 60vh;">
+        <p class="mb-3 fs-5">Aucune sous-thématique disponible.</p>
+        <h2 class="mb-3">Pas de contenu</h2>
+        <img src="assets/images/empty-folder.png" alt="Pas de sous-thématique" class="img-fluid"
+          style="max-width: 200px;" />
+      </div>
+    </ng-template>
+
   </div>
 </div>

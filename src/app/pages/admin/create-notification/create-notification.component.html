@@ -33,7 +33,21 @@
 </dialog>
 
 <hr />
+ <!-- 1) Loader centré pendant isLoading -->
+    <div
+      *ngIf="isLoading"
+      class="d-flex justify-content-center align-items-center"
+      style="min-height: 60vh;"
+    >
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
 
+    <!-- 2) Une fois chargé, on affiche notifications ou emptyState -->
+    <ng-container *ngIf="!isLoading">
+
+<ng-container *ngIf="notifications && notifications.length > 0; else emptyState">
 <app-notification
   *ngFor="let notif of notifications; let i = index"
   [notification]="notif"
@@ -42,3 +56,30 @@
   (deleteNotification)="onDeleteNotification($event)"
 
 ></app-notification>
+  </ng-container>
+  </ng-container>
+
+   <!-- Sinon j’affiche l’état vide -->
+    <ng-template #emptyState>
+      <div
+        class="d-flex flex-column justify-content-center align-items-center"
+        style="min-height: 60vh;"
+      >
+        <!-- Phrase explicative -->
+        <p class="mb-3 fs-5">
+          Vous n’avez aucune notification pour le moment.
+        </p>
+        <!-- Libellé principal -->
+        <h2 class="mb-3">Pas de notification</h2>
+        <!-- Image centrée -->
+        <img
+          src="assets/images/empty-folder.png"
+          alt="Aucune notification"
+          class="img-fluid"
+          style="max-width: 200px;"
+        />
+      </div>
+    </ng-template>
+  
+  </div>
+</div>

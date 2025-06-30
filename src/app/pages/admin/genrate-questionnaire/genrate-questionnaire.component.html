@@ -1,44 +1,68 @@
 <!-- genrate-questionnaire.component.html -->
 <div class="container my-4">
   <div class="glass-container p-4">
-        <div *ngIf="isLoading"
+
+    <!-- ─── LOADER CENTRÉ ─────────────────────────────────── -->
+    <div *ngIf="isLoading"
          class="d-flex justify-content-center align-items-center"
-         style="height: 200px;">
-      <!-- Exemple avec Bootstrap spinner -->
+         style="min-height: 60vh;">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">Chargement…</span>
       </div>
     </div>
-    <!-- ─── En-tête de la page ─────────────────────────────────── -->
-    <div  *ngIf="!isLoading" class="d-flex justify-content-between align-items-center mb-3">
-      <h1 class="m-0">Liste des Thématiques</h1>
-      <button class="cssbuttons-io-button" (click)="openCreateDialog()">
-        <svg height="24" width="24" viewBox="0 0 24 24">
-          <path d="M0 0h24v24H0z" fill="none"></path>
-          <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" fill="currentColor"></path>
-        </svg>
-        <span>Créer</span>
-      </button>
-    </div>
 
-    <!-- ─── Liste des cards ─────────────────────────────────────── -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-2">
-      <div class="col mb-3" *ngFor="let t of thematiques; let i = index">
-        <div class="card-wrapper h-100">
-          <app-admin-qcard
-        [id]="t.id"
-        [title]="t.titre"
-        [description]="t.description"
-        [publicationDate]="t.dateCreation"
-        [isSessionOpen]="isSessionOpen(t)"
-        [sessionCloseDate]="t.dateFermetureSession"
-        (deleteThematique)="onDeleteThematique($event)">
-      </app-admin-qcard>
-        </div>
+    <!-- ─── CONTENU APRÈS CHARGEMENT ─────────────────────── -->
+    <ng-container *ngIf="!isLoading">
+      <!-- ─ En-tête ─ -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="m-0">Liste des Thématiques</h1>
+        <button class="cssbuttons-io-button" (click)="openCreateDialog()">
+          <svg height="24" width="24" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none"></path>
+            <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" fill="currentColor"></path>
+          </svg>
+          <span>Créer</span>
+        </button>
       </div>
-    </div>
-  </div>
-</div>
+
+      <!-- ─ Si j’ai des thématiques ─ -->
+      <ng-container *ngIf="thematiques && thematiques.length > 0; else emptyState">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-2">
+          <div class="col mb-3" *ngFor="let t of thematiques; let i = index">
+            <div class="card-wrapper h-100">
+              <app-admin-qcard
+                [id]="t.id"
+                [title]="t.titre"
+                [description]="t.description"
+                [publicationDate]="t.dateCreation"
+                [isSessionOpen]="isSessionOpen(t)"
+                [sessionCloseDate]="t.dateFermetureSession"
+                (deleteThematique)="onDeleteThematique($event)">
+              </app-admin-qcard>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <!-- ─── ÉTAT VIDE ─────────────────────────────────────── -->
+    <ng-template #emptyState>
+      <div
+        class="d-flex flex-column justify-content-center align-items-center"
+        style="min-height: 60vh;"
+      >
+        <p class="mb-3 fs-5">
+          Aucune thématique n’est disponible pour le moment.
+        </p>
+        <h2 class="mb-3">Pas de questionnaire</h2>
+        <img
+          src="assets/images/empty-folder.png"
+          alt="Aucun questionnaire"
+          class="img-fluid"
+          style="max-width: 200px;"
+        />
+      </div>
+    </ng-template>
 
 <!-- ─── Modal de création ─────────────────────────────────────── -->
 <dialog #dialog>
@@ -47,21 +71,14 @@
   <div class="row">
     <div class="col-5">Titre :</div>
     <div class="col-7">
-      <input
-        type="text"
-        class="input5"
-        [(ngModel)]="newThematique.titre"
-        placeholder="Titre de la thématique" />
+      <input type="text" class="input5" [(ngModel)]="newThematique.titre" placeholder="Titre de la thématique" />
     </div>
   </div>
 
   <div class="row">
     <div class="col-5">Description :</div>
     <div class="col-7">
-      <textarea
-        class="input5 textarea-message"
-        [(ngModel)]="newThematique.description"
-        placeholder="Description"
+      <textarea class="input5 textarea-message" [(ngModel)]="newThematique.description" placeholder="Description"
         rows="4"></textarea>
     </div>
   </div>
@@ -69,33 +86,30 @@
   <div class="row">
     <div class="col-5">Date de clôture :</div>
     <div class="col-7">
-      <input
-        type="date"
-        class="input5"
-        [(ngModel)]="newThematique.dateFermetureSession" />
+      <input type="date" class="input5" [(ngModel)]="newThematique.dateFermetureSession" />
     </div>
   </div>
   <div class="row">
-  <div class="col-5">Importer CSV :</div>
+    <div class="col-5">Importer CSV :</div>
     <div class="col-7">
-  <form class="file-upload-form">
-  <label class="file-upload-label" for="file">
-    <div class="file-upload-design">
-      <svg height="1em" viewBox="0 0 640 512">
-        <path
-          d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z"
-        ></path>
-      </svg>
-      <p>Drag and Drop</p>
-      <p>or</p>
-      <span class="browse-button">Browse CSV file</span>
-    </div>
-    <input type="file" id="file" />
-  </label>
+      <form class="file-upload-form">
+        <label class="file-upload-label" for="file">
+          <div class="file-upload-design">
+            <svg height="1em" viewBox="0 0 640 512">
+              <path
+                d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z">
+              </path>
+            </svg>
+            <p>Drag and Drop</p>
+            <p>or</p>
+            <span class="browse-button">Browse CSV file</span>
+          </div>
+          <input type="file" id="file" />
+        </label>
 
-</form>
-</div>
-</div>
+      </form>
+    </div>
+  </div>
   <div class="row justify-content-center mt-3">
     <button class="boton-elegante" (click)="createThematique()">Créer</button>
   </div>

@@ -26,7 +26,33 @@ export class NotificationService {
       { titre, contenu, utilisateur_ids: utilisateurIds }
     );
   }
+/** Récupère les notifications pour l’utilisateur courant */
+  getNotificationsForCurrentUser(): Observable<Notification[]> {
+    if (this.userId === null) {
+      return of([]);
+    }
+    return this.http
+      .get<NotificationDto[]>(`${this.baseUrl}/notifications/${this.userId}`)
+      .pipe(
+        map(dtos =>
+          dtos
+            .map(dto => new Notification(
+              dto.notification_id,
+              dto.titre,
+              dto.contenu,
+              dto.date_envoi,
+              dto.est_lu
+            ))
+            .sort((a, b) => b.date.getTime() - a.date.getTime())
+        ),
+        tap(list => this.notifications = list)
+      );
+  }
 
+  /** (Optionnel) alias sur getNotificationsForCurrentUser */
+  fetchForCurrentUser() {
+    return this.getNotificationsForCurrentUser();
+  }
   /** Récupère du back et stocke localement */
 getAllNotifications(): Observable<Notification[]> {
   if (this.userId === null) return of([]);

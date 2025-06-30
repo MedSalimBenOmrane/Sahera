@@ -13,19 +13,23 @@ import { SousThematiqueService } from 'src/app/services/sous-thematique.service'
   styleUrls: ['./q-and-a.component.css']
 })
 export class QAndAComponent implements OnInit {
-  thematiqueId!: number;
+    thematiqueId!: number;
   thematiqueTitre!: string;
-  repIdMap: { [stId: number]: { [qId: number]: number } } = {};
-  /** Tableau des sous-thématiques récupérées depuis l’API */
-  sousThematiques: SousThematique[] = [];
 
-  /**
-   * questionsMap[<idSousThematique>] = Question[]
-   * Permet de stocker les questions une fois récupérées pour chaque sous-thématique.
-   */
-  questionsMap: { [sousThId: number]: Question[] } = {};
-  reponses: { [sousThId: number]: { [questionId: number]: string } } = {};
+  // 1) Sous-thématiques
+  sousThematiques: SousThematique[] = [];
+  isLoadingST = false; // ← loader page
+
+  // 2) Questions par ST
+  questionsMap: { [stId: number]: Question[] } = {};
+  loadingQuestionsMap: { [stId: number]: boolean } = {};
+
+  // Réponses existantes
+  reponses: { [stId: number]: { [questionId: number]: string } } = {};
+  repIdMap: { [stId: number]: { [qId: number]: number } } = {};
+
   private userId!: number;
+
   constructor(
     private route: ActivatedRoute,
     private sousThematiqueService: SousThematiqueService,
@@ -33,70 +37,74 @@ export class QAndAComponent implements OnInit {
     private reponseService: ReponseService
   ) {}
 
-    ngOnInit(): void {
-    // 1) Récupère l'utilisateur connecté dans le localStorage
+  ngOnInit(): void {
+    // Récupération user
     const usr = localStorage.getItem('user');
-    if (usr) {
-      const userObj = JSON.parse(usr);
-      this.userId = userObj.id;
-    } else {
-      console.warn('Utilisateur non trouvé en session');
-    }
+    if (usr) this.userId = JSON.parse(usr).id;
 
-    // 2) Lecture des params et chargement
     this.route.paramMap.subscribe(params => {
-      const idParam = params.get('id');
-      const titreParam = params.get('titre');
-      if (idParam) { this.thematiqueId = +idParam; }
-      if (titreParam) { this.thematiqueTitre = titreParam; }
-      this.loadSousThematiques(this.thematiqueId);
+      this.thematiqueId   = +params.get('id')!;
+      this.thematiqueTitre = params.get('titre') || '';
+      this.loadSousThematiques();
     });
   }
 
-  private loadSousThematiques(thematiqueId: number): void {
-    this.sousThematiqueService.getByThematique(thematiqueId)
-      .subscribe(listST => {
-        this.sousThematiques = listST;
-        // pour chaque st, on prépare un objet vide et on charge ses questions
-        for (const st of listST) {
-          this.reponses[st.id] = {};
-          this.loadQuestionsForSousThematique(st.id);
+  private loadSousThematiques(): void {
+    this.isLoadingST = true;
+    this.sousThematiqueService.getByThematique(this.thematiqueId)
+      .subscribe({
+        next: listST => {
+          this.sousThematiques = listST;
+          this.isLoadingST = false;
+          // pour chaque ST on charge ses questions
+          for (const st of listST) {
+            this.loadQuestionsForSousThematique(st.id);
+          }
+        },
+        error: err => {
+          console.error('Erreur chargement ST', err);
+          this.sousThematiques = [];
+          this.isLoadingST = false;
         }
       });
   }
 
-private loadQuestionsForSousThematique(stId: number): void {
-  this.questionService.getBySousThematique(stId)
-    .subscribe(listQ => {
-      this.questionsMap[stId] = listQ;
+  private loadQuestionsForSousThematique(stId: number): void {
+    this.loadingQuestionsMap[stId] = true;
+    this.questionService.getBySousThematique(stId).subscribe({
+      next: listQ => {
+        this.questionsMap[stId] = listQ;
+        // init réponses + IDs existantes
+        this.reponses[stId] = {};
+        this.repIdMap[stId] = {};
+        listQ.forEach(q => this.reponses[stId][q.id] = '');
 
-      // ← Initialise ici à chaque chargement de questions
-      this.reponses[stId]  = {};
-      this.repIdMap[stId]  = {};
-
-      // Prépare les champs vides
-      listQ.forEach(q => this.reponses[stId][q.id] = '');
-
-      // Charge l’existant
-      this.reponseService
-        .getByClientSousThematique(this.userId, stId)
-        .subscribe(existing => {
-          existing.forEach(r => {
-            this.reponses[stId][r.question_id]    = r.contenu;
-            this.repIdMap[stId][r.question_id]    = r.reponse_id;
+        // charger réponses existantes
+        this.reponseService
+          .getByClientSousThematique(this.userId, stId)
+          .subscribe(existing => {
+            existing.forEach(r => {
+              this.reponses[stId][r.question_id] = r.contenu;
+              this.repIdMap[stId][r.question_id] = r.reponse_id;
+            });
+            this.loadingQuestionsMap[stId] = false;
+          },
+          err => {
+            console.error('Erreur chargement réponses', err);
+            this.loadingQuestionsMap[stId] = false;
           });
-        });
+      },
+      error: err => {
+        console.error('Erreur chargement questions', err);
+        this.questionsMap[stId] = [];
+        this.loadingQuestionsMap[stId] = false;
+      }
     });
-}
+  }
 
   getQuestions(st: SousThematique): Question[] {
     return this.questionsMap[st.id] || [];
   }
-
-  /**
-   * Pour chaque question de la sous-thématique, on crée une Reponse
-   * et on l'envoie au back.
-   */
   saveReponses(st: SousThematique): void {
     const now = new Date();
     const vals = this.reponses[st.id];

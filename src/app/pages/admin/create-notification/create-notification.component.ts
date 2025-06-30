@@ -11,14 +11,26 @@ import { Notification } from '../../../models/notification.model';
 export class CreateNotificationComponent implements OnInit {
   notifications: Notification[] = [];
   newNotif = { titre: '', contenu: '' };
-
+  // On ajoute un flag de chargement
+  isLoading = false;
   @ViewChild('dialog', { static: true }) dialogRef!: ElementRef<HTMLDialogElement>;
 
   constructor(private notificationService: NotificationService) {}
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.notificationService.getAllNotifications()
-      .subscribe(list => this.notifications = list);
+      .subscribe(list =>{
+          this.notifications = list;
+          // Dès qu'on a la réponse (même vide), on désactive le loader
+          this.isLoading = false;
+        },
+        err => {
+          console.error(err);
+          // En cas d'erreur aussi, on cache le loader
+          this.isLoading = false;
+        }
+      );
   }
 
   openCreateDialog(): void {

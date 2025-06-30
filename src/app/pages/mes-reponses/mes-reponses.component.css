@@ -14,8 +14,17 @@
   border-radius: 8px;
   height: 100%;
 }
+.nav-item{
+   border-radius: 8px 8px 0px 0px;
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  -webkit-backdrop-filter: blur(12.1px);
+}
 
-
+.nav-link{
+  color:#4a1c2a;
+}
 /* resp. spacing */
 .g-3 { gap: 1rem !important; }
 @media (max-width: 575.98px) {

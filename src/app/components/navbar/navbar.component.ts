@@ -10,7 +10,16 @@ export class NavbarComponent implements OnInit {
 
  constructor(private notificationService: NotificationService) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void { // ← on précharge immédiatement la liste des notifs pour l'utilisateur courant
+    this.notificationService.getNotificationsForCurrentUser()
+      .subscribe({
+        next: () => {
+          // rien à faire ici, tap() dans le service aura déjà mis à jour this.notifications
+        },
+        error: err => {
+          console.error('Impossible de charger les notifications', err);
+        }
+      }); }
 
   /** Getter qui renvoie le nombre de notifications non lues */
   get unreadCount(): number {
