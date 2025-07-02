@@ -11,6 +11,9 @@ import bcrypt
 import jwt
 from flask import current_app, request, jsonify, abort
 import os
+import io
+import csv
+
 
 api_bp = Blueprint("api", __name__)
 
@@ -190,6 +193,71 @@ def delete_thematique(id):
 #User, 
 #Récupérer toutes les thématiques non complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
 #Admin, User 
+
+# crée 
+import io, csv
+from flask import request, abort, jsonify
+@api_bp.route("/thematiques/<int:thematique_id>/import_csv", methods=["POST"])
+def import_sous_thematiques_questions(thematique_id):
+    """
+    Importe un CSV où chaque ligne est [sous_thematique, question].
+    Crée la sous-thematique (une seule fois) et la question associée.
+    La première ligne (headers) est ignorée.
+    """
+    thematique = Thematique.query.get_or_404(thematique_id)
+
+    if 'file' not in request.files:
+        abort(400, description="Missing CSV file")
+    file = request.files['file']
+    if file.filename == '':
+        abort(400, description="No file selected")
+
+    try:
+        stream = io.StringIO(file.stream.read().decode('utf-8'))
+        reader = csv.reader(stream)
+        # On saute la ligne d'en-tête
+        headers = next(reader, None)
+    except Exception as e:
+        abort(400, description=f"Cannot read CSV: {e}")
+
+    created_subs = 0
+    created_qs  = 0
+
+    for row in reader:
+        if len(row) < 2:
+            continue
+        titre_sous = row[0].strip()
+        texte_q     = row[1].strip()
+        if not titre_sous or not texte_q:
+            continue
+
+        sous = SousThematique.query.filter_by(
+            thematique_id=thematique.id,
+            titre=titre_sous
+        ).first()
+        if not sous:
+            sous = SousThematique(
+                titre=titre_sous,
+                thematique_id=thematique.id
+            )
+            db.session.add(sous)
+            db.session.flush()
+            created_subs += 1
+
+        question = Question(
+            texte=texte_q,
+            sous_thematique_id=sous.id
+        )
+        db.session.add(question)
+        created_qs += 1
+
+    db.session.commit()
+    return jsonify({
+        "created_sous_thematiques": created_subs,
+        "created_questions": created_qs
+    }), 200
+
+
 @api_bp.route("/thematiques/non-completes/<int:utilisateur_id>", methods=["GET"])
 def get_incomplete_thematiques(utilisateur_id):
     """
