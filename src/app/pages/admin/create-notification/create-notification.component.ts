@@ -2,22 +2,45 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { NotificationService } from '../../../services/notification.service';
 import { Notification } from '../../../models/notification.model';
-
+import {
+  Directive,
+  HostListener,
+  Input,
+  Renderer2,
+  AfterViewInit
+} from '@angular/core';
 @Component({
   selector: 'app-create-notification',
   templateUrl: './create-notification.component.html',
   styleUrls: ['./create-notification.component.css']
 })
 export class CreateNotificationComponent implements OnInit {
+  @Input() revealThreshold = 150;
   notifications: Notification[] = [];
   newNotif = { titre: '', contenu: '' };
   // On ajoute un flag de chargement
   isLoading = false;
   @ViewChild('dialog', { static: true }) dialogRef!: ElementRef<HTMLDialogElement>;
 
-  constructor(private notificationService: NotificationService) {}
+  constructor(private notificationService: NotificationService,    private el: ElementRef<HTMLElement>,
+    private renderer: Renderer2) {}
+ @HostListener('window:scroll')
+  @HostListener('window:resize')
+  onWindowEvent() {
+    this.checkReveal();
+  }
+  private checkReveal() {
+    const windowHeight = window.innerHeight;
+    const elemTop = this.el.nativeElement.getBoundingClientRect().top;
 
+    if (elemTop < windowHeight - this.revealThreshold) {
+      this.renderer.addClass(this.el.nativeElement, 'active');
+    } else {
+      this.renderer.removeClass(this.el.nativeElement, 'active');
+    }
+  }
   ngOnInit(): void {
+    
     this.isLoading = true;
     this.notificationService.getAllNotifications()
       .subscribe(list =>{
@@ -31,6 +54,7 @@ export class CreateNotificationComponent implements OnInit {
           this.isLoading = false;
         }
       );
+    this.checkReveal();
   }
 
   openCreateDialog(): void {

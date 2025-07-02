@@ -92,7 +92,7 @@
   <div class="row">
     <div class="col-5">Importer CSV :</div>
     <div class="col-7">
-      <form class="file-upload-form">
+      <form class="file-upload-form" >
         <label class="file-upload-label" for="file">
           <div class="file-upload-design">
             <svg height="1em" viewBox="0 0 640 512">
@@ -104,14 +104,20 @@
             <p>or</p>
             <span class="browse-button">Browse CSV file</span>
           </div>
-          <input type="file" id="file" />
+          <input type="file" id="file"         (change)="onFileSelected($event)"
+        accept=".csv" />
         </label>
 
       </form>
     </div>
   </div>
   <div class="row justify-content-center mt-3">
-    <button class="boton-elegante" (click)="createThematique()">Créer</button>
+    <button class="boton-elegante"       (click)="createThematique()"
+      [disabled]="isLoading || isCsvLoading">      <span *ngIf="!isLoading && !isCsvLoading">Créer</span>
+      <span *ngIf="isLoading || isCsvLoading">
+        <span class="spinner-border spinner-border-sm"></span>
+        &nbsp;Patientez…
+      </span></button>
   </div>
 
   <button class="x" aria-label="close" (click)="closeDialog()">❌</button>
