@@ -1,0 +1,39 @@
+<dialog #dialog>
+  <h2>Modifier mes coordonnées</h2>
+
+  <div *ngIf="isLoading">Chargement…</div>
+  <div *ngIf="errorMsg" class="text-danger">{{ errorMsg }}</div>
+
+  <ng-container *ngIf="!isLoading && !errorMsg">
+    <div class="row" *ngFor="let field of formFields">
+      <div class="col-5">{{ field.label }} :</div>
+      <div class="col-7">
+        <input
+          *ngIf="field.type!=='select'"
+          [type]="field.type"
+          class="input5"
+          [placeholder]="field.label"
+          [(ngModel)]="form[field.key]"
+          name="{{ field.key }}"
+        />
+        <select
+          *ngIf="field.type==='select'"
+          class="input5"
+          [(ngModel)]="form[field.key]"
+          name="{{ field.key }}"
+        >
+          <option value="" disabled selected>{{ field.label }}</option>
+          <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="boton-elegante" (click)="saveProfile()">
+        Enregistrer les changements
+      </button>
+    </div>
+  </ng-container>
+
+  <button class="x" aria-label="close" (click)="closeDialog()">❌</button>
+</dialog>

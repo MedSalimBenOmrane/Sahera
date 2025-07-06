@@ -19,7 +19,7 @@ const routes: Routes = [
     path: 'admin',
     //canActivate: [AdminGuard],    // optionnel, si vous voulez protéger
     children: [
-      { path: '', redirectTo: 'Dashbord', pathMatch: 'full' },
+      { path: '', redirectTo: 'Dashbored', pathMatch: 'full' },
       {path:'Dashbored' , component:DashboardComponent },
       { path: 'participants', component: ClientsComponent },
       { path: 'questionnaires', component: GenrateQuestionnaireComponent },

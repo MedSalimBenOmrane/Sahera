@@ -41,6 +41,11 @@ import { ThematiqueDetailsComponent } from './pages/admin/thematique-details/the
 import { QuestionDetailsComponent } from './pages/admin/question-details/question-details.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ComingSoonPageComponent } from './pages/coming-soon-page/coming-soon-page.component';
+import { EditCoordonneesUserComponent } from './components/edit-coordonnees-user/edit-coordonnees-user.component';
+import { BarChartComponent } from './components/dashboard/bar-chart/bar-chart.component';
+import { CustomLineChartComponent } from './components/dashboard/custom-line-chart/custom-line-chart.component';
+import { LineChartComponent } from './components/dashboard/line-chart/line-chart.component';
+import { PieChartComponent } from './components/dashboard/pie-chart/pie-chart.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -57,13 +62,17 @@ import { ComingSoonPageComponent } from './pages/coming-soon-page/coming-soon-pa
     ClientsComponent,
     CreateNotificationComponent,
     AdminNavBarComponent,
-
+    BarChartComponent,
+    CustomLineChartComponent,
+    LineChartComponent,
+    PieChartComponent,
     DashboardComponent,
      GenrateQuestionnaireComponent,
      AdminQCardComponent,
      ThematiqueDetailsComponent,
      QuestionDetailsComponent,
-     ComingSoonPageComponent
+     ComingSoonPageComponent,
+     EditCoordonneesUserComponent
   ],
   imports: [
     BrowserModule,

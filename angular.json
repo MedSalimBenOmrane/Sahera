@@ -35,7 +35,8 @@
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
-              "node_modules/chart.js/dist/chart.js"
+              "node_modules/chart.js/dist/chart.js",
+              "node_modules/dialog-polyfill/dist/dialog-polyfill.js"
             ]
           },
           "configurations": {
@@ -110,5 +111,8 @@
       }
     }
   },
-  "defaultProject": "Sahera"
+  "defaultProject": "Sahera",
+  "cli": {
+    "analytics": false
+  }
 }
