@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
+import { DashboardService, GenderDistribution } from 'src/app/services/dashboard.service';
 
 @Component({
   selector: 'app-pie-chart',
@@ -7,21 +8,35 @@ import { Chart, registerables } from 'chart.js';
   styleUrls: ['./pie-chart.component.css']
 })
 export class PieChartComponent implements OnInit {
+  @ViewChild('myPieChart', { static: true })
+  private canvas!: ElementRef<HTMLCanvasElement>;
   public chart: any;
+  
 
-  createChart() {
+  constructor(private dashboardService: DashboardService) {
+    Chart.register(...registerables);
+  }
+
+  ngOnInit(): void {
+    this.dashboardService.getGenderDistribution().subscribe(
+      (data: GenderDistribution) => this.createChart(data),
+      err => console.error('Erreur lors du chargement des données :', err)
+    );
+  }
+
+  private createChart(data: GenderDistribution): void {
     const ctx = document.getElementById('MyPieChart') as HTMLCanvasElement;
 
     this.chart = new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: ['Female', 'Male'],
+        labels: ['Femmes', 'Hommes'],
         datasets: [{
-          label: 'Distribution des Tumeurs',
-          data: [60, 40], // 60% femmes, 40% hommes
+          label: 'Répartition par genre',
+          data: [data.female, data.male],
           backgroundColor: [
-            'rgb(255, 0, 55)', // Couleur pour Femmes
-            'rgb(0, 153, 255)' // Couleur pour Hommes
+            'rgb(255, 0, 55)',   // Femmes
+            'rgb(0, 153, 255)'   // Hommes
           ],
           hoverOffset: 4
         }]
@@ -29,17 +44,10 @@ export class PieChartComponent implements OnInit {
       options: {
         plugins: {
           legend: {
-            labels: {
-              color: 'black' // Change label color to white
-            }
+            labels: { color: 'black' }
           }
         }
       }
     });
-  }
-
-  ngOnInit(): void {
-    Chart.register(...registerables);
-    this.createChart();
   }
 }

@@ -1,5 +1,7 @@
+// custom-line-chart.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
+import { AgeDistribution, DashboardService } from 'src/app/services/dashboard.service';
 
 @Component({
   selector: 'app-custom-line-chart',
@@ -7,72 +9,63 @@ import { Chart, registerables } from 'chart.js';
   styleUrls: ['./custom-line-chart.component.css']
 })
 export class CustomLineChartComponent implements OnInit {
-  public chart: any;
+  private chart!: Chart;
 
-  createChart() {
-    this.chart = new Chart("MyLineChart_", {
-      type: 'line',
+  constructor(private dashboardService: DashboardService) {
+    Chart.register(...registerables);
+  }
+
+  ngOnInit(): void {
+    this.dashboardService.getAgeDistribution()
+      .subscribe(
+        (data: AgeDistribution) => this.createChart(data),
+        err => console.error('Erreur chargement distribution d’âge :', err)
+      );
+  }
+
+  private createChart(data: AgeDistribution): void {
+    const ctx = document.getElementById('MyLineChart_') as HTMLCanvasElement;
+    this.chart = new Chart(ctx, {
+      type: 'line',            // ← ici !
       data: {
-        labels: ['2020', '2021', '2022', '2023', '2024'], // Années
+        labels: data.labels,   // ['0-17','18-30',…]
         datasets: [{
-          label: 'Females',
-          data: [1200, 1300, 1500, 1600, 1700], // Données pour les femmes
-          fill: false,
-          borderColor: 'rgb(255, 0, 55)', // Couleur de la ligne pour les femmes
-          tension: 0.1
-        }, {
-          label: 'Males',
-          data: [1100, 1200, 1300, 1400, 1500], // Données pour les hommes
-          fill: false,
-          borderColor: 'rgb(0, 153, 255)', // Couleur de la ligne pour les hommes
-          tension: 0.1
+          label: 'Nombre d’utilisateurs',
+          data: data.counts,   // [12,34,…]
+          fill: false,         // pas de zone colorée sous la courbe
+          borderColor: 'rgb(0, 123, 255)',
+          tension: 0.1,        // lissage de la courbe
+          pointBackgroundColor: 'rgb(0, 123, 255)',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgb(0, 123, 255)'
         }]
       },
       options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              color: 'black'
-            },
-            grid: {
-              color: 'rgba(255, 255, 255, 0.2)'
-            }
-          },
-          x: {
-            ticks: {
-              color: 'black'
-            },
-            grid: {
-              color: 'rgba(255, 255, 255, 0.36)'
-            }
-          }
-        },
         plugins: {
           title: {
             display: true,
-            text: 'Number of Patients per Year', // Titre du graphique
+            text: 'Répartition par tranche d’âge',
             color: 'black',
-            font: {
-              size: 16,
-            },
-            padding: {
-              top: 10,
-              bottom: 30
-            }
+            font: { size: 16 },
+            padding: { top: 10, bottom: 30 }
           },
           legend: {
-            labels: {
-              color: 'black' // Change legend label color to white
-            }
+            display: false
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: 'black' },
+            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: 'black' },
+            grid: { color: 'rgba(0, 0, 0, 0.1)' }
           }
         }
       }
     });
-  }
-
-  ngOnInit(): void {
-    Chart.register(...registerables);
-    this.createChart();
   }
 }
