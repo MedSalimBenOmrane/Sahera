@@ -6,13 +6,16 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
 from datetime import date
 from sqlalchemy.orm import joinedload
-from sqlalchemy import func
+from sqlalchemy import func 
 import bcrypt
 import jwt
 from flask import current_app, request, jsonify, abort
 import os
 import io
 import csv
+from sqlalchemy import  or_  
+from sqlalchemy import func, case, and_
+  
 
 
 api_bp = Blueprint("api", __name__)
@@ -943,3 +946,150 @@ def mark_as_unread(user_id, notification_id):
             "titre": notif.titre
         }
     }), 200
+
+# dashboard 
+POSSIBLE_ETHNICITES = [
+    "Amérindien ou Autochtone d’Alaska",
+    "Asiatique",
+    "Noir ou Afro-Américain",
+    "Hispanique ou Latino",
+    "Moyen-Oriental ou Nord-Africain",
+    "Océanien ",
+    "Blanc ou Européen Américain"
+]
+
+@api_bp.route('/ethnicity-distribution', methods=['GET'])
+def ethnicity_distribution():
+    # 1) Construire une liste de conditions "ethnicite LIKE 'valeur%'" (début de chaîne)
+    conditions = [
+        Utilisateur.ethnicite.ilike(f"{eth}%")
+        for eth in POSSIBLE_ETHNICITES
+    ]
+
+    # 2) Exécuter la requête agrégée en une fois
+    rows = (
+        db.session.query(
+            Utilisateur.ethnicite.label('ethnicite'),
+            Utilisateur.genre.label('genre'),
+            func.count(Utilisateur.id).label('count')
+        )
+        .filter(
+            or_(*conditions),                      # filtre "début de chaîne"
+            Utilisateur.genre.in_(['Homme', 'Femme'])
+        )
+        .group_by(Utilisateur.ethnicite, Utilisateur.genre)
+        .all()
+    )
+
+    # 3) Réassembler les résultats selon votre liste fixe
+    labels = POSSIBLE_ETHNICITES
+    counts = {'Homme': [], 'Femme': []}
+
+    for eth in labels:
+        for gen in ('Femme', 'Homme'):
+            # on cherche le count sur les rows dont ethnicite commence par eth et genre = gen
+            cnt = next(
+                (r.count for r in rows
+                 if r.ethnicite.lower().startswith(eth.lower()) and r.genre == gen),
+                0
+            )
+            counts[gen].append(cnt)
+
+    # 4) Retour JSON prêt pour votre front
+    return jsonify({
+        'labels': labels,
+        'Femme': counts['Femme'],
+        'Homme': counts['Homme']
+    })
+
+@api_bp.route("/thematiques/progress", methods=["GET"])
+def thematiques_progress():
+    # 1) Tous les utilisateurs « participants »
+    users = Utilisateur.query.all()
+    total_users = len(users)
+
+    # 2) Charger les thématiques avec leurs sous-thématiques et questions
+    thematiques = (
+        Thematique.query
+        .options(
+            # on “joined-load” d’abord les sous-thématiques,
+            # puis pour chacune on joined-load les questions
+            joinedload(Thematique.sous_thematiques)
+            .joinedload(SousThematique.questions)
+        )
+        .all()
+    )
+
+    result = []
+    for t in thematiques:
+        # Rassembler tous les IDs de questions pour cette thématique
+        question_ids = [
+            q.id
+            for st in t.sous_thematiques
+            for q in st.questions
+        ]
+        nb_questions = len(question_ids)
+
+        if nb_questions == 0:
+            # Aucun question => personne ne peut la compléter
+            completed = 0
+            incomplete = total_users
+        else:
+            # Compter pour chaque utilisateur s’il a répondu à toutes les questions
+            completed = 0
+            for u in users:
+                count_responses = (
+                    Reponse.query
+                    .filter(
+                        Reponse.utilisateur_id == u.id,
+                        Reponse.question_id.in_(question_ids)
+                    )
+                    .count()
+                )
+                if count_responses == nb_questions:
+                    completed += 1
+            incomplete = total_users - completed
+
+        result.append({
+            "id": t.id,
+            "name": t.name,
+            "completed_count": completed,
+            "incomplete_count": incomplete
+        })
+
+    return jsonify(result)
+
+@api_bp.route('/age-distribution', methods=['GET'])
+def age_distribution():
+    # tranches fixes
+    labels = ['0-17', '18-30', '31-45', '46-60', '60+', 'Inconnu']
+    counts = {label: 0 for label in labels}
+
+    today = date.today()
+    # récupère tous les utilisateurs ayant une date de naissance
+    users = Utilisateur.query.filter(Utilisateur.date_naissance.isnot(None)).all()
+
+    for u in users:
+        # calcul âge en années (entier)
+        delta = today - u.date_naissance
+        age = delta.days // 365 if delta.days >= 0 else None
+
+        if age is None:
+            bracket = 'Inconnu'
+        elif age < 18:
+            bracket = '0-17'
+        elif age <= 30:
+            bracket = '18-30'
+        elif age <= 45:
+            bracket = '31-45'
+        elif age <= 60:
+            bracket = '46-60'
+        else:
+            bracket = '60+'
+
+        counts[bracket] += 1
+
+    return jsonify({
+        'labels': labels,
+        'counts': [counts[b] for b in labels]
+    })

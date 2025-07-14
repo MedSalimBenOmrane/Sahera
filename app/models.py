@@ -106,3 +106,5 @@ class Notification(db.Model):
         back_populates="notification",
         cascade="all, delete-orphan"
     )
+
+    
