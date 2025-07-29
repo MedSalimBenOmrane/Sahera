@@ -1,5 +1,7 @@
 from .extensions import db
 from datetime import date
+from sqlalchemy.dialects.postgresql import JSONB   # <-- ajouter
+from sqlalchemy.orm import validates               # <-- ajouter
 
 class Thematique(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -19,13 +21,34 @@ class SousThematique(db.Model):
 
     questions = db.relationship("Question", backref="sous_thematique", cascade="all, delete-orphan")
 
-
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     texte = db.Column(db.Text, nullable=False)
     sous_thematique_id = db.Column(db.Integer, db.ForeignKey("sousthematique.id"), nullable=False)
 
+    # Liste des choix affichés dans la liste déroulante
+    options = db.Column(JSONB, nullable=False, default=list)
+
     reponses = db.relationship("Reponse", backref="question", cascade="all, delete-orphan")
+
+    @validates("options")
+    def _validate_options(self, key, options):
+        if not isinstance(options, list) or len(options) == 0:
+            raise ValueError("`options` doit être une liste non vide.")
+        cleaned, seen = [], set()
+        for o in options:
+            if not isinstance(o, str):
+                raise ValueError("Chaque option doit être une chaîne.")
+            s = o.strip()
+            if not s:
+                raise ValueError("Les options vides sont interdites.")
+            if s in seen:
+                raise ValueError("Options en double interdites.")
+            if len(s) > 255:
+                raise ValueError("Une option dépasse 255 caractères.")
+            cleaned.append(s)
+            seen.add(s)
+        return cleaned
 
 
 class Utilisateur(db.Model):
@@ -75,7 +98,7 @@ class Admin(db.Model):
 
 class Reponse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    contenu = db.Column(db.Text, nullable=False)
+    contenu = db.Column(db.String(255), nullable=False)
     date_creation = db.Column(db.Date, nullable= True)
     question_id = db.Column(db.Integer, db.ForeignKey("question.id"), nullable=False)
     utilisateur_id = db.Column(db.Integer, db.ForeignKey("utilisateur.id"), nullable=False)

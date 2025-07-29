@@ -15,6 +15,8 @@ import io
 import csv
 from sqlalchemy import  or_  
 from sqlalchemy import func, case, and_
+from sqlalchemy import JSON
+from sqlalchemy.orm import validates
   
 
 
@@ -103,7 +105,7 @@ def get_sous_thematiques_with_questions(thematique_id):
         sous_data = {
             "id": sous.id,
             "titre": sous.titre,
-            "questions": [{"id": q.id, "texte": q.texte} for q in sous.questions]
+            "questions": [{"id": q.id, "texte": q.texte, "options": q.options} for q in sous.questions]
         }
         response["sous_thematiques"].append(sous_data)
 
@@ -203,9 +205,13 @@ from flask import request, abort, jsonify
 @api_bp.route("/thematiques/<int:thematique_id>/import_csv", methods=["POST"])
 def import_sous_thematiques_questions(thematique_id):
     """
-    Importe un CSV où chaque ligne est [sous_thematique, question].
-    Crée la sous-thematique (une seule fois) et la question associée.
-    La première ligne (headers) est ignorée.
+    CSV attendu avec entêtes:
+      sous_thematique,question,options
+    - options: liste séparée par '|', ';' ou ',' (ex: Oui|Non|NSP)
+
+    Chaque ligne:
+      - crée la sous-thématique si nécessaire
+      - crée la question avec ses options
     """
     thematique = Thematique.query.get_or_404(thematique_id)
 
@@ -217,48 +223,46 @@ def import_sous_thematiques_questions(thematique_id):
 
     try:
         stream = io.StringIO(file.stream.read().decode('utf-8'))
-        reader = csv.reader(stream)
-        # On saute la ligne d'en-tête
-        headers = next(reader, None)
+        reader = csv.DictReader(stream)
+        expected = {'sous_thematique', 'question', 'options'}
+        if set(reader.fieldnames or []) != expected:
+            abort(400, description="Entêtes CSV attendues: sous_thematique,question,options")
     except Exception as e:
         abort(400, description=f"Cannot read CSV: {e}")
 
     created_subs = 0
-    created_qs  = 0
+    created_qs = 0
+
+    cache_sous = {}  # pour éviter requêtes répétées
 
     for row in reader:
-        if len(row) < 2:
-            continue
-        titre_sous = row[0].strip()
-        texte_q     = row[1].strip()
-        if not titre_sous or not texte_q:
+        titre_sous = (row.get('sous_thematique') or '').strip()
+        texte_q = (row.get('question') or '').strip()
+        raw_opts = row.get('options')
+
+        if not titre_sous or not texte_q or raw_opts is None:
+            # ligne incomplète
             continue
 
-        sous = SousThematique.query.filter_by(
-            thematique_id=thematique.id,
-            titre=titre_sous
-        ).first()
+        options = _normalize_options(raw_opts)
+
+        key = (thematique.id, titre_sous)
+        sous = cache_sous.get(key)
         if not sous:
-            sous = SousThematique(
-                titre=titre_sous,
-                thematique_id=thematique.id
-            )
-            db.session.add(sous)
-            db.session.flush()
-            created_subs += 1
+            sous = SousThematique.query.filter_by(thematique_id=thematique.id, titre=titre_sous).first()
+            if not sous:
+                sous = SousThematique(titre=titre_sous, thematique_id=thematique.id)
+                db.session.add(sous)
+                db.session.flush()
+                created_subs += 1
+            cache_sous[key] = sous
 
-        question = Question(
-            texte=texte_q,
-            sous_thematique_id=sous.id
-        )
+        question = Question(texte=texte_q, sous_thematique_id=sous.id, options=options)
         db.session.add(question)
         created_qs += 1
 
     db.session.commit()
-    return jsonify({
-        "created_sous_thematiques": created_subs,
-        "created_questions": created_qs
-    }), 200
+    return jsonify({"created_sous_thematiques": created_subs, "created_questions": created_qs}), 200
 
 
 @api_bp.route("/thematiques/non-completes/<int:utilisateur_id>", methods=["GET"])
@@ -411,6 +415,48 @@ def delete_sousthematique(thematique_id, id):
     return jsonify({"message": "Deleted"}), 204
 
 # Question routes
+#helpers 
+# Helpers pour normaliser et valider les options
+def _normalize_options(raw):
+    """
+    Accepte:
+      - liste de chaînes
+      - chaîne unique avec séparateurs '|', ';' ou ',' -> ex: "Oui|Non|NSP"
+    Retourne une liste de chaînes nettoyées, uniques, ordre conservé.
+    """
+    if raw is None:
+        return None
+
+    if isinstance(raw, str):
+        # priorité au '|' puis fallback ';' puis ','
+        sep = '|' if '|' in raw else (';' if ';' in raw else ',')
+        items = [s.strip() for s in raw.split(sep)]
+    elif isinstance(raw, list):
+        items = [str(s).strip() for s in raw]
+    else:
+        abort(400, description="`options` doit être une liste de chaînes ou une chaîne séparée par | ; ,")
+
+    # filtre vides + unicité
+    seen, cleaned = set(), []
+    for s in items:
+        if not s:
+            continue
+        if len(s) > 255:
+            abort(400, description="Une option dépasse 255 caractères.")
+        if s not in seen:
+            cleaned.append(s)
+            seen.add(s)
+
+    if not cleaned:
+        abort(400, description="`options` ne peut pas être vide.")
+    return cleaned
+
+
+def _assert_value_in_options(contenu, options):
+    if contenu is None or contenu.strip() == "":
+        abort(400, description="`contenu` est requis.")
+    if contenu not in options:
+        abort(400, description="La réponse doit être l'une des options disponibles.")
 #Admin,User
 @api_bp.route("/questions", methods=["GET"])
 def get_questions():
@@ -421,7 +467,7 @@ def get_questions():
     """
     questions = Question.query.all()
     return jsonify([
-        {"id": q.id, "texte": q.texte, "sous_thematique_id": q.sous_thematique_id} for q in questions
+        {"id": q.id, "texte": q.texte, "sous_thematique_id": q.sous_thematique_id, "options": q.options} for q in questions
     ])
 #Admin,User
 @api_bp.route("/questions/<int:id>", methods=["GET"])
@@ -434,44 +480,62 @@ def get_question(id):
         JSON of the question data or 404 if not found.
     """
     question = Question.query.get_or_404(id)
-    return jsonify({"id": question.id, "texte": question.texte, "sous_thematique_id": question.sous_thematique_id})
+    return jsonify({"id": question.id, "texte": question.texte, "sous_thematique_id": question.sous_thematique_id,"options": question.options })
 #Admin
 @api_bp.route("/questions", methods=["POST"])
 def create_question():
     """
-    Create a new question.
     Request JSON:
-        { "texte": "Question text", "sous_thematique_id": 1 }
-    Returns:
-        JSON of the created question with 201 status.
+      {
+        "texte": "Question text",
+        "sous_thematique_id": 1,
+        "options": ["Oui", "Non", "NSP"]  # ou "Oui|Non|NSP"
+      }
     """
-    data = request.get_json()
-    if not data or "texte" not in data or "sous_thematique_id" not in data:
-        abort(400, description="Missing 'texte' or 'sous_thematique_id'")
-    question = Question(texte=data["texte"], sous_thematique_id=data["sous_thematique_id"])
-    db.session.add(question)
+    data = request.get_json() or {}
+    if "texte" not in data or "sous_thematique_id" not in data or "options" not in data:
+        abort(400, description="Champs requis: texte, sous_thematique_id, options")
+
+    options = _normalize_options(data["options"])
+
+    q = Question(texte=data["texte"], sous_thematique_id=data["sous_thematique_id"], options=options)
+    db.session.add(q)
     db.session.commit()
-    return jsonify({"id": question.id, "texte": question.texte, "sous_thematique_id": question.sous_thematique_id}), 201
+    return jsonify({"id": q.id, "texte": q.texte, "sous_thematique_id": q.sous_thematique_id, "options": q.options}), 201
 #Admin
 @api_bp.route("/questions/<int:id>", methods=["PUT"])
 def update_question(id):
     """
-    Update a question by ID.
-    Args:
-        id (int): Question ID.
-    Request JSON:
-        { "texte": "Updated text", "sous_thematique_id": 2 }
-    Returns:
-        JSON of the updated question.
+    Request JSON (au moins un champ):
+      {
+        "texte": "nouveau libellé",
+        "sous_thematique_id": 2,
+        "options": ["A","B","C"]  # ou "A|B|C"
+      }
+    Règle: si des réponses existent et qu'on modifie `options`,
+           toutes les valeurs déjà répondues doivent exister dans les nouvelles options.
     """
-    question = Question.query.get_or_404(id)
-    data = request.get_json()
-    if not data or "texte" not in data or "sous_thematique_id" not in data:
-        abort(400, description="Missing 'texte' or 'sous_thematique_id'")
-    question.texte = data["texte"]
-    question.sous_thematique_id = data["sous_thematique_id"]
+    q = Question.query.get_or_404(id)
+    data = request.get_json() or {}
+
+    if "texte" in data:
+        q.texte = data["texte"]
+
+    if "sous_thematique_id" in data:
+        q.sous_thematique_id = data["sous_thematique_id"]
+
+    if "options" in data:
+        new_opts = _normalize_options(data["options"])
+        # sécurité: vérifier cohérence avec réponses existantes
+        used_values = db.session.query(Reponse.contenu).filter(Reponse.question_id == q.id).distinct().all()
+        used_values = {val for (val,) in used_values}
+        missing = [v for v in used_values if v not in new_opts]
+        if missing:
+            abort(409, description=f"Impossible de retirer des options déjà utilisées: {missing}")
+        q.options = new_opts
+
     db.session.commit()
-    return jsonify({"id": question.id, "texte": question.texte, "sous_thematique_id": question.sous_thematique_id})
+    return jsonify({"id": q.id, "texte": q.texte, "sous_thematique_id": q.sous_thematique_id, "options": q.options})
 #Admin
 @api_bp.route("/questions/<int:id>", methods=["DELETE"])
 def delete_question(id):
@@ -709,12 +773,12 @@ def get_reponse(id):
 # Créer une nouvelle réponse
 @api_bp.route("/reponses", methods=["POST"])
 def create_reponse():
-    data = request.get_json()
-    required_fields = ["contenu", "question_id", "utilisateur_id"]
-    if not all(field in data for field in required_fields):
+    data = request.get_json() or {}
+    required = ["contenu", "question_id", "utilisateur_id"]
+    if not all(k in data for k in required):
         abort(400, description="Champs requis manquants : contenu, question_id, utilisateur_id")
 
-    # parsing de date_creation si fourni, sinon date du jour
+    # date_creation
     if "date_creation" in data:
         try:
             date_creation = datetime.fromisoformat(data["date_creation"]).date()
@@ -723,10 +787,15 @@ def create_reponse():
     else:
         date_creation = date.today()
 
+    q = Question.query.get_or_404(data["question_id"])
+    if not q.options or not isinstance(q.options, list):
+        abort(400, description="La question n'a pas d'options définies.")
+    _assert_value_in_options(data["contenu"], q.options)
+
     r = Reponse(
         contenu=data["contenu"],
         date_creation=date_creation,
-        question_id=data["question_id"],
+        question_id=q.id,
         utilisateur_id=data["utilisateur_id"]
     )
     db.session.add(r)
@@ -744,17 +813,30 @@ def create_reponse():
 @api_bp.route("/reponses/<int:id>", methods=["PUT"])
 def update_reponse(id):
     r = Reponse.query.get_or_404(id)
-    data = request.get_json()
+    data = request.get_json() or {}
 
     if "contenu" in data:
+        q = Question.query.get_or_404(data.get("question_id", r.question_id))
+        if not q.options or not isinstance(q.options, list):
+            abort(400, description="La question n'a pas d'options définies.")
+        _assert_value_in_options(data["contenu"], q.options)
         r.contenu = data["contenu"]
+
     if "date_creation" in data:
         try:
             r.date_creation = datetime.fromisoformat(data["date_creation"]).date()
         except ValueError:
             abort(400, description="Format de date_creation invalide, attendu YYYY-MM-DD")
 
-    r.question_id = data.get("question_id", r.question_id)
+    if "question_id" in data:
+        # si on change de question, revalider la cohérence contenu/options
+        new_q = Question.query.get_or_404(data["question_id"])
+        if "contenu" in data:
+            _assert_value_in_options(data["contenu"], new_q.options)
+        else:
+            _assert_value_in_options(r.contenu, new_q.options)
+        r.question_id = new_q.id
+
     r.utilisateur_id = data.get("utilisateur_id", r.utilisateur_id)
 
     db.session.commit()
@@ -801,7 +883,8 @@ def get_questions_by_sousthematique(sous_id):
 
     results = [{
         "id": q.id,
-        "texte": q.texte
+        "texte": q.texte,
+        "options": q.options
     } for q in questions]
 
     return jsonify(results)
