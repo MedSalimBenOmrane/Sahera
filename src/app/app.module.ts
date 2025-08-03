@@ -46,6 +46,8 @@ import { BarChartComponent } from './components/dashboard/bar-chart/bar-chart.co
 import { CustomLineChartComponent } from './components/dashboard/custom-line-chart/custom-line-chart.component';
 import { LineChartComponent } from './components/dashboard/line-chart/line-chart.component';
 import { PieChartComponent } from './components/dashboard/pie-chart/pie-chart.component';
+import { MatSelectModule } from '@angular/material/select';
+import { BarchartAnalyseComponent } from './components/barchart-analyse/barchart-analyse.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -72,7 +74,8 @@ import { PieChartComponent } from './components/dashboard/pie-chart/pie-chart.co
      ThematiqueDetailsComponent,
      QuestionDetailsComponent,
      ComingSoonPageComponent,
-     EditCoordonneesUserComponent
+     EditCoordonneesUserComponent,
+     BarchartAnalyseComponent
   ],
   imports: [
     BrowserModule,
@@ -91,6 +94,7 @@ import { PieChartComponent } from './components/dashboard/pie-chart/pie-chart.co
     MdbDropdownModule,
     MdbFormsModule,
     MdbModalModule,
+    MatSelectModule,
     MdbPopoverModule,
     MdbRadioModule,
     MdbRangeModule,

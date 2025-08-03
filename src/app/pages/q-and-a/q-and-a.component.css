@@ -137,3 +137,24 @@ input:hover {
   text-align: right;
   margin-right :5%;
 }
+.mat-mdc-form-field { width: 100%; }
+
+/* Panneau du select : hauteur max + scroll interne  */
+.mobile-select-panel {
+  max-height: 260px !important;   /* ajuste à ton besoin */
+  overflow: auto !important;       /* fait apparaître la barre de défilement */
+}
+
+/* Le texte des options peut aller à la ligne (évite d'élargir le panneau) */
+.mobile-select-panel .mdc-list-item__primary-text {
+  white-space: normal !important;
+  line-height: 1.25;
+}
+
+/* Sur petits écrans, empêcher que le panneau dépasse horizontalement */
+@media (max-width: 480px) {
+  .cdk-overlay-pane .mobile-select-panel {
+    width: calc(100vw - 2rem) !important;     /* largeur max = viewport - marges */
+    max-width: calc(100vw - 2rem) !important; /* idem si options très longues   */
+  }
+}

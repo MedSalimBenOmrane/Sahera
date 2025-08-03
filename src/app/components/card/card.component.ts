@@ -22,7 +22,7 @@ export class CardComponent implements OnInit {
   @Input() description: string = '';
 
   /** Date de publication (format ISO ou Date) */
-  @Input() publicationDate!: Date;
+  @Input() publicationDate: Date | null = null;
 
   /** 
    * Statut de la session de réponses : 
@@ -31,7 +31,7 @@ export class CardComponent implements OnInit {
   @Input() isSessionOpen: boolean = false;
 
   /** Date de clôture de la session (format ISO ou Date) */
-  @Input() sessionCloseDate!: Date;
+  @Input() sessionCloseDate: Date | null = null;
 
   /** 
    * (Uniquement pour mode='mes-reponses') 

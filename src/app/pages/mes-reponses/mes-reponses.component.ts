@@ -57,7 +57,7 @@ export class MesReponsesComponent implements OnInit {
             id: t.id,
             title: t.titre,
             description: t.description,
-            publicationDate: new Date(t.dateCreation!),
+            publicationDate: new Date(t.dateOuvertureSession!),
             sessionCloseDate: new Date(t.dateFermetureSession!),
             isSessionOpen: !t.dateFermetureSession || new Date(t.dateFermetureSession) > new Date(),
             isAnswered: comp.some(x => x.id === t.id),

@@ -28,29 +28,40 @@ isLoading = false;
     // 1. On récupère toutes les thématiques en mémoire
     this.loadThematiques();
   }
-
-private loadThematiques(): void {
-    this.isLoading = true;          // ← démarrage du loader
+ private loadThematiques(): void {
+    this.isLoading = true;
     this.thematiqueService.getAll().subscribe({
-      next: (data: Thematique[]) => {
+      next: (data) => {
         this.thematiques = data;
-        this.isLoading = false;     // ← arrêt du loader
+        this.isLoading = false;
       },
-      error: err => {
+      error: (err) => {
         console.error('Erreur récupération thématiques :', err);
         this.thematiques = [];
-        this.isLoading = false;     // ← aussi en cas d’erreur
+        this.isLoading = false;
       }
     });
   }
 
+  // utilitaire pour normaliser à minuit
+  private atMidnight(d: Date): Date {
+    const x = new Date(d);
+    x.setHours(0, 0, 0, 0);
+    return x;
+  }
+
   /**
-   * Détermine si la session est encore ouverte :
-   * true si la date actuelle est antérieure à dateFermetureSession
+   * Session ouverte ssi today ∈ [ouverture, clôture] (bornes incluses).
+   * Si une des deux dates est absente -> fermé.
    */
   isSessionOpen(t: Thematique): boolean {
-    const now = new Date();
-    return now < new Date(t.dateFermetureSession);
+    if (!t.dateOuvertureSession || !t.dateFermetureSession) return false;
+
+    const today = this.atMidnight(new Date());
+    const start = this.atMidnight(t.dateOuvertureSession);
+    const end   = this.atMidnight(t.dateFermetureSession);
+
+    return today >= start && today <= end;
   }
 
   /** Méthode appelée lorsqu’on clique sur “Répondre” (éventuellement) */

@@ -17,15 +17,16 @@ import { ThematiqueService } from 'src/app/services/thematique.service';
   styleUrls: ['./admin-qcard.component.css']
 })
 export class AdminQCardComponent implements OnInit {
-@Input() id = 0;
+  @Input() id = 0;
   @Input() title = '';
   @Input() description = '';
-  @Input() publicationDate!: Date;
+  editDateOuverture = ''; // "YYYY-MM-DD"
+  // ← accepter null
+  @Input() publicationDate: Date | null = null;
   @Input() isSessionOpen = false;
-  @Input() sessionCloseDate!: Date;
-  @Output() deleteThematique = new EventEmitter<number>();
+  @Input() sessionCloseDate: Date | null = null;
 
- 
+  @Output() deleteThematique = new EventEmitter<number>();
 
   @ViewChild('editDialog', { static: true })
   editDialog!: ElementRef<HTMLDialogElement>;
@@ -33,47 +34,65 @@ export class AdminQCardComponent implements OnInit {
   // champs du formulaire d’édition
   editTitre = '';
   editDescription = '';
-  editDateFermeture = ''; // format "YYYY-MM-DD"
+  editDateFermeture = ''; // "YYYY-MM-DD"
 
-
-  constructor(private router: Router,
+  constructor(
+    private router: Router,
     private thematiqueService: ThematiqueService
   ) {}
+  ngOnInit(): void {
+    
+  }
 
-  ngOnInit(): void {}
-
-  getTimeRemaining(sessionCloseDate: string | Date): string {
-    const now = new Date();
-    const end = new Date(sessionCloseDate);
-    const diffMs = end.getTime() - now.getTime();
-
-    if (diffMs <= 0) {
-      return 'Fermé';
+  /** 'YYYY-MM-DD' | Date -> Date locale à 00:00, sinon null */
+  private asLocalDate(d: string | Date | null | undefined): Date | null {
+    if (!d) return null;
+    if (d instanceof Date) {
+      const x = new Date(d);
+      x.setHours(0, 0, 0, 0);
+      return x;
     }
+    const [y, m, dd] = d.split('-').map(Number);
+    return new Date(y, (m ?? 1) - 1, dd ?? 1, 0, 0, 0, 0);
+  }
 
-    const sec = Math.floor(diffMs / 1000);
-    const min = Math.floor(sec / 60);
-    const hr  = Math.floor(min / 60);
-    const days = Math.floor(hr / 24);
+  /** Ouvert ssi aujourd’hui ∈ [ouverture, clôture] (inclusif) */
+  isOpen(): boolean {
+    const start = this.asLocalDate(this.publicationDate);
+    const end   = this.asLocalDate(this.sessionCloseDate);
+    if (!start || !end) return false;
+    const today = new Date(); today.setHours(0,0,0,0);
+    return today >= start && today <= end;
+  }
 
-    if (days > 0) {
-      return `${days} jour${days > 1 ? 's' : ''} restant${days > 1 ? 's' : ''}`;
+  /** Texte secondaire : “Ouvre dans X jours”, “N jours restants” ou “Fermé” */
+  getBadgeText(): string {
+    const start = this.asLocalDate(this.publicationDate);
+    const end   = this.asLocalDate(this.sessionCloseDate);
+    if (!start || !end) return 'Fermé';
+
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    if (today < start) {
+      const days = Math.ceil((start.getTime() - today.getTime()) / 86_400_000);
+      return days > 1 ? `Ouvre dans ${days} jours` : `Ouvre demain`;
     }
-    if (hr > 0) {
-      return `${hr} heure${hr > 1 ? 's' : ''} restante${hr > 1 ? 's' : ''}`;
-    }
-    if (min > 0) {
-      return `${min} minute${min > 1 ? 's' : ''} restante${min > 1 ? 's' : ''}`;
-    }
-    // moins d'une minute
-    return `${sec} seconde${sec > 1 ? 's' : ''} restante${sec > 1 ? 's' : ''}`;
+    if (today > end) return 'Fermé';
+
+    const daysLeft = Math.ceil((end.getTime() - today.getTime()) / 86_400_000);
+    if (daysLeft > 1)  return `${daysLeft} jours restants`;
+    if (daysLeft === 1) return `1 jour restant`;
+    return `Dernier jour`;
   }
   modify(): void {
     this.editTitre = this.title;
     this.editDescription = this.description;
+      this.editDateOuverture = this.publicationDate
+    ? this.publicationDate.toISOString().slice(0, 10)
+    : '';
     this.editDateFermeture = this.sessionCloseDate
-      .toISOString()
-      .slice(0, 10);
+      ? this.sessionCloseDate.toISOString().slice(0, 10)
+      : ''; // ← si null
     (this.editDialog.nativeElement as any).showModal();
   }
 
@@ -83,40 +102,49 @@ export class AdminQCardComponent implements OnInit {
 
   /** Applique la modification via le service */
   applyEdit(): void {
-    const updated = new Thematique(
-      this.id,
-      this.editTitre,
-      this.publicationDate,
-      new Date(this.editDateFermeture),
-      this.editDescription
-    );
+  const newOpen  = this.editDateOuverture
+    ? new Date(this.editDateOuverture + 'T00:00:00')
+    : null;
 
-    this.thematiqueService.update(updated).subscribe({
-      next: () => {
-        // on met à jour l’affichage local sans recharger la page
-        this.title = this.editTitre;
-        this.description = this.editDescription;
-        this.sessionCloseDate = new Date(this.editDateFermeture);
-        this.closeEditDialog();
-      },
-      error: err => console.error('Erreur update', err)
-    });
+  const newClose = this.editDateFermeture
+    ? new Date(this.editDateFermeture + 'T00:00:00')
+    : null;
+
+  // Validation simple : si les deux existent, ouverture <= clôture
+  if (newOpen && newClose && newOpen.getTime() > newClose.getTime()) {
+    alert("La date d’ouverture doit être antérieure ou égale à la date de clôture.");
+    return;
   }
+
+  const updated = new Thematique(
+    this.id,
+    this.editTitre,
+    newOpen,     // ← NOUVEAU : on envoie la date d’ouverture choisie
+    newClose,
+    this.editDescription
+  );
+
+  this.thematiqueService.update(updated).subscribe({
+    next: () => {
+      // Met à jour l’affichage local
+      this.title = this.editTitre;
+      this.description = this.editDescription;
+      this.publicationDate = newOpen;
+      this.sessionCloseDate = newClose;
+
+      this.closeEditDialog();
+    },
+    error: err => console.error('Erreur update', err)
+  });
+}
 
   /** Supprime et notifie le parent */
   delete(): void {
-    if (!confirm('Voulez-vous vraiment supprimer cette thématique ?')) {
-      return;
-    }
-    // on émet l’ID au parent, c’est lui qui fera appel au service
+    if (!confirm('Voulez-vous vraiment supprimer cette thématique ?')) return;
     this.deleteThematique.emit(this.id);
   }
-
 
   viewResponse(): void {
     this.router.navigate(['/admin/thematique', this.id, this.title]);
   }
 }
-
-
-

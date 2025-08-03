@@ -34,7 +34,7 @@
                 [id]="t.id"
                 [title]="t.titre"
                 [description]="t.description"
-                [publicationDate]="t.dateCreation"
+                [publicationDate]="t.dateOuvertureSession"
                 [isSessionOpen]="isSessionOpen(t)"
                 [sessionCloseDate]="t.dateFermetureSession"
                 (deleteThematique)="onDeleteThematique($event)">
@@ -82,7 +82,15 @@
         rows="4"></textarea>
     </div>
   </div>
-
+  <div class="row">
+  <div class="col-5">Date d’ouverture :</div>
+  <div class="col-7">
+    <input
+      type="date"
+      class="input5"
+      [(ngModel)]="newThematique.dateOuvertureSession" />
+  </div>
+</div>
   <div class="row">
     <div class="col-5">Date de clôture :</div>
     <div class="col-7">

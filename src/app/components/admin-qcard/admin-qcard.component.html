@@ -12,7 +12,7 @@
         <!-- Titre -->
         <h5 class="card-title mb-1 text-truncate">{{ title }}</h5>
         <!-- Badge “Ouvert” / “Fermé” juste sous le titre -->
-       <ng-container *ngIf="getTimeRemaining(sessionCloseDate)!='Fermé'; else badgeClosed">
+       <ng-container *ngIf="isOpen() ; else badgeClosed">
     <span class="status-open"><mat-icon>lock_open</mat-icon> Ouvert </span>
   </ng-container>
   <ng-template #badgeClosed>
@@ -22,8 +22,8 @@
 
       <!-- 1.b. Bloc droit : Dates publiées -->
       <div class="dates text-end">
-        <p class="small mb-1">Publié : {{ publicationDate | date:'dd/MM/yyyy HH:mm' }}</p>
-        <p class="small mb-0">{{ getTimeRemaining(sessionCloseDate) }}</p>
+        <p class="small mb-1">Date d'Ouverture : {{ publicationDate | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p class="small mb-0">{{ getBadgeText()}}</p>
       </div>
     </div>
 
@@ -86,7 +86,16 @@
       ></textarea>
     </div>
   </div>
-
+  <div class="row">
+  <div class="col-5">Date d’ouverture :</div>
+  <div class="col-7">
+    <input
+      type="date"
+      class="input5"
+      [(ngModel)]="editDateOuverture"
+    />
+  </div>
+</div>
   <div class="row">
     <div class="col-5">Date de clôture :</div>
     <div class="col-7">

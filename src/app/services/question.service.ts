@@ -7,118 +7,90 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class QuestionService {
-private apiUrl = 'http://localhost:5000/api/questions';
-private questions: Question[] = [];
+  private apiUrl = 'http://localhost:5000/api/questions';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  /** GET /questions (en mémoire) 
+  // --- Récupère TOUTES les questions (si tu en as besoin ailleurs)
   getAll(): Observable<Question[]> {
-    return of(this.questions.map(q => Object.assign(
-      new Question(0, '',  0),
-      q
-    )));
-  }*/
-   getAll(): Observable<Question[]> {
     return this.http.get<any[]>(this.apiUrl).pipe(
       map(list => list.map(item => this.adapt(item)))
     );
   }
 
-  /** GET /questions/:id 
-  getById(id: number): Observable<Question | undefined> {
-    const found = this.questions.find(q => q.id === id);
-    return of(
-      found 
-        ? Object.assign(new Question(0, '', 0), found) 
-        : undefined
-    );
-  }
-*/
   getById(id: number): Observable<Question | undefined> {
     return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
       map(item => this.adapt(item)),
       catchError(() => of(undefined))
     );
   }
-  /** GET /questions?sousThematiqueId=XX 
+  // question.service.ts
+getByIdWithOptions(id: number) {
+  return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+    map(item => ({
+      id: item.id,
+      question: item.texte,
+      sousThematiqueId: item.sous_thematique_id ?? item.sousThematiqueId,
+      options: item.options || []
+    }))
+  );
+}
+
+  // --- IMPORTANT: utiliser la route backend dédiée qui renvoie déjà {id, texte, options}
   getBySousThematique(sousThId: number): Observable<Question[]> {
-    const filtered = this.questions.filter(q => q.sousThematiqueId === sousThId);
-    return of(filtered.map(q => Object.assign(
-      new Question(0, '', 0),
-      q
-    )));
-  }*/
-   getBySousThematique(sousThId: number): Observable<Question[]> {
-    return this.getAll().pipe(
-      map(list => list.filter(q => q.sousThematiqueId === sousThId))
+    const url = `http://localhost:5000/api/sousthematiques/${sousThId}/questions`;
+    return this.http.get<any[]>(url).pipe(
+      map(list => list.map(item => this.adaptFromSous(item, sousThId)))
     );
   }
 
-  /** CREATE /questions (en mémoire) 
-  create(question: Question): Observable<Question> {
-    const newId = this.questions.length > 0
-      ? Math.max(...this.questions.map(q => q.id)) + 1
-      : 1;
-    const nouvelle = new Question(
-      newId,
-      question.question,
- 
-      question.sousThematiqueId
-    );
-    this.questions.push(nouvelle);
-    return of(nouvelle);
-  */
- create(q: Question): Observable<Question> {
+  create(q: Question): Observable<Question> {
     const payload = {
       texte: q.question,
-      sous_thematique_id: q.sousThematiqueId
+      sous_thematique_id: q.sousThematiqueId,
+      // si tu crées des questions manuellement ici, prévois aussi options si besoin
+      // options: q.options
     };
     return this.http.post<any>(this.apiUrl, payload).pipe(
       map(item => this.adapt(item))
     );
   }
 
-  /** UPDATE /questions/:id (en mémoire) 
-  update(question: Question): Observable<Question | undefined> {
-    const index = this.questions.findIndex(q => q.id === question.id);
-    if (index === -1) {
-      return of(undefined);
-    }
-    this.questions[index] = Object.assign(new Question(0, '', 0), question);
-    return of(this.questions[index]);
-  }*/
- update(q: Question): Observable<Question> {
+  update(q: Question): Observable<Question> {
     const payload = {
       texte: q.question,
-      sous_thematique_id: q.sousThematiqueId
+      sous_thematique_id: q.sousThematiqueId,
+      // options: q.options
     };
     return this.http.put<any>(`${this.apiUrl}/${q.id}`, payload).pipe(
       map(item => this.adapt(item))
     );
   }
 
-  /** DELETE /questions/:id (en mémoire) 
   delete(id: number): Observable<boolean> {
-    const index = this.questions.findIndex(q => q.id === id);
-    if (index === -1) {
-      return of(false);
-    }
-    this.questions.splice(index, 1);
-    return of(true);
-  }*/
-   delete(id: number): Observable<boolean> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       map(() => true),
       catchError(() => of(false))
     );
   }
+
+  // --- mapping standard depuis /api/questions (renvoie: id, texte, sous_thematique_id, options)
   private adapt(item: any): Question {
     return new Question(
       item.id,
-      item.texte,
-      // certains back renvoient "sous_thematique_id"
-      item.sous_thematique_id ?? item.sousThematiqueId
+      item.texte ?? item.question,
+      item.sous_thematique_id ?? item.sousThematiqueId,
+      Array.isArray(item.options) ? item.options : []   // ← mapper options
+    );
+  }
+
+  // --- mapping depuis /api/sousthematiques/:id/questions (renvoie: id, texte, options)
+  private adaptFromSous(item: any, sousThId: number): Question {
+    return new Question(
+      item.id,
+      item.texte ?? item.question,
+      sousThId,
+      Array.isArray(item.options) ? item.options : []
     );
   }
 }

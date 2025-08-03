@@ -285,3 +285,124 @@ table, th, td {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+/* ======= Dialog base ======= */
+dialog.analysis-dialog {
+  padding: 1rem 3rem;
+  background: #c7c7c7cd;
+  max-width: 820px;
+  width: calc(100% - 2rem);
+  margin: auto;
+  border-radius: 20px;
+  border: 0;
+  color: #111;
+  box-shadow: 0 5px 30px 0 rgb(0 0 0 / 10%);
+  animation: fadeIn 0.25s ease both;
+}
+
+/* Flou d’arrière-plan */
+dialog.analysis-dialog::backdrop {
+  animation: fadeIn 0.25s ease both;
+  background: rgba(89, 89, 89, 0.15);
+  backdrop-filter: blur(7px);
+}
+
+/* Titre & sous-titre */
+.analysis-title {
+  font-weight: 600;
+  font-size: 1.6rem;
+  margin: 0 0 .6rem 0;
+  padding: 0;
+}
+
+.analysis-subtitle {
+  margin-bottom: .75rem;
+  font-size: 0.95rem;
+}
+
+/* Bouton X */
+.analysis-close {
+  filter: grayscale(1);
+  border: none;
+  background: none;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  transition: filter 0.2s, transform 0.2s;
+  cursor: pointer;
+  transform-origin: center;
+  font-size: 1.1rem;
+}
+.analysis-close:hover {
+  filter: grayscale(0);
+  transform: scale(1.08);
+}
+
+/* Loader centré */
+.analysis-loading {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Conteneur du chart : donne une hauteur pour Chart.js */
+.analysis-chart {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  height: 42vh;        /* ajuste selon ton goût */
+  background: transparent;
+}
+
+/* Tableau dans le modal */
+.analysis-table {
+  margin-top: 1rem;
+  border: 1px solid #ddd;
+}
+.analysis-table th,
+.analysis-table td {
+  background: #fff;
+}
+
+/* Animation légère */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Espace entre graphe et tableau */
+.analysis-chart {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  height: 42vh;
+  background: transparent;
+  margin-bottom: 12px;                /* <= espacement demandé */
+}
+
+/* Tableau transparent (“verre”) */
+.analysis-table,
+.analysis-table thead,
+.analysis-table tbody,
+.analysis-table tr,
+.analysis-table th,
+.analysis-table td {
+  background: transparent !important; /* retire tout blanc résiduel */
+}
+
+.analysis-table {
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+.analysis-table th,
+.analysis-table td {
+  border-color: rgba(255,255,255,0.25);
+  color: #111;                        /* lisible sur fond clair du dialog */
+}
+
+/* Aucune pastille/fond derrière “Question :” */
+.analysis-subtitle,
+.analysis-subtitle * {
+  background: transparent !important;
+}
+
+
