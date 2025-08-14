@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request, abort
 from .models import Thematique, SousThematique, Question, Utilisateur, Admin, Reponse,Notification, NotificationUtilisateur
 from .extensions import db
-from datetime import datetime, timedelta
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
 from datetime import date
@@ -17,73 +16,178 @@ from sqlalchemy import  or_
 from sqlalchemy import func, case, and_
 from sqlalchemy import JSON
 from sqlalchemy.orm import validates
-  
+from datetime import datetime, timedelta, date as _date, time as _time
 
 
 api_bp = Blueprint("api", __name__)
 
+#pagination 
+from math import ceil
+from flask import request, abort, url_for
+from sqlalchemy.orm.attributes import InstrumentedAttribute
+
+MAX_PER_PAGE = 4
+
+def get_pagination_params(max_per_page: int | None = None):
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 20))
+    except ValueError:
+        abort(400, description="page et per_page doivent être des entiers.")
+
+    if page < 1 or per_page < 1:
+        abort(400, description="page et per_page doivent être > 0.")
+
+    cap = max_per_page if max_per_page is not None else MAX_PER_PAGE  # << clé
+    if per_page > cap:
+        per_page = cap
+    return page, per_page
+
+def apply_sorting(query, model, default="id"):
+    raw = request.args.get("sort", default)  # ex: "name,-date_ouverture"
+    orders = []
+    for part in [p.strip() for p in raw.split(",") if p.strip()]:
+        desc = part.startswith("-")
+        field = part.lstrip("+-")
+        col = getattr(model, field, None)
+        if not isinstance(col, InstrumentedAttribute):
+            abort(400, description=f"Champ de tri invalide: {field}")
+        orders.append(col.desc() if desc else col.asc())
+    return query.order_by(*orders)
+
+def build_paginated_response(items, total, page, per_page):
+    pages = max(ceil(total / per_page), 1) if per_page else 1  # <-- important
+    base_args = dict(request.args)
+    base_args.pop("page", None)
+    base_args.pop("per_page", None)
+
+    def make_url(p):
+        return url_for(request.endpoint, page=p, per_page=per_page,
+                       **(request.view_args or {}), **base_args, _external=True)
+
+    return {
+        "items": items,
+        "meta": {
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "pages": pages,
+            "has_next": page < pages,
+            "has_prev": page > 1,
+            "next": make_url(page + 1) if page < pages else None,
+            "prev": make_url(page - 1) if page > 1 else None,
+        }
+    }
 #Récupérer la liste de toutes les thématiques (avec leurs informations)
 #Admin , User
 @api_bp.route("/thematiques", methods=["GET"])
 def get_thematiques():
     """
-    Get a list of all thematiques with full information.
+    Liste paginée des thématiques.
+    Params: page, per_page, sort (ex: name,-date_ouverture), q (recherche)
     """
-    thematiques = Thematique.query.all()
-    result = []
-    for t in thematiques:
-        result.append({
-            "id": t.id,
-            "name": t.name,
-            "description": t.description,
-            "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
-            "date_cloture": t.date_cloture.isoformat() if t.date_cloture else None
-        })
-    return jsonify(result)
+    page, per_page = get_pagination_params(max_per_page=1000)
+
+    q = Thematique.query
+
+    # recherche simple sur name/description
+    search = request.args.get("q")
+    if search:
+        s = f"%{search}%"
+        q = q.filter(
+            (Thematique.name.ilike(s)) |
+            (Thematique.description.ilike(s))
+        )
+
+    # tri par défaut: plus récentes d'abord, puis nom
+    q = apply_sorting(q, Thematique, default="-date_ouverture,name")
+
+    total = q.order_by(None).with_entities(func.count(Thematique.id)).scalar()
+    rows = q.limit(per_page).offset((page - 1) * per_page).all()
+
+    items = [{
+        "id": t.id,
+        "name": t.name,
+        "description": t.description,
+        "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
+        "date_cloture": t.date_cloture.isoformat() if t.date_cloture else None
+    } for t in rows]
+
+    return jsonify(build_paginated_response(items, total, page, per_page))
 #Récupérer les thématiques ouvertes
 @api_bp.route("/thematiques/ouvertes", methods=["GET"])
 def get_thematiques_ouvertes():
     """
-    Récupérer les thématiques ouvertes (pas de date_cloture ou date_cloture future).
+    Thématiques ouvertes (pas de date_cloture ou date_cloture future), paginées.
+    Params: page, per_page, sort, q
     """
+    page, per_page = get_pagination_params()
     today = date.today()
-    thematiques = Thematique.query.filter(
+
+    q = Thematique.query.filter(
         (Thematique.date_cloture == None) | (Thematique.date_cloture > today)
-    ).all()
+    )
 
-    return jsonify([
-        {
-            "id": t.id,
-            "name": t.name,
-            "description": t.description,
-            "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
-            "date_cloture": t.date_cloture.isoformat() if t.date_cloture else None
-        }
-        for t in thematiques
-    ])
+    search = request.args.get("q")
+    if search:
+        s = f"%{search}%"
+        q = q.filter(
+            (Thematique.name.ilike(s)) |
+            (Thematique.description.ilike(s))
+        )
 
+    q = apply_sorting(q, Thematique, default="-date_ouverture,name")
+
+    total = q.order_by(None).with_entities(func.count(Thematique.id)).scalar()
+    rows = q.limit(per_page).offset((page - 1) * per_page).all()
+
+    items = [{
+        "id": t.id,
+        "name": t.name,
+        "description": t.description,
+        "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
+        "date_cloture": t.date_cloture.isoformat() if t.date_cloture else None
+    } for t in rows]
+
+    return jsonify(build_paginated_response(items, total, page, per_page))
 #Récupérer les thématiques fermees
 @api_bp.route("/thematiques/fermees", methods=["GET"])
 def get_thematiques_fermees():
     """
-    Récupérer les thématiques fermées (date_cloture <= aujourd'hui).
+    Thématiques fermées (date_cloture <= aujourd'hui), paginées.
+    Params: page, per_page, sort, q
     """
+    page, per_page = get_pagination_params()
     today = date.today()
-    thematiques = Thematique.query.filter(
+
+    q = Thematique.query.filter(
         Thematique.date_cloture != None,
         Thematique.date_cloture <= today
-    ).all()
+    )
 
-    return jsonify([
-        {
-            "id": t.id,
-            "name": t.name,
-            "description": t.description,
-            "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
-            "date_cloture": t.date_cloture.isoformat()
-        }
-        for t in thematiques
-    ])
+    search = request.args.get("q")
+    if search:
+        s = f"%{search}%"
+        q = q.filter(
+            (Thematique.name.ilike(s)) |
+            (Thematique.description.ilike(s))
+        )
+
+    # ici un tri par défaut pertinent: plus récemment fermées d'abord, puis nom
+    q = apply_sorting(q, Thematique, default="-date_cloture,name")
+
+    total = q.order_by(None).with_entities(func.count(Thematique.id)).scalar()
+    rows = q.limit(per_page).offset((page - 1) * per_page).all()
+
+    items = [{
+        "id": t.id,
+        "name": t.name,
+        "description": t.description,
+        "date_ouverture": t.date_ouverture.isoformat() if t.date_ouverture else None,
+        "date_cloture": t.date_cloture.isoformat() if t.date_cloture else None
+    } for t in rows]
+
+    return jsonify(build_paginated_response(items, total, page, per_page))
 #Pour une thématique sélectionnée :
 #Récupérer toutes les sous-thématiques associées
 #Pour chaque sous-thématique : récupérer toutes les questions liées
@@ -264,96 +368,136 @@ def import_sous_thematiques_questions(thematique_id):
     db.session.commit()
     return jsonify({"created_sous_thematiques": created_subs, "created_questions": created_qs}), 200
 
-
 @api_bp.route("/thematiques/non-completes/<int:utilisateur_id>", methods=["GET"])
 def get_incomplete_thematiques(utilisateur_id):
     """
-    Récupère les thématiques non complétées par un client.
-    Une thématique est complétée si le client a répondu à toutes les questions de toutes les sous-thématiques.
+    Thématiques non complétées par un client.
+    - Complète = l'utilisateur a répondu à TOUTES les questions de TOUTES les sous-thématiques.
+    - Ici on renvoie celles avec 0 question OU avec nb_réponses < nb_questions.
+    Params: page, per_page, sort (ex: name,-id), q (recherche sur name/description)
     """
-    thematiques = (
-        Thematique.query
-        .options(
-            joinedload(Thematique.sous_thematiques).joinedload(SousThematique.questions)
+    page, per_page = get_pagination_params(max_per_page=1000)
+
+    # Sous-requête: nombre total de questions par thématique
+    questions_sq = (
+        db.session.query(
+            Thematique.id.label("thematique_id"),
+            func.count(Question.id).label("nb_questions")
         )
-        .all()
+        .outerjoin(SousThematique, SousThematique.thematique_id == Thematique.id)
+        .outerjoin(Question, Question.sous_thematique_id == SousThematique.id)
+        .group_by(Thematique.id)
+        .subquery()
     )
 
-    incomplete_thematiques = []
+    # Sous-requête: nombre de réponses de CE user par thématique
+    reponses_sq = (
+        db.session.query(
+            Thematique.id.label("thematique_id"),
+            func.count(Reponse.id).label("nb_reponses")
+        )
+        .outerjoin(SousThematique, SousThematique.thematique_id == Thematique.id)
+        .outerjoin(Question, Question.sous_thematique_id == SousThematique.id)
+        .outerjoin(
+            Reponse,
+            and_(
+                Reponse.question_id == Question.id,
+                Reponse.utilisateur_id == utilisateur_id
+            )
+        )
+        .group_by(Thematique.id)
+        .subquery()
+    )
 
-    for t in thematiques:
-        total_questions = 0
-        question_ids = []
+    nbq = func.coalesce(questions_sq.c.nb_questions, 0)
+    nbr = func.coalesce(reponses_sq.c.nb_reponses, 0)
 
-        for st in t.sous_thematiques:
-            for q in st.questions:
-                question_ids.append(q.id)
-                total_questions += 1
+    q = (
+        db.session.query(Thematique.id, Thematique.name)
+        .outerjoin(questions_sq, questions_sq.c.thematique_id == Thematique.id)
+        .outerjoin(reponses_sq, reponses_sq.c.thematique_id == Thematique.id)
+        .filter(or_(nbq == 0, nbr < nbq))
+    )
 
-        if total_questions == 0:
-            # Pas de questions => considérée comme non complétée
-            incomplete_thematiques.append({
-                "id": t.id,
-                "name": t.name
-            })
-            continue
+    # Recherche
+    search = request.args.get("q")
+    if search:
+        s = f"%{search}%"
+        q = q.filter(or_(Thematique.name.ilike(s),
+                         Thematique.description.ilike(s)))
 
-        reponses_client = Reponse.query.filter(
-            Reponse.utilisateur_id == utilisateur_id,
-            Reponse.question_id.in_(question_ids)
-        ).count()
+    # Tri (par défaut par name)
+    q = apply_sorting(q, Thematique, default="name")
 
-        if reponses_client < total_questions:
-            incomplete_thematiques.append({
-                "id": t.id,
-                "name": t.name
-            })
+    # Total + page
+    total = q.order_by(None).with_entities(func.count()).scalar()
+    rows = q.limit(per_page).offset((page - 1) * per_page).all()
 
-    return jsonify(incomplete_thematiques)
+    items = [{"id": rid, "name": rname} for (rid, rname) in rows]
+    return jsonify(build_paginated_response(items, total, page, per_page))
 
 #Admin, user
 #Récupérer toutes les thématiques complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
 @api_bp.route("/thematiques/completes/<int:utilisateur_id>", methods=["GET"])
 def get_completed_thematiques(utilisateur_id):
     """
-    Récupère les thématiques complétées par un client.
-    Une thématique est complète si le client a répondu à toutes les questions de toutes les sous-thématiques.
+    Thématiques complétées par un client (nb_reponses == nb_questions ET nb_questions > 0).
+    Params: page, per_page, sort, q
     """
-    thematiques = (
-        Thematique.query
-        .options(
-            joinedload(Thematique.sous_thematiques).joinedload(SousThematique.questions)
+    page, per_page = get_pagination_params(max_per_page=1000) 
+
+    questions_sq = (
+        db.session.query(
+            Thematique.id.label("thematique_id"),
+            func.count(Question.id).label("nb_questions")
         )
-        .all()
+        .outerjoin(SousThematique, SousThematique.thematique_id == Thematique.id)
+        .outerjoin(Question, Question.sous_thematique_id == SousThematique.id)
+        .group_by(Thematique.id)
+        .subquery()
     )
 
-    completed_thematiques = []
+    reponses_sq = (
+        db.session.query(
+            Thematique.id.label("thematique_id"),
+            func.count(Reponse.id).label("nb_reponses")
+        )
+        .outerjoin(SousThematique, SousThematique.thematique_id == Thematique.id)
+        .outerjoin(Question, Question.sous_thematique_id == SousThematique.id)
+        .outerjoin(
+            Reponse,
+            and_(
+                Reponse.question_id == Question.id,
+                Reponse.utilisateur_id == utilisateur_id
+            )
+        )
+        .group_by(Thematique.id)
+        .subquery()
+    )
 
-    for t in thematiques:
-        question_ids = [
-            q.id
-            for st in t.sous_thematiques
-            for q in st.questions
-        ]
+    nbq = func.coalesce(questions_sq.c.nb_questions, 0)
+    nbr = func.coalesce(reponses_sq.c.nb_reponses, 0)
 
-        if not question_ids:
-            continue  # Une thématique sans questions ne peut pas être complète
+    q = (
+        db.session.query(Thematique.id, Thematique.name)
+        .outerjoin(questions_sq, questions_sq.c.thematique_id == Thematique.id)
+        .outerjoin(reponses_sq, reponses_sq.c.thematique_id == Thematique.id)
+        .filter(and_(nbq > 0, nbr == nbq))
+    )
 
-        nb_questions = len(question_ids)
+    search = request.args.get("q")
+    if search:
+        s = f"%{search}%"
+        q = q.filter(or_(Thematique.name.ilike(s),
+                         Thematique.description.ilike(s)))
 
-        nb_reponses_client = Reponse.query.filter(
-            Reponse.utilisateur_id == utilisateur_id,
-            Reponse.question_id.in_(question_ids)
-        ).count()
+    q = apply_sorting(q, Thematique, default="name")
 
-        if nb_reponses_client == nb_questions:
-            completed_thematiques.append({
-                "id": t.id,
-                "name": t.name
-            })
+    total = q.order_by(None).with_entities(func.count()).scalar()
+    rows = q.limit(per_page).offset((page - 1) * per_page).all()
 
-    return jsonify(completed_thematiques)
-
+    items = [{"id": rid, "name": rname} for (rid, rname) in rows]
+    return jsonify(build_paginated_response(items, total, page, per_page))
 # SousThematique routes
 ##User,Admin
 @api_bp.route("/thematiques/<int:thematique_id>/sousthematiques", methods=["GET"])
@@ -458,17 +602,46 @@ def _assert_value_in_options(contenu, options):
     if contenu not in options:
         abort(400, description="La réponse doit être l'une des options disponibles.")
 #Admin,User
+
 @api_bp.route("/questions", methods=["GET"])
 def get_questions():
     """
-    Get a list of all questions.
-    Returns:
-        JSON list of questions with their sous_thematique_id.
+    Liste paginée des questions.
+    Params:
+      - page, per_page
+      - q: recherche (texte)
+      - sous_thematique_id
+      - sort: ex "id" ou "-id" (par défaut "id")
     """
-    questions = Question.query.all()
-    return jsonify([
-        {"id": q.id, "texte": q.texte, "sous_thematique_id": q.sous_thematique_id, "options": q.options} for q in questions
-    ])
+    page, per_page = get_pagination_params()
+
+    q = Question.query
+
+    stid = request.args.get("sous_thematique_id")
+    if stid is not None:
+        try:
+            q = q.filter(Question.sous_thematique_id == int(stid))
+        except ValueError:
+            abort(400, description="`sous_thematique_id` doit être un entier.")
+
+    search = request.args.get("q")
+    if search:
+        s = f"%{search}%"
+        q = q.filter(Question.texte.ilike(s))
+
+    q = apply_sorting(q, Question, default="id")
+
+    total = q.order_by(None).with_entities(func.count(Question.id)).scalar()
+    rows  = q.limit(per_page).offset((page - 1) * per_page).all()
+
+    items = [{
+        "id": q_.id,
+        "texte": q_.texte,
+        "sous_thematique_id": q_.sous_thematique_id,
+        "options": q_.options
+    } for q_ in rows]
+
+    return jsonify(build_paginated_response(items, total, page, per_page))
 #Admin,User
 @api_bp.route("/questions/<int:id>", methods=["GET"])
 def get_question(id):
@@ -558,20 +731,41 @@ def delete_question(id):
 #Admin
 @api_bp.route("/utilisateurs", methods=["GET"])
 def get_utilisateurs():
-    utilisateurs = Utilisateur.query.all()
-    return jsonify([
-        {
-            "id": u.id,
-            "nom": u.nom,
-            "prenom": u.prenom,
-            "email": u.email,
-            "telephone": u.telephone,
-            "date_naissance": u.date_naissance.isoformat() if u.date_naissance else None,
-            "ethnicite": u.ethnicite,
-            "genre": u.genre,
-            "role": u.role
-        } for u in utilisateurs
-    ])
+    """
+    Liste paginée des utilisateurs.
+    Params:
+      - page, per_page
+      - q: recherche (nom/prenom/email)
+      - sort: ex "nom,prenom" ou "-date_naissance,nom"
+    """
+    page, per_page = get_pagination_params()
+
+    q = Utilisateur.query
+    search = request.args.get("q")
+    if search:
+        s = f"%{search}%"
+        q = q.filter(or_(Utilisateur.nom.ilike(s),
+                         Utilisateur.prenom.ilike(s),
+                         Utilisateur.email.ilike(s)))
+
+    q = apply_sorting(q, Utilisateur, default="nom,prenom")
+
+    total = q.order_by(None).with_entities(func.count(Utilisateur.id)).scalar()
+    rows = q.limit(per_page).offset((page - 1) * per_page).all()
+
+    items = [{
+        "id": u.id,
+        "nom": u.nom,
+        "prenom": u.prenom,
+        "email": u.email,
+        "telephone": u.telephone,
+        "date_naissance": u.date_naissance.isoformat() if u.date_naissance else None,
+        "ethnicite": u.ethnicite,
+        "genre": u.genre,
+        "role": u.role
+    } for u in rows]
+
+    return jsonify(build_paginated_response(items, total, page, per_page))
 
 #Admin
 # Récupérer un seul utilisateur par ID
@@ -745,17 +939,52 @@ def delete_admin(id):
 
 # Obtenir toutes les réponses
 #Admin, User
+
 @api_bp.route("/reponses", methods=["GET"])
 def get_reponses():
-    reponses = Reponse.query.all()
+    """
+    Liste des réponses (non paginée).
+    Filtres optionnels:
+      - question_id
+      - utilisateur_id
+      - date_from (YYYY-MM-DD)
+      - date_to   (YYYY-MM-DD)
+    """
+    q = Reponse.query
+
+    # filtres
+    qid = request.args.get("question_id", type=int)
+    if qid is not None:
+        q = q.filter(Reponse.question_id == qid)
+
+    uid = request.args.get("utilisateur_id", type=int)
+    if uid is not None:
+        q = q.filter(Reponse.utilisateur_id == uid)
+
+    dfrom = request.args.get("date_from")
+    if dfrom:
+        try:
+            q = q.filter(Reponse.date_creation >= _date.fromisoformat(dfrom))
+        except ValueError:
+            abort(400, description="`date_from` doit être au format YYYY-MM-DD.")
+
+    dto = request.args.get("date_to")
+    if dto:
+        try:
+            q = q.filter(Reponse.date_creation <= _date.fromisoformat(dto))
+        except ValueError:
+            abort(400, description="`date_to` doit être au format YYYY-MM-DD.")
+
+    rows = q.order_by(Reponse.date_creation.desc(), Reponse.id.asc()).all()
+
     return jsonify([
         {
             "id": r.id,
-            "contenu": r.contenu,
+            "contenu": r.contenu,   # <-- le bon champ !
             "date_creation": r.date_creation.isoformat() if r.date_creation else None,
             "question_id": r.question_id,
             "utilisateur_id": r.utilisateur_id
-        } for r in reponses
+        } for r in rows
     ])
 #Admin, User
 # Obtenir une réponse par ID
@@ -978,20 +1207,91 @@ def send_notification():
 # Get notifications for a user
 @api_bp.route('/notifications/<int:user_id>', methods=['GET'])
 def get_notifications_for_user(user_id):
-    user = Utilisateur.query.get_or_404(user_id)
-    notifications = []
+    """
+    Notifications d'un utilisateur (paginées).
+    Params:
+      - page, per_page
+      - q: recherche plein texte sur titre/contenu
+      - est_lu: true/false (accepte aussi 1/0, oui/non)
+      - date_from, date_to: ISO (YYYY-MM-DD ou datetime ISO)
+      - sort: champs de Notification, ex "-date_envoi,id" (défaut)
+    """
+    # 404 si l'utilisateur n'existe pas
+    Utilisateur.query.get_or_404(user_id)
 
-    for liaison in user.liaisons_notifications:
-        n = liaison.notification
-        notifications.append({
-            "notification_id": n.id,
-            "titre":           n.titre,
-            "contenu":         n.contenu,
-            "date_envoi":      n.date_envoi.isoformat() if n.date_envoi else None,
-            "est_lu":          liaison.est_lu
-        })
+    page, per_page = get_pagination_params()
 
-    return jsonify(notifications)
+    q = (
+        db.session.query(Notification, NotificationUtilisateur.est_lu)
+        .join(NotificationUtilisateur, NotificationUtilisateur.notification_id == Notification.id)
+        .filter(NotificationUtilisateur.utilisateur_id == user_id)
+    )
+
+    # Recherche texte
+    search = request.args.get("q")
+    if search:
+        s = f"%{search}%"
+        q = q.filter(or_(Notification.titre.ilike(s),
+                         Notification.contenu.ilike(s)))
+
+    # Filtre est_lu
+    est_lu_param = request.args.get("est_lu")
+    if est_lu_param is not None:
+        v = est_lu_param.strip().lower()
+        if v in ("true", "1", "t", "yes", "y", "vrai", "oui"):
+            q = q.filter(NotificationUtilisateur.est_lu.is_(True))
+        elif v in ("false", "0", "f", "no", "n", "faux", "non"):
+            q = q.filter(NotificationUtilisateur.est_lu.is_(False))
+        else:
+            abort(400, description="`est_lu` doit être true/false (ou 1/0, oui/non).")
+
+    # Filtres de date (sur Notification.date_envoi)
+    def _parse_from(value):
+        try:
+            return datetime.fromisoformat(value)
+        except ValueError:
+            try:
+                d = _date.fromisoformat(value)
+                return datetime.combine(d, _time.min)
+            except ValueError:
+                abort(400, description="`date_from` doit être YYYY-MM-DD ou datetime ISO.")
+
+    def _parse_to(value):
+        try:
+            return datetime.fromisoformat(value)
+        except ValueError:
+            try:
+                d = _date.fromisoformat(value)
+                return datetime.combine(d, _time.max)
+            except ValueError:
+                abort(400, description="`date_to` doit être YYYY-MM-DD ou datetime ISO.")
+
+    date_from = request.args.get("date_from")
+    if date_from:
+        q = q.filter(Notification.date_envoi >= _parse_from(date_from))
+
+    date_to = request.args.get("date_to")
+    if date_to:
+        q = q.filter(Notification.date_envoi <= _parse_to(date_to))
+
+    # Tri (on autorise les champs de Notification ; défaut: plus récentes d'abord)
+    q = apply_sorting(q, Notification, default="-date_envoi,id")
+
+    # Total
+    total = q.order_by(None).with_entities(func.count(Notification.id)).scalar()
+
+    # Page
+    rows = q.limit(per_page).offset((page - 1) * per_page).all()
+
+    items = [{
+        "notification_id": n.id,
+        "titre": n.titre,
+        "contenu": n.contenu,
+        "date_envoi": n.date_envoi.isoformat() if n.date_envoi else None,
+        "est_lu": est_lu
+    } for (n, est_lu) in rows]
+
+    return jsonify(build_paginated_response(items, total, page, per_page))
 # Mark a notification as read
 @api_bp.route('/notifications/<int:user_id>/<int:notification_id>/read', methods=['PUT'])
 def mark_as_read(user_id, notification_id):
@@ -1029,6 +1329,56 @@ def mark_as_unread(user_id, notification_id):
             "titre": notif.titre
         }
     }), 200
+# Admin – historique global des notifications (paginé)
+@api_bp.route('/notifications', methods=['GET'])
+def get_all_notifications():
+    """
+    Historique global des notifications.
+    Params:
+      - page, per_page
+      - q (titre/contenu)
+      - date_from, date_to (sur Notification.date_envoi)
+      - sort: champs de Notification, ex "-date_envoi,id" (défaut)
+    """
+    page, per_page = get_pagination_params()
+
+    q = Notification.query
+
+    search = request.args.get("q")
+    if search:
+        s = f"%{search}%"
+        q = q.filter(or_(Notification.titre.ilike(s),
+                         Notification.contenu.ilike(s)))
+
+    def _parse_iso_date(val, end_of_day=False):
+        try:
+            dt = datetime.fromisoformat(val)
+            return dt
+        except ValueError:
+            d = _date.fromisoformat(val)
+            return datetime.combine(d, _time.max if end_of_day else _time.min)
+
+    date_from = request.args.get("date_from")
+    if date_from:
+        q = q.filter(Notification.date_envoi >= _parse_iso_date(date_from))
+
+    date_to = request.args.get("date_to")
+    if date_to:
+        q = q.filter(Notification.date_envoi <= _parse_iso_date(date_to, end_of_day=True))
+
+    q = apply_sorting(q, Notification, default="-date_envoi,id")
+
+    total = q.order_by(None).with_entities(func.count(Notification.id)).scalar()
+    rows  = q.limit(per_page).offset((page - 1) * per_page).all()
+
+    items = [{
+        "id": n.id,
+        "titre": n.titre,
+        "contenu": n.contenu,
+        "date_envoi": n.date_envoi.isoformat() if n.date_envoi else None
+    } for n in rows]
+
+    return jsonify(build_paginated_response(items, total, page, per_page))
 
 # dashboard 
 POSSIBLE_ETHNICITES = [
