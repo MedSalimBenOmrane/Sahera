@@ -48,6 +48,7 @@ import { LineChartComponent } from './components/dashboard/line-chart/line-chart
 import { PieChartComponent } from './components/dashboard/pie-chart/pie-chart.component';
 import { MatSelectModule } from '@angular/material/select';
 import { BarchartAnalyseComponent } from './components/barchart-analyse/barchart-analyse.component';
+import { LoginDecorComponent } from './components/login-decor/login-decor.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -75,7 +76,8 @@ import { BarchartAnalyseComponent } from './components/barchart-analyse/barchart
      QuestionDetailsComponent,
      ComingSoonPageComponent,
      EditCoordonneesUserComponent,
-     BarchartAnalyseComponent
+     BarchartAnalyseComponent,
+     LoginDecorComponent
   ],
   imports: [
     BrowserModule,

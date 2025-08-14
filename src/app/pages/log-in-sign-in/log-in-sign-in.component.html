@@ -6,11 +6,24 @@
 <body>
   <div class="login-wrapper">
     <!-- image à gauche (desktop only) -->
-    <img
-      src="assets/images/left.png"
-      alt="Décor gauche"
-      class="side-img side-img--left"
-    />
+<div class="side-slideshow" aria-label="Diaporama décor">
+  
+    <div class="slide-layer"
+     [ngStyle]="{'--cap-pad':'10%'}"
+    *ngFor="let src of slides; let i = index"
+    [class.is-active]="i === currentSlide"
+    [ngStyle]="{
+      'background-image': 'url(' + src + ')',
+      '-webkit-mask-image': 'url(' + src + ')',
+      'mask-image': 'url(' + src + ')'
+    }"
+  >
+    <div class="slide-caption" *ngIf="captions?.length">
+      {{ captions[i] }}
+    </div>
+  </div>
+
+</div>
   <div class="main">
     <!-- Checkbox invisible qui gère le toggle Inscription/Connexion -->
     <input type="checkbox" id="chk" aria-hidden="false" />

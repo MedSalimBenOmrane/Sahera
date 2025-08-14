@@ -12,6 +12,10 @@ interface FormField {
   type ClientForm = Omit<Client,'date_naissance'> & {
   date_naissance?: string;
   };
+type Meta = {
+  total: number; page: number; per_page: number; pages: number;
+  has_next: boolean; has_prev: boolean; next: string|null; prev: string|null;
+};
 
 @Component({
   selector: 'app-clients',
@@ -51,6 +55,17 @@ export class ClientsComponent implements OnInit {
     ]},
     { key: 'role',           label: 'Rôle',          type: 'text' }
   ];
+  // 🔹 Pagination
+  meta?: Meta;
+  currentPage = 1;
+  perPage = 4; // MAX_PER_PAGE côté back
+  get totalPages(): number { return this.meta?.pages ?? 1; }
+  get pageNumbers(): number[] {
+    const total = this.totalPages, cur = this.currentPage;
+    const start = Math.max(1, cur - 2);
+    const end   = Math.min(total, cur + 2);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
 
   @ViewChild('dialog', { static: true })
   private dialogRef!: ElementRef<HTMLDialogElement>;
@@ -58,26 +73,38 @@ export class ClientsComponent implements OnInit {
   constructor(private svc: ClientsService) {}
 
   ngOnInit(): void {
-    this.loadClients();
+    this.loadPage(1);
   }
 
-    private loadClients(): void {
+  private loadPage(page: number): void {
     this.isLoading = true;
     this.errorMsg = null;
 
-    this.svc.getClientsapi().pipe(
-      finalize(() => this.isLoading = false)
-    ).subscribe({
-      next: (list) => {
-        this.clients = list;
-        console.log('Clients reçus :', this.clients);
-      },
-      error: (err) => {
-        console.error('Erreur API :', err);
-        this.errorMsg = 'Impossible de charger les clients.';
-      }
-    });
+    this.svc.getPage({ page, per_page: this.perPage, sort: 'nom,prenom' })
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: ({ items, meta }) => {
+          this.clients = items;
+          this.meta = meta as Meta;
+          this.currentPage = this.meta.page;
+        },
+        error: err => {
+          console.error('Erreur API :', err);
+          this.errorMsg = 'Impossible de charger les participants.';
+          this.clients = [];
+          this.meta = undefined;
+        }
+      });
   }
+
+  // 🔹 handlers pagination
+  goToPage(p:number){ if(p<1 || p>this.totalPages || p===this.currentPage) return; this.loadPage(p); }
+  firstPage(){ this.goToPage(1); }
+  prevPage(){ this.goToPage(this.currentPage - 1); }
+  nextPage(){ this.goToPage(this.currentPage + 1); }
+  lastPage(){ this.goToPage(this.totalPages); }
+
+
 
   /** Ouvre le dialogue en mode création */
   openCreateDialog() {
@@ -114,44 +141,56 @@ openEditDialog(c: Client): void {
 }
 
   /** Crée ou met à jour */
-  saveClient() {
-    const dateObj = new Date(this.form.date_naissance as string);
-    const payload = new Client(
-      this.currentId ?? 0,
-      this.form.nom          || '',
-      this.form.prenom       || '',
-      this.form.email        || '',
-      this.form.mot_de_passe || '',
-      this.form.telephone    || '',
-      dateObj || new Date(),  
-      this.form.genre        || '',
-      this.form.role         || '',
-      this.form.ethnicite    || ''
-    );
-console.log(payload)
-    const obs = this.isEditMode
-      ? this.svc.updateClient(payload)
-      : this.svc.createClient(payload);
+saveClient() {
+  const dateObj = new Date(this.form.date_naissance as string);
+  const payload = new Client(
+    this.currentId ?? 0,
+    this.form.nom || '',
+    this.form.prenom || '',
+    this.form.email || '',
+    this.form.mot_de_passe || '',
+    this.form.telephone || '',
+    dateObj || new Date(),
+    this.form.genre || '',
+    this.form.role || '',
+    this.form.ethnicite || ''
+  );
 
-    obs.subscribe(() => this.loadClients());
-    this.closeDialog();
+  const obs = this.isEditMode
+    ? this.svc.updateClient(payload)
+    : this.svc.createClient(payload);
+
+  obs.subscribe({
+    next: () => {
+      this.closeDialog();
+      const target = this.isEditMode ? this.currentPage : 1;
+      this.loadPage(target);
+    },
+    error: err => console.error('Erreur sauvegarde', err)
+  });
+}
+
+
+
+confirmDelete(client: Client) {
+  const fullName = `${client.nom} ${client.prenom}`;
+  if (!window.confirm(`Voulez-vous vraiment supprimer "${fullName}" ?`)) {
+    return;
   }
 
+  // 👉 si on supprime le dernier item de la page et qu'il existe une page précédente,
+  // on reculera d'une page; sinon on reste sur la page actuelle.
+  const targetPage =
+    (this.clients.length === 1 && this.currentPage > 1)
+      ? this.currentPage - 1
+      : this.currentPage;
 
-  confirmDelete(client: Client) {
-    const fullName = `${client.nom} ${client.prenom}`;
-    const message  = `Voulez-vous vraiment supprimer "${fullName}" ?`;
-    // window.confirm renvoie true si “OK”, false si “Annuler”
-    if (window.confirm(message)) {
-      this.deleteClient(client.id);
-    }
-  }
+  this.svc.deleteClient(client.id).subscribe({
+    next: () => this.loadPage(targetPage),
+    error: err => console.error('Suppression impossible', err)
+  });
+}
 
-  /** Supprime sans confirmation (appelé en interne) */
-  private deleteClient(id: number) {
-    this.svc.deleteClient(id)
-      .subscribe(() => this.loadClients());
-  }
 
 
   /** Ferme le dialog */

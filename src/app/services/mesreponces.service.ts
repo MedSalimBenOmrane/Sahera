@@ -1,10 +1,12 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 export interface ThematiqueLite {
   id: number;
   name: string;
 }
+export interface ThematiqueLite { id: number; name: string; }
+type Paginated<T> = { items: T[]; meta: any };
 @Injectable({
   providedIn: 'root'
 })
@@ -16,15 +18,16 @@ private base = 'http://localhost:5000/api';
 
   /** IDs + noms des questionnaires complétés */
   getCompletedThematiqueIds(clientId: number): Observable<ThematiqueLite[]> {
-    return this.http.get<ThematiqueLite[]>(
-      `${this.base}/thematiques/completes/${clientId}`
-    );
+    const params = new HttpParams().set('per_page','1000'); // pas de pagination côté UI
+    return this.http
+      .get<Paginated<ThematiqueLite>>(`${this.base}/thematiques/completes/${clientId}`, { params })
+      .pipe(map(res => res.items ?? []));
   }
 
-  /** IDs + noms des questionnaires incomplétés */
   getIncompleteThematiqueIds(clientId: number): Observable<ThematiqueLite[]> {
-    return this.http.get<ThematiqueLite[]>(
-      `${this.base}/thematiques/non-completes/${clientId}`
-    );
+    const params = new HttpParams().set('per_page','1000');
+    return this.http
+      .get<Paginated<ThematiqueLite>>(`${this.base}/thematiques/non-completes/${clientId}`, { params })
+      .pipe(map(res => res.items ?? []));
   }
 }

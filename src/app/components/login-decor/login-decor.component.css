@@ -1,0 +1,28 @@
+/* Mobile : on ne montre pas le décor */
+:host {
+  display: none;
+}
+
+/* Desktop : on l’affiche, sans le laisser s’étirer */
+@media (min-width: 768px) {
+  :host {
+    display: block;
+    flex: 0 0 auto; /* évite que le host prenne trop de place dans le flex */
+  }
+
+  .side-img {
+    /* -> largeur calée sur ton bloc .main (~350px) */
+    width: clamp(240px, 24vw, 360px);
+
+    /* -> pas plus haut que .main (620px), conserve les proportions */
+    max-height: 620px;
+    height: auto;
+
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+    display: block;
+  }
+
+  .side-img--left  { margin-right: 0; }
+  .side-img--right { margin-left: 1rem; }
+}

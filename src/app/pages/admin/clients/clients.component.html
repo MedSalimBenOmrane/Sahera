@@ -17,7 +17,7 @@
 </button>
     </div>
   </section>
-
+  <div class="list-wrap">
   <section class="table__body">
     <table>
       <thead>
@@ -95,7 +95,34 @@
       </tbody>
     </table>
   </section>
+  </div>
+  <!-- ✅ Pagination en bas du container -->
+  <nav *ngIf="totalPages > 1"
+       class="pagination-wrap d-flex justify-content-center mt-4"
+       aria-label="Pagination des participants">
+    <ul class="pagination">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link bg-transparent" (click)="firstPage()" [disabled]="currentPage === 1">«</button>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link bg-transparent" (click)="prevPage()" [disabled]="currentPage === 1">Précédent</button>
+      </li>
 
+      <li class="page-item" *ngFor="let p of pageNumbers" [class.active]="p === currentPage">
+        <button class="page-link bg-transparent" (click)="goToPage(p)">{{ p }}</button>
+      </li>
+
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link bg-transparent" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link bg-transparent" (click)="lastPage()" [disabled]="currentPage === totalPages">»</button>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- dialog … -->
+</main>
   <!-- Le même dialog pour Create / Edit -->
   <dialog #dialog>
     <!-- Titre dynamique -->
@@ -133,4 +160,4 @@
     </div>
     <button class="x" aria-label="close" (click)="closeDialog()">❌</button>
   </dialog>
-</main>
+

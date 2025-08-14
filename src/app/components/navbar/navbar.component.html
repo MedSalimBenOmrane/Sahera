@@ -34,21 +34,21 @@
         </li>
 
         <!-- Notifications avec badge -->
-        <li class="nav-item">
-          <a class="nav-link menu__link" routerLink="/notifications" routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }">
-            <!-- Icône englobée dans un conteneur pour position relative -->
-            <span class="icon-with-badge position-relative">
-              <mat-icon>notifications</mat-icon>
-              <!-- Badge superposé sur l’icône -->
-              <span *ngIf="unreadCount > 0" class="badge rounded-pill bg-danger position-absolute badge-on-icon">
-                {{ unreadCount }}
-              </span>
-            </span>
-            <!-- Texte “Notifications” reste à droite de l’icône -->
-            Notifications
-          </a>
-        </li>
+      <li class="nav-item">
+  <a class="nav-link menu__link" routerLink="/notifications" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+    <span class="icon-with-badge position-relative">
+      <mat-icon>notifications</mat-icon>
+
+      <!-- ✅ on lit l’observable dans le *ngIf -->
+      <ng-container *ngIf="(unreadTotal$ | async) as unread">
+        <span *ngIf="unread > 0" class="badge rounded-pill bg-danger position-absolute badge-on-icon">
+          {{ unread }}
+        </span>
+      </ng-container>
+    </span>
+    Notifications
+  </a>
+</li>
 
         <!-- Compte (dropdown) -->
             <li class="nav-item dropdown">

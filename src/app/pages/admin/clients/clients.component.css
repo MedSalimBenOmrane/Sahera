@@ -655,4 +655,43 @@ h2 {
 .cssbuttons-io-button:active {
   box-shadow: 0 0.3em 1em -0.5em #14a73e98;
 }
+/* Le container principal devient un flex en colonne */
+main.table {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 8rem); /* ajuste selon ton header */
+  padding-bottom: 12px;            /* petit espace avant le bord bas */
+}
+
+/* La liste occupe l’espace disponible (et garde ton scroll interne) */
+.list-wrap { 
+  flex: 1 1 auto;
+}
+
+/* Pagination en flux normal, poussée en bas si peu d’items */
+.pagination-wrap {
+  position: static;      /* surtout pas fixed */
+  margin-top: auto;      /* pousse la nav en bas du container */
+  align-self: center;    /* centre horizontalement */
+}
+
+/* Style homogène avec tes autres pages */
+.pagination {
+  background: rgba(255, 234, 218, 0.238);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.page-link { color: #111 !important; background: transparent; border: 1px solid rgba(0,0,0,.15); }
+.page-link:hover { color: #000 !important; background: rgba(0,0,0,.04); }
+.page-item.active .page-link { color: #000 !important; background: rgba(0,0,0,.08); border-color: rgba(0,0,0,.25); }
+.page-item.disabled .page-link { color: rgba(0,0,0,.35) !important; background: transparent; border-color: rgba(0,0,0,.1); }
+.page-link:focus { box-shadow: none; }
+
+/* Important : ne garde nulle part un ancien .pagination-fixed { position: fixed; ... } */
+
+
 

@@ -1,13 +1,14 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ElementRef
-} from '@angular/core';
+// genrate-questionnaire.component.ts
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { finalize } from 'rxjs';
 import { SousThematique } from 'src/app/models/sous-thematique.model';
 import { Thematique } from 'src/app/models/thematique.model';
 import { ThematiqueService } from 'src/app/services/thematique.service';
+
+type Meta = {
+  total: number; page: number; per_page: number; pages: number;
+  has_next: boolean; has_prev: boolean; next: string | null; prev: string | null;
+};
 
 @Component({
   selector: 'app-genrate-questionnaire',
@@ -16,185 +17,133 @@ import { ThematiqueService } from 'src/app/services/thematique.service';
 })
 export class GenrateQuestionnaireComponent implements OnInit {
   thematiques: Thematique[] = [];
-  selectedSous: SousThematique[] = [];
 
-  isLoading = false;     // loader pour la liste des thématiques
-  isCsvLoading = false;  // loader pour import CSV
-  isSousLoading = false; // loader pour sous-thématiques
+  isLoading = false;
+  isCsvLoading = false;
   selectedFile: File | null = null;
 
-  // Champs du formulaire de création (format YYYY-MM-DD)
-  newThematique: {
-    titre: string;
-    description: string;
-    dateOuvertureSession: string;   // ex: "2025-08-03"
-    dateFermetureSession: string;   // ex: "2025-08-20"
-  } = {
+  newThematique = {
     titre: '',
     description: '',
     dateOuvertureSession: '',
     dateFermetureSession: ''
   };
 
-  @ViewChild('dialog', { static: true })
-  dialogRef!: ElementRef; // <dialog>
+  @ViewChild('dialog', { static: true }) dialogRef!: ElementRef<HTMLDialogElement>;
 
-  @ViewChild('fileInput', { static: false })
-  fileInput!: ElementRef<HTMLInputElement>;
-
-  currentCreatedThematiqueId?: number;
+  // --- pagination ---
+  meta?: Meta;
+  currentPage = 1;
+  perPage = 4;  // 4 éléments par page
+  get totalPages(): number { return this.meta?.pages ?? 1; }
+  get pageNumbers(): number[] {
+    const total = this.totalPages, cur = this.currentPage;
+    const start = Math.max(1, cur - 2);
+    const end   = Math.min(total, cur + 2);
+    return Array.from({length: end - start + 1}, (_, i) => start + i);
+  }
 
   constructor(private thematiqueService: ThematiqueService) {}
 
-  ngOnInit(): void {
-    this.loadThematiques();
-  }
+  ngOnInit(): void { this.loadPage(1); }
 
-  private loadThematiques(): void {
+  // charge une page
+  private loadPage(page: number): void {
     this.isLoading = true;
-    this.thematiqueService.getAll()
+    this.thematiqueService
+      .getPage({ page, per_page: this.perPage, sort: '-date_ouverture,name' })
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
-        next: (data) => (this.thematiques = data),
-        error: (err) => {
+        next: ({ items, meta }) => {
+          this.thematiques = items;
+          this.meta = meta as Meta;
+          this.currentPage = this.meta.page;
+        },
+        error: err => {
           console.error('Erreur chargement thématiques', err);
           this.thematiques = [];
+          this.meta = undefined;
         }
       });
   }
 
-  // Normalise une date à minuit local (pour éviter les surprises de fuseau)
-  private atMidnight(d: Date): Date {
-    const x = new Date(d);
-    x.setHours(0, 0, 0, 0);
-    return x;
-  }
-  asLocalDate(d: string | Date | null | undefined): Date | null {
-  if (!d) return null;
-  if (d instanceof Date) {
-    const x = new Date(d);
-    x.setHours(0, 0, 0, 0);
-    return x;
-  }
-  // '2025-08-03' -> (year=2025, month=7, day=3)
-  const [y, m, dd] = d.split('-').map(Number);
-  return new Date(y, (m ?? 1) - 1, dd ?? 1, 0, 0, 0, 0);
-}
-  /**
-   * Session ouverte ssi today ∈ [ouverture, clôture] (bornes incluses).
-   * Si l’une des dates manque -> fermé.
-   */
-  isSessionOpen(t: Thematique): boolean {
-  const start = this.asLocalDate(t.dateOuvertureSession as any);
-  const end   = this.asLocalDate(t.dateFermetureSession as any);
-  if (!start || !end) return false;
+  // handlers pagination
+  goToPage(p:number){ if(p<1 || p>this.totalPages || p===this.currentPage) return; this.loadPage(p); }
+  firstPage(){ this.goToPage(1); }
+  prevPage(){ this.goToPage(this.currentPage - 1); }
+  nextPage(){ this.goToPage(this.currentPage + 1); }
+  lastPage(){ this.goToPage(this.totalPages); }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  return today >= start && today <= end;
-}
+  // --- Dialog CRUD (inchangé à 99%), mais on RELIT la page après action
   openCreateDialog(): void {
-    this.newThematique = {
-      titre: '',
-      description: '',
-      dateOuvertureSession: '',
-      dateFermetureSession: ''
-    };
+    this.newThematique = { titre:'', description:'', dateOuvertureSession:'', dateFermetureSession:'' };
     this.selectedFile = null;
     (this.dialogRef.nativeElement as any).showModal();
   }
+  closeDialog(): void { (this.dialogRef.nativeElement as any).close(); }
 
-  closeDialog(): void {
-    (this.dialogRef.nativeElement as any).close();
-  }
-
-  onFileSelected(event: Event): void {
-    const inp = event.target as HTMLInputElement;
-    if (inp.files && inp.files.length) {
-      this.selectedFile = inp.files[0];
-    }
+  onFileSelected(ev: Event): void {
+    const inp = ev.target as HTMLInputElement;
+    if (inp.files && inp.files.length) this.selectedFile = inp.files[0];
   }
 
   createThematique(): void {
-    const {
-      titre,
-      description,
-      dateOuvertureSession,
-      dateFermetureSession
-    } = this.newThematique;
+    const { titre, description, dateOuvertureSession, dateFermetureSession } = this.newThematique;
+    if (!titre || !description || !dateOuvertureSession || !dateFermetureSession) return;
 
-    // validations
-    if (!titre || !description || !dateOuvertureSession || !dateFermetureSession) {
-      console.error('Champs requis manquants');
-      return;
-    }
-
-    // Construit des dates à minuit local
     const ouverture = new Date(dateOuvertureSession + 'T00:00:00');
     const cloture   = new Date(dateFermetureSession + 'T00:00:00');
+    if (isNaN(ouverture.getTime()) || isNaN(cloture.getTime()) || ouverture > cloture) return;
 
-    if (isNaN(ouverture.getTime()) || isNaN(cloture.getTime())) {
-      console.error('Dates invalides');
-      return;
-    }
-    if (ouverture.getTime() > cloture.getTime()) {
-      console.error('La date d’ouverture doit être ≤ la date de clôture');
-      return;
-    }
-
-    const thematique = new Thematique(
-      0,
-      titre,
-      ouverture,   // on respecte la saisie de l’admin
-      cloture,
-      description
-    );
+    const t = new Thematique(0, titre, ouverture, cloture, description);
 
     this.isLoading = true;
-    this.thematiqueService.create(thematique)
+    this.thematiqueService.create(t)
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (created) => {
-          this.currentCreatedThematiqueId = created.id;
-
           if (this.selectedFile) {
-            this.importCsv(created.id);
+            this.importCsv(created.id);         // après import on rechargera la liste
           } else {
             this.closeDialog();
-            this.loadThematiques();
+            this.loadPage(1);                   // reviens sur la 1ère page (tri -date_ouverture)
           }
         },
-        error: (err) => console.error('Erreur création thématique', err)
+        error: err => console.error('Erreur création thématique', err)
       });
   }
 
   private importCsv(thematiqueId: number): void {
-    if (!this.selectedFile) {
-      this.closeDialog();
-      this.loadThematiques();
-      return;
-    }
-
-    const fd = new FormData();
-    fd.append('file', this.selectedFile);
+    if (!this.selectedFile) { this.closeDialog(); this.loadPage(1); return; }
+    const fd = new FormData(); fd.append('file', this.selectedFile);
 
     this.isCsvLoading = true;
     this.thematiqueService.importCsv(thematiqueId, fd)
       .pipe(finalize(() => (this.isCsvLoading = false)))
       .subscribe({
-        next: () => {
-          this.closeDialog();
-          this.loadThematiques();
-        },
-        error: (err) => console.error('Erreur import CSV', err)
+        next: () => { this.closeDialog(); this.loadPage(1); },
+        error: err => console.error('Erreur import CSV', err)
       });
   }
 
   onDeleteThematique(id: number): void {
     this.thematiqueService.delete(id).subscribe({
-      next: () => this.loadThematiques(),
-      error: (err) => console.error(err)
+      next: () => {
+        // si on supprime le dernier item de la page, recule d'une page
+        const isLastOnPage = this.thematiques.length === 1 && this.currentPage > 1;
+        this.loadPage(isLastOnPage ? this.currentPage - 1 : this.currentPage);
+      },
+      error: err => console.error(err)
     });
+  }
+
+  // util divers (inchangés)
+  isSessionOpen(t: Thematique): boolean {
+    const start = t.dateOuvertureSession ? new Date(t.dateOuvertureSession) : null;
+    const end   = t.dateFermetureSession ? new Date(t.dateFermetureSession) : null;
+    if (!start || !end) return false;
+    const today = new Date(); today.setHours(0,0,0,0);
+    start.setHours(0,0,0,0); end.setHours(0,0,0,0);
+    return today >= start && today <= end;
   }
 }

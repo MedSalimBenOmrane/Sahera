@@ -9,11 +9,16 @@ import {
   Renderer2,
   AfterViewInit
 } from '@angular/core';
+type Meta = {
+  total: number; page: number; per_page: number; pages: number;
+  has_next: boolean; has_prev: boolean; next: string|null; prev: string|null;
+};
 @Component({
   selector: 'app-create-notification',
   templateUrl: './create-notification.component.html',
   styleUrls: ['./create-notification.component.css']
 })
+
 export class CreateNotificationComponent implements OnInit {
   @Input() revealThreshold = 150;
   notifications: Notification[] = [];
@@ -42,18 +47,7 @@ export class CreateNotificationComponent implements OnInit {
   ngOnInit(): void {
     
     this.isLoading = true;
-    this.notificationService.getAllNotifications()
-      .subscribe(list =>{
-          this.notifications = list;
-          // Dès qu'on a la réponse (même vide), on désactive le loader
-          this.isLoading = false;
-        },
-        err => {
-          console.error(err);
-          // En cas d'erreur aussi, on cache le loader
-          this.isLoading = false;
-        }
-      );
+this.loadPage(1);
     this.checkReveal();
   }
 
@@ -66,29 +60,67 @@ export class CreateNotificationComponent implements OnInit {
     (this.dialogRef.nativeElement as any).close();
   }
 
-  sendNotification(): void {
-    const userIds = [1, 2, 3];  // toujours admin
-    this.notificationService
-      .sendNotification(this.newNotif.titre, this.newNotif.contenu, userIds)
-      .subscribe(res => {
-        const dto = res.notification;
-        const notif = new Notification(
-          dto.id,
-          dto.titre,
-          dto.contenu,
-          dto.date_envoi,
-          false
-        );
-        this.notificationService.addNotification(notif);
-        this.notifications = [...this.notificationService['notifications']];
+sendNotification(): void {
+  const userIds = [1, 2, 3];
+  this.notificationService
+    .sendNotification(this.newNotif.titre, this.newNotif.contenu, userIds)
+    .subscribe({
+      next: () => {
         this.closeDialog();
-      });
-  }
+        // recharge l’historique depuis /api/notifications pour respecter le tri -date_envoi,id
+        this.loadPage(1);        // ou this.loadPage(this.currentPage);
+      },
+      error: err => {
+        console.error('Envoi notification échoué', err);
+      }
+    });
+}
 
   onDeleteNotification(id: number): void {
     this.notificationService.deleteById(id);
     this.notifications = [...this.notificationService['notifications']];
   }
+
+
+  // pagination
+  meta?: Meta;
+  currentPage = 1;
+  perPage = 4;
+  get totalPages(): number { return this.meta?.pages ?? 1; }
+  get pageNumbers(): number[] {
+    const total = this.totalPages, cur = this.currentPage;
+    const start = Math.max(1, cur - 2);
+    const end   = Math.min(total, cur + 2);
+    return Array.from({length: end - start + 1}, (_, i) => start + i);
+  }
+
+
+  private loadPage(page: number): void {
+    this.isLoading = true;
+
+    // 👉 OPTION A (historique GLOBAL admin) : nécessite un endpoint /api/notifications (voir section 4)
+    this.notificationService.getPageAll({ page, per_page: this.perPage, sort: '-date_envoi,id' })
+      .pipe(/* finalize(() => this.isLoading=false) si tu veux */)
+      .subscribe({
+        next: ({ items, meta }) => {
+          this.notifications = items;
+          this.meta = meta as Meta;
+          this.currentPage = this.meta.page;
+          this.isLoading = false;
+        },
+        error: _ => { this.notifications = []; this.meta = undefined; this.isLoading = false; }
+      });
+
+    // 👉 OPTION B (si tu n’as que /notifications/<user_id> pour l’admin) :
+    // this.notificationService.getPageForCurrentUser({ page, per_page: this.perPage, sort: '-date_envoi,id' })...
+  }
+
+  // handlers pagination
+  goToPage(p:number){ if(p<1 || p>this.totalPages || p===this.currentPage) return; this.loadPage(p); }
+  firstPage(){ this.goToPage(1); }
+  prevPage(){ this.goToPage(this.currentPage-1); }
+  nextPage(){ this.goToPage(this.currentPage+1); }
+  lastPage(){ this.goToPage(this.totalPages); }
 
 
 }

@@ -14,6 +14,8 @@ interface ResponseCard {
   responseDate?: string;
 }
 
+// ...imports inchangés
+
 @Component({
   selector: 'app-mes-reponses',
   templateUrl: './mes-reponses.component.html',
@@ -27,9 +29,11 @@ export class MesReponsesComponent implements OnInit {
   incompleteThematiques: ResponseCard[] = [];
 
   clientId!: number;
-
-  // ← flag de chargement
   isLoading = false;
+
+  // 🔹 pagination client
+  perPage = 4;
+  currentPage = 1;
 
   constructor(
     private svc: MesreponcesService,
@@ -39,7 +43,6 @@ export class MesReponsesComponent implements OnInit {
   ngOnInit(): void {
     const usr = JSON.parse(localStorage.getItem('user') || '{}');
     this.clientId = usr.id;
-
     this.loadThematiques();
   }
 
@@ -68,6 +71,8 @@ export class MesReponsesComponent implements OnInit {
         this.completedThematiques  = this.allThematiques.filter(r => r.isAnswered);
         this.incompleteThematiques = this.allThematiques.filter(r => !r.isAnswered);
 
+        // remet la pagination au début
+        this.currentPage = 1;
         this.isLoading = false;
       },
       error: err => {
@@ -78,15 +83,40 @@ export class MesReponsesComponent implements OnInit {
     });
   }
 
-  selectTab(tab: 'all'|'completed'|'incomplete') {
-    this.selectedTab = tab;
-  }
-
-  get displayedThematiques(): ResponseCard[] {
+  // 🔹 liste active selon l’onglet
+  get activeList(): ResponseCard[] {
     switch (this.selectedTab) {
       case 'completed':  return this.completedThematiques;
       case 'incomplete': return this.incompleteThematiques;
       default:           return this.allThematiques;
     }
   }
+
+  // 🔹 helpers pagination
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.activeList.length / this.perPage));
+  }
+  get pageNumbers(): number[] {
+    const total = this.totalPages, cur = this.currentPage;
+    const start = Math.max(1, cur - 2);
+    const end   = Math.min(total, cur + 2);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
+  get pageItems(): ResponseCard[] {
+    const start = (this.currentPage - 1) * this.perPage;
+    return this.activeList.slice(start, start + this.perPage);
+  }
+
+  goToPage(p:number){ if(p<1 || p>this.totalPages || p===this.currentPage) return; this.currentPage = p; }
+  firstPage(){ this.goToPage(1); }
+  prevPage(){ this.goToPage(this.currentPage - 1); }
+  nextPage(){ this.goToPage(this.currentPage + 1); }
+  lastPage(){ this.goToPage(this.totalPages); }
+
+  // 🔹 quand on change d’onglet, on repart page 1
+  selectTab(tab: 'all'|'completed'|'incomplete') {
+    this.selectedTab = tab;
+    this.currentPage = 1;
+  }
 }
+

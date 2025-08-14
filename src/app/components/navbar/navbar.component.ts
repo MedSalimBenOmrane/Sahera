@@ -52,17 +52,25 @@ export class NavbarComponent implements OnInit,AfterViewInit  {
     private svc: ClientsService,
     private router: Router
   ) {}
-
+  unreadTotal$ = this.notificationService.unreadTotal$;
   ngOnInit(): void {
     // Chargement des notifications existant
     this.notificationService.getNotificationsForCurrentUser().subscribe({
       error: err => console.error('Notif failed', err)
     });
+    this.notificationService.refreshUnreadTotal();
   }
 
-  get unreadCount(): number {
-    return this.notificationService.getUnreadCount();
-  }
+unreadTotal = 0;
+
+
+
+private refreshUnread(): void {
+  this.notificationService.getUnreadTotal().subscribe({
+    next: n => this.unreadTotal = n,
+    error: () => this.unreadTotal = 0
+  });
+}
 
   /** Ouvre le dialog et pré-remplit le form */
   openProfileDialog(): void {

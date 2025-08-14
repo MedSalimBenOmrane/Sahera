@@ -1,65 +1,58 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
 import { Client } from '../models/client.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+type Meta = {
+  total: number; page: number; per_page: number; pages: number;
+  has_next: boolean; has_prev: boolean; next: string|null; prev: string|null;
+};
+type Paginated<T> = { items: T[]; meta: Meta };
+
+@Injectable({ providedIn: 'root' })
 export class ClientsService {
-private apiUrl = 'http://localhost:5000/api/utilisateurs';  // ← l’endpoint Flask
-private clients: Client[] = [
-    new Client(
-      1,
-      'Habib',
-      'Achraf',
-      'Achraf.Habib@gmail.com',
-      'pass123',
-      '0612345678',
-      new Date(1990, 0, 1),  // mois indexé à 0
-      'Male',
-      'client'
-    ),
-    new Client(
-      2,
-      'Ben Omrane',
-      'Salim',
-      'benomrane.salim@gmail.com',
-      'password',
-      '0698765432',
-      new Date(1985, 4, 15),
-      'Male',
-      'client'
-    ),
-  ];
+  private apiUrl = 'http://localhost:5000/api/utilisateurs';
 
-  constructor(private http: HttpClient) { }
-  getClientsapi(): Observable<Client[]> {
-    return this.http.get<Client[]>(this.apiUrl);
-  }
-  /** Récupère tous les clients depuis la mémoire */
-  getClients(): Observable<Client[]> {
-    return of(this.clients);
+  constructor(private http: HttpClient) {}
+
+  private buildParams(obj: Record<string, any>): HttpParams {
+    let p = new HttpParams();
+    Object.entries(obj).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && v !== '') p = p.set(k, String(v));
+    });
+    return p;
   }
 
-  /** Récupère un client par son ID */
-  /** Récupère un client par son ID */
+  /** ✅ Page paginée de participants */
+  getPage(opts: { page?: number; per_page?: number; sort?: string; q?: string } = {})
+  : Observable<Paginated<Client>> {
+    // par défaut 4 (ton MAX_PER_PAGE côté Flask)
+    const params = this.buildParams({ page: 1, per_page: 4, sort: 'nom,prenom', ...opts });
+
+    return this.http.get<Paginated<any>>(this.apiUrl, { params }).pipe(
+      map(res => ({
+        items: (res.items ?? []).map((u: any) => new Client(
+          u.id, u.nom, u.prenom, u.email, /* mot_de_passe */ '',
+          u.telephone ?? '',
+          u.date_naissance ? new Date(u.date_naissance) : null as any,
+          u.genre ?? '', u.role ?? '', u.ethnicite ?? ''
+        )),
+        meta: res.meta
+      }))
+    );
+  }
+
+  /** CRUD (inchangé) */
   getClientById(id: number): Observable<Client> {
-    return this.http.get<Client>(`${this.apiUrl}/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map(u => new Client(
+        u.id, u.nom, u.prenom, u.email, '', u.telephone ?? '',
+        u.date_naissance ? new Date(u.date_naissance) : null as any,
+        u.genre ?? '', u.role ?? '', u.ethnicite ?? ''
+      ))
+    );
   }
-
-  /** Crée un nouveau client via POST */
-  createClient(client: Client): Observable<Client> {
-    return this.http.post<Client>(this.apiUrl, client);
-  }
-
-  /** Met à jour un client existant via PUT */
-  updateClient(client: Client): Observable<Client> {
-    return this.http.put<Client>(`${this.apiUrl}/${client.id}`, client);
-  }
-
-  /** Supprime un client via DELETE */
-  deleteClient(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
+  createClient(client: Client): Observable<Client> { return this.http.post<Client>(this.apiUrl, client); }
+  updateClient(client: Client): Observable<Client> { return this.http.put<Client>(`${this.apiUrl}/${client.id}`, client); }
+  deleteClient(id: number): Observable<void> { return this.http.delete<void>(`${this.apiUrl}/${id}`); }
 }
