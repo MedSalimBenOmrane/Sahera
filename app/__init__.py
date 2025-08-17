@@ -26,7 +26,18 @@ def create_app():
 
     # Initialise SQLAlchemy
     db.init_app(app)
-
+    
+    app.config.update(
+        MAIL_SENDER_EMAIL=os.getenv("MAIL_SENDER_EMAIL", "no-reply@votre-app.local"),
+        MAIL_SENDER_NAME=os.getenv("MAIL_SENDER_NAME", "Ma Plateforme"),
+        SMTP_HOST=os.getenv("SMTP_HOST", "smtp.gmail.com"),
+        SMTP_PORT=int(os.getenv("SMTP_PORT", "587")),
+        SMTP_USE_TLS=os.getenv("SMTP_USE_TLS", "true").lower() in ("1","true","yes","on"),
+        SMTP_USERNAME=os.getenv("SMTP_USERNAME"),
+        SMTP_PASSWORD=os.getenv("SMTP_PASSWORD"),
+        FRONTEND_BASE_URL=os.getenv("FRONTEND_BASE_URL", "https://app.example.com"),
+        SMTP_TIMEOUT=float(os.getenv("SMTP_TIMEOUT", "20")),
+    )
     # Enregistre tes routes sur /api
     app.register_blueprint(api_bp, url_prefix="/api")
 

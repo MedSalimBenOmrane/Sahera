@@ -17,6 +17,8 @@ from sqlalchemy import func, case, and_
 from sqlalchemy import JSON
 from sqlalchemy.orm import validates
 from datetime import datetime, timedelta, date as _date, time as _time
+from .utils import _serializer, _generate_otp, _hash, _check_hash
+from itsdangerous import BadSignature, SignatureExpired
 
 
 api_bp = Blueprint("api", __name__)
@@ -1119,6 +1121,146 @@ def get_questions_by_sousthematique(sous_id):
     return jsonify(results)
 
 #Authentification: Login
+@api_bp.route("/auth/register/request-code", methods=["POST"])
+def register_request_code():
+    data = request.get_json() or {}
+    required = ["nom","prenom","email","mot_de_passe","telephone","date_naissance","genre","role"]
+    if not all(k in data for k in required):
+        return jsonify({"message":"Champs requis manquants"}), 400
+
+    email = data["email"].strip().lower()
+    if Utilisateur.query.filter_by(email=email).first():
+        return jsonify({"message":"Cet email est déjà utilisé"}), 409
+
+    # On hash le mot de passe tout de suite (le clair ne voyage pas dans le token)
+    pwd_hash = bcrypt.hashpw(data["mot_de_passe"].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    code = _generate_otp(5)
+    otp_hash = _hash(code)
+
+    # petit cooldown anti-spam (30s) horodaté dans le token
+    sent_at = datetime.utcnow().isoformat()
+
+    payload = {
+        "user": {
+            "nom": data["nom"],
+            "prenom": data["prenom"],
+            "email": email,
+            "mot_de_passe": pwd_hash,
+            "date_naissance": data.get("date_naissance"),
+            "ethnicite": data.get("ethnicite"),
+            "genre": data.get("genre"),
+            "telephone": data.get("telephone"),
+            "role": data.get("role","utilisateur"),
+        },
+        "otp_hash": otp_hash,
+        "sent_at": sent_at
+    }
+
+    reg_token = _serializer().dumps(payload)
+
+    # Envoi email
+    subject = "Votre code de vérification"
+    text = f"Votre code de vérification est : {code}\nIl expire dans 10 minutes."
+    html = f"""
+      <div style="font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif">
+        <p>Votre code de vérification est :</p>
+        <p style="font-size:28px;letter-spacing:6px"><b>{code}</b></p>
+        <p>Ce code expire dans 10 minutes.</p>
+      </div>
+    """
+    send_email(to=email, subject=subject, text_body=text, html_body=html)
+
+    return jsonify({ "reg_token": reg_token }), 200
+@api_bp.route("/auth/register/verify-code", methods=["POST"])
+def register_verify_code():
+    data = request.get_json() or {}
+    reg_token = data.get("reg_token")
+    code = (data.get("code") or "").strip()
+
+    if not reg_token or len(code) != 5 or not code.isdigit():
+        return jsonify({"message":"Requête invalide"}), 400
+
+    try:
+        payload = _serializer().loads(reg_token, max_age=600)  # 10 min
+    except SignatureExpired:
+        return jsonify({"message":"Code expiré, redemandez un code."}), 400
+    except BadSignature:
+        return jsonify({"message":"Token invalide"}), 400
+
+    if not _check_hash(code, payload["otp_hash"]):
+        return jsonify({"message":"Code invalide"}), 400
+
+    udata = payload["user"]
+    # Double check: email pas déjà pris (course condition)
+    if Utilisateur.query.filter_by(email=udata["email"]).first():
+        return jsonify({"message":"Cet email est déjà utilisé"}), 409
+
+    # Création définitive de l’utilisateur
+    u = Utilisateur(
+        nom=udata["nom"],
+        prenom=udata["prenom"],
+        email=udata["email"],
+        mot_de_passe=udata["mot_de_passe"],  # déjà hashé
+        date_naissance=udata.get("date_naissance"),
+        ethnicite=udata.get("ethnicite"),
+        genre=udata.get("genre"),
+        telephone=udata.get("telephone"),
+        role=udata.get("role","utilisateur")
+    )
+    db.session.add(u)
+    db.session.commit()
+
+    # Générer un JWT de session comme dans ta route /auth/login
+    token = jwt.encode({
+        'id': u.id,
+        'exp': datetime.utcnow() + timedelta(hours=24)
+    }, current_app.config['SECRET_KEY'], algorithm='HS256')
+
+    return jsonify({"message":"Email vérifié, compte créé", "token": token, "user_id": u.id}), 201
+from datetime import timezone
+
+@api_bp.route("/auth/register/resend-code", methods=["POST"])
+def register_resend_code():
+    data = request.get_json() or {}
+    reg_token = data.get("reg_token")
+    if not reg_token:
+        return jsonify({"message":"reg_token requis"}), 400
+
+    try:
+        payload = _serializer().loads(reg_token, max_age=600)
+    except Exception:
+        return jsonify({"message":"Token invalide ou expiré"}), 400
+
+    # cooldown 30s
+    try:
+        last = datetime.fromisoformat(payload.get("sent_at")).replace(tzinfo=None)
+    except Exception:
+        last = datetime.utcnow() - timedelta(minutes=1)
+
+    if (datetime.utcnow() - last) < timedelta(seconds=30):
+        return jsonify({"message":"Patientez avant de renvoyer un code."}), 429
+
+    code = _generate_otp(5)
+    payload["otp_hash"] = _hash(code)
+    payload["sent_at"] = datetime.utcnow().isoformat()
+
+    new_reg_token = _serializer().dumps(payload)
+
+    subject = "Nouveau code de vérification"
+    email = payload["user"]["email"]
+    text = f"Votre nouveau code est : {code}\nIl expire dans 10 minutes."
+    html = f"""
+      <div style="font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif">
+        <p>Votre nouveau code :</p>
+        <p style="font-size:28px;letter-spacing:6px"><b>{code}</b></p>
+        <p>Il expire dans 10 minutes.</p>
+      </div>
+    """
+    send_email(to=email, subject=subject, text_body=text, html_body=html)
+
+    return jsonify({ "reg_token": new_reg_token, "message":"Code renvoyé" }), 200
+
 @api_bp.route("/auth/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -1173,6 +1315,8 @@ def login_login():
 
 # Send notification
 #Admin
+from .mailer import send_email
+
 @api_bp.route('/notifications/send', methods=['POST'])
 def send_notification():
     data = request.get_json()
@@ -1183,24 +1327,70 @@ def send_notification():
     if not titre or not contenu or not utilisateur_ids:
         return jsonify({"message": "titre, contenu et utilisateur_ids sont requis"}), 400
 
+    # 1) Création de la notif + liaisons
     notif = Notification(titre=titre, contenu=contenu)
     db.session.add(notif)
     db.session.flush()
 
+    destinataires = []
     for uid in utilisateur_ids:
         user = Utilisateur.query.get(uid)
-        if user:
+        if user and user.email:
             liaison = NotificationUtilisateur(utilisateur=user, notification=notif)
             db.session.add(liaison)
+            destinataires.append(user)
+    db.session.commit()  # commit avant d’envoyer les emails
 
-    db.session.commit()
+    # 2) Construction du contenu de l’email
+    base_url = current_app.config.get("FRONTEND_BASE_URL", "").rstrip("/")
+    # Si vous avez une page "Notifications", ajustez le lien selon votre frontend
+    lien = f"{base_url}/notifications" if base_url else None
+
+    subject = f"[Notification] {titre}"
+    def build_bodies(u):
+        text = f"""{contenu}
+
+{"Voir la notification : " + lien if lien else ""}
+— Envoyé par Ma Plateforme
+"""
+        html = f"""
+        <div style="font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif">
+          <p>{contenu}</p>
+          {f'<p><a href="{lien}" target="_blank">Voir la notification sur la plateforme</a></p>' if lien else ""}
+          <hr>
+          <small>Envoyé par Ma Plateforme</small>
+        </div>
+        """
+        return text, html
+
+    # 3) Envoi
+    emails_sent = 0
+    failures = []
+    for u in destinataires:
+        text_body, html_body = build_bodies(u)
+        ok = send_email(
+            to=u.email,
+            subject=subject,
+            text_body=text_body,
+            html_body=html_body
+        )
+        if ok:
+            emails_sent += 1
+        else:
+            failures.append({"user_id": u.id, "email": u.email})
+
     return jsonify({
         "message": "Notification envoyée",
         "notification": {
           "id": notif.id,
           "titre": notif.titre,
           "contenu": notif.contenu,
-          "date_envoi": notif.date_envoi.isoformat()
+          "date_envoi": notif.date_envoi.isoformat() if notif.date_envoi else None
+        },
+        "email_summary": {
+          "attempted": len(destinataires),
+          "sent": emails_sent,
+          "failed": failures
         }
     }), 201
 
