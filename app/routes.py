@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, abort
-from .models import Thematique, SousThematique, Question, Utilisateur, Admin, Reponse,Notification, NotificationUtilisateur
-from .extensions import db
+from app.models import Thematique, SousThematique, Question, Utilisateur, Admin, Reponse,Notification, NotificationUtilisateur
+from app.extensions import db
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
 from datetime import date
@@ -17,7 +17,7 @@ from sqlalchemy import func, case, and_
 from sqlalchemy import JSON
 from sqlalchemy.orm import validates
 from datetime import datetime, timedelta, date as _date, time as _time
-from .utils import _serializer, _generate_otp, _hash, _check_hash
+from app.utils import _serializer, _generate_otp, _hash, _check_hash
 from itsdangerous import BadSignature, SignatureExpired
 
 

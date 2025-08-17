@@ -1,4 +1,4 @@
-from .extensions import db
+from app.extensions import db
 from datetime import date
 from sqlalchemy.dialects.postgresql import JSONB   # <-- ajouter
 from sqlalchemy.orm import validates               # <-- ajouter

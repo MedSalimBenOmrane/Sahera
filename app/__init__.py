@@ -2,8 +2,8 @@
 
 from flask import Flask
 from flask_cors import CORS           # ← ajoute cet import
-from .extensions import db
-from .routes import api_bp
+from app.extensions import db
+from app.routes import api_bp
 from dotenv import load_dotenv
 import os
 
@@ -11,20 +11,27 @@ def create_app():
     """
     Create and configure the Flask application.
     """
-    load_dotenv()  # Charge les variables d'env
+    load_dotenv()  # Load environment variables from .env
 
     app = Flask(__name__)
 
-    # ← active CORS pour tous les /api/*
+    # Enable CORS for all /api/* routes
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    # Configuration de la BDD et du secret
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
+    # Build the SQLALCHEMY_DATABASE_URI from individual RDS env variables
+    db_user = os.getenv("DB_USER")
+    db_password = os.getenv("DB_PASSWORD")
+    db_host = os.getenv("DB_HOST")
+    db_port = os.getenv("DB_PORT", "5432")
+    db_name = os.getenv("DB_NAME")
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-    app.config.from_prefixed_env()
-
-    # Initialise SQLAlchemy
+    
+    # Initialize SQLAlchemy
     db.init_app(app)
     
     app.config.update(
