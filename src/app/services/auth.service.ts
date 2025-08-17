@@ -14,8 +14,10 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private userLoginUrl  = 'http://localhost:5000/api/auth/login';
-  private adminLoginUrl = 'http://localhost:5000/api/auth/admin/login';
+  private base = 'http://localhost:5000/api';
+
+  private userLoginUrl  = `${this.base}/auth/login`;
+  private adminLoginUrl = `${this.base}/auth/admin/login`;
 
   private _isAdmin$    = new BehaviorSubject<boolean>(false);
   isAdmin$            = this._isAdmin$.asObservable();
@@ -35,45 +37,49 @@ export class AuthService {
   /**
    * email, motDePasse, isAdmin→ si true, on appelle /auth/admin/login
    */
-  login(email: string, motDePasse: string, isAdmin: boolean): Observable<LoginResponse> {
-    const url = isAdmin ? this.adminLoginUrl : this.userLoginUrl;
-    return this.http
-      .post<LoginResponse>(url, { email, mot_de_passe: motDePasse })
-      .pipe(
-        tap(resp => {
-          // Stockage
-          localStorage.setItem('token', resp.token);
-          localStorage.setItem('user', JSON.stringify(resp));
-          localStorage.setItem('loginTime', Date.now().toString());
-          localStorage.setItem('isAdmin', JSON.stringify(isAdmin));
 
-          // Etats
-          this._isLoggedIn$.next(true);
-          this._user$.next(resp);
-          this._isAdmin$.next(isAdmin);
-
-          // Auto-logout
-          this.autoLogout(24 * 3600 * 1000);
-        })
-      );
+  
+  // ===== OTP register =====
+  requestCode(payload: any) {
+    return this.http.post<{reg_token: string}>(`${this.base}/auth/register/request-code`, payload);
+  }
+  verifyCode(reg_token: string, code: string) {
+    return this.http.post<{message:string, token?:string, user_id?:number}>(`${this.base}/auth/register/verify-code`, { reg_token, code });
+  }
+  resendCode(reg_token: string) {
+    return this.http.post<{reg_token: string, message: string}>(`${this.base}/auth/register/resend-code`, { reg_token });
   }
 
+    login(email: string, motDePasse: string, isAdmin: boolean): Observable<LoginResponse> {
+    const url = isAdmin ? this.adminLoginUrl : this.userLoginUrl;
+    return this.http.post<LoginResponse>(url, { email, mot_de_passe: motDePasse }).pipe(
+      tap(resp => {
+        localStorage.setItem('token', resp.token);
+        localStorage.setItem('user', JSON.stringify(resp));
+        localStorage.setItem('loginTime', Date.now().toString());
+        localStorage.setItem('isAdmin', JSON.stringify(isAdmin));
+
+        this._isLoggedIn$.next(true);
+        this._user$.next(resp);
+        this._isAdmin$.next(isAdmin);
+
+        this.autoLogout(24 * 3600 * 1000);
+      })
+    );
+  }
   /** Vérifie à l’initialisation si on a une session encore valide */
   private restoreSession(): void {
     const token     = localStorage.getItem('token');
     const userRaw   = localStorage.getItem('user');
     const loginTime = localStorage.getItem('loginTime');
     const adminFlag = localStorage.getItem('isAdmin');
-    if (!token || !userRaw || !loginTime || adminFlag === null) {
-      return;
-    }
+    if (!token || !userRaw || !loginTime || adminFlag === null) return;
 
     const ageMs = Date.now() - parseInt(loginTime, 10);
     if (ageMs < 24 * 3600 * 1000) {
       this._isLoggedIn$.next(true);
       this._user$.next(JSON.parse(userRaw));
       this._isAdmin$.next(JSON.parse(adminFlag));
-
       this.autoLogout(24 * 3600 * 1000 - ageMs);
     } else {
       this.clearSession();

@@ -61,7 +61,7 @@ this.loadPage(1);
   }
 
 sendNotification(): void {
-  const userIds = [1, 2, 3];
+  const userIds = [1];
   this.notificationService
     .sendNotification(this.newNotif.titre, this.newNotif.contenu, userIds)
     .subscribe({

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -13,6 +13,14 @@ import { AuthService } from 'src/app/services/auth.service';
 export class LogInSignINComponent implements OnInit {
   signupForm!: FormGroup;
   loginForm!: FormGroup;
+    regToken: string | null = null;
+  otpDigits: string[] = ["","","","",""];
+  verifying = false;
+  resendCooldown = 0;
+  private cooldownSub?: Subscription;
+
+
+  @ViewChildren('otpInput') otpInputs!: QueryList<HTMLInputElement>;
 slides: string[] = [
   
   'assets/images/left-2.png',
@@ -147,29 +155,124 @@ captions: string[] = [
     }
     
  
-  onSignup(): void {
+onSignup(): void {
     if (this.signupForm.invalid) {
       this.signupForm.markAllAsTouched();
-      this.toastr.error(
-        'Veuillez corriger les erreurs avant de soumettre.',
-        'Erreur',
-        { positionClass: 'toast-top-right' }
-      );
+      this.toastr.error('Veuillez corriger les erreurs avant de soumettre.', 'Erreur', { positionClass: 'toast-top-right' });
       return;
     }
-    this.openCreateDialog()
-    // Ici, appel au service REST pour créer le compte...
-    this.toastr.success(
-      'Le compte a été créé avec succès.',
-      'Succès',
-      { positionClass: 'toast-top-right' }
-    );
 
-    this.signupForm.reset();
+    // IMPORTANT : le back attend "mot_de_passe"
+    const rawDate = this.signupForm.value.dateNaissance;
+    const date_naissance =
+      rawDate instanceof Date
+        ? rawDate.toISOString().slice(0,10)
+        : (typeof rawDate === 'string' ? rawDate : '');
+
+    const payload = {
+      nom: this.signupForm.value.nom,
+      prenom: this.signupForm.value.prenom,
+      email: this.signupForm.value.email,
+      mot_de_passe: this.signupForm.value.password,
+      telephone: this.signupForm.value.telephone,
+      date_naissance,
+      genre: this.signupForm.value.genre,
+      role: this.signupForm.value.role
+    };
+
+    this.authService.requestCode(payload).subscribe({
+      next: (resp) => {
+        this.regToken = resp.reg_token;
+        this.otpDigits = ["","","","",""];
+        this.openCreateDialog();
+        this.startResendCooldown(30);
+        this.toastr.info('Un code vous a été envoyé.', 'Vérification',{ positionClass: 'toast-top-right' });
+        // focus sur la 1ère case otp au prochain cycle
+        setTimeout(() => this.focusOtp(0));
+      },
+      error: err => this.toastr.error(err?.error?.message || 'Erreur.', 'Inscription')
+    });
+  }
+
+    verifyOtp() {
+    const code = this.otpDigits.join('');
+    if (!this.regToken || code.length !== 5) {
+      this.toastr.error('Code incomplet.', 'Vérification',{ positionClass: 'toast-top-right' });
+      return;
+    }
+    this.verifying = true;
+    this.authService.verifyCode(this.regToken, code).subscribe({
+      next: (resp) => {
+        this.verifying = false;
+        if (resp.token) localStorage.setItem('token', resp.token);
+        this.closeDialog();
+        this.toastr.success('Compte créé ✅', 'Succès',{ positionClass: 'toast-top-right' });
+        this.signupForm.reset();
+        this.regToken = null;
+      },
+      error: err => {
+        this.verifying = false;
+        this.toastr.error(err?.error?.message || 'Code invalide.', 'Erreur');
+      }
+    });
+  }
+
+  resendCode() {
+    if (!this.regToken || this.resendCooldown > 0) return;
+    this.authService.resendCode(this.regToken).subscribe({
+      next: (resp) => {
+        this.regToken = resp.reg_token;
+        this.otpDigits = ["","","","",""];
+        this.startResendCooldown(30);
+        this.toastr.info('Nouveau code envoyé.', 'Vérification',{ positionClass: 'toast-top-right' });
+        setTimeout(() => this.focusOtp(0));
+      },
+      error: err => this.toastr.error(err?.error?.message || 'Erreur.', 'Renvoyer code')
+    });
+  }
+
+  // ===== OTP UX helpers =====
+  onOtpInput(i: number, ev: Event) {
+    const input = ev.target as HTMLInputElement;
+    input.value = input.value.replace(/\D/g, ''); // digits only
+    this.otpDigits[i] = input.value.slice(0,1);
+    if (this.otpDigits[i] && i < 4) this.focusOtp(i+1);
+  }
+
+  onOtpKeydown(i: number, ev: KeyboardEvent) {
+    const input = ev.target as HTMLInputElement;
+    if (ev.key === 'Backspace') {
+      if (!input.value && i > 0) this.focusOtp(i-1);
+      else this.otpDigits[i] = '';
+    }
+  }
+
+  onOtpPaste(ev: ClipboardEvent) {
+    const data = ev.clipboardData?.getData('text') ?? '';
+    if (!/^\d{5}$/.test(data)) return;
+    ev.preventDefault();
+    this.otpDigits = data.split('').slice(0,5);
+    // force l’affichage dans les inputs
+    setTimeout(() => this.otpInputs.forEach((inp, idx) => inp.value = this.otpDigits[idx] ?? ''));
+  }
+
+  private focusOtp(i: number) {
+    const els = this.otpInputs?.toArray();
+    els?.[i]?.focus();
+    els?.[i]?.select?.();
+  }
+
+  startResendCooldown(seconds: number) {
+    this.resendCooldown = seconds;
+    this.cooldownSub?.unsubscribe();
+    this.cooldownSub = interval(1000).subscribe(() => {
+      this.resendCooldown--;
+      if (this.resendCooldown <= 0) this.cooldownSub?.unsubscribe();
+    });
   }
 onLogin(): void {
     if (this.loginForm.invalid) {
-      this.toastr.error('Veuillez renseigner tous les champs.', 'Erreur');
+      this.toastr.error('Veuillez renseigner tous les champs.', 'Erreur',{ positionClass: 'toast-top-right' });
       return;
     }
     const { email, password, isAdmin } = this.loginForm.value;

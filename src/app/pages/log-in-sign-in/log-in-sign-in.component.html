@@ -177,24 +177,32 @@
      
   </div>
 </body>
- <dialog #dialog>
-       <h1 class="title">Entrer le code envoyer sur votre boite mail</h1>
-    <form id="otp-form">
-      <input type="text" class="otp-input" maxlength="1">
-      <input type="text" class="otp-input" maxlength="1">
-      <input type="text" class="otp-input" maxlength="1">
-      <input type="text" class="otp-input" maxlength="1">
-      <input type="text" class="otp-input" maxlength="1">
-    </form>
-    <div class="row">
-      <div class="col-6">
-    <button id="verify-btn">Verifier mail</button>
+<dialog #dialog>
+  <h1 class="title">Entrez le code envoyé à votre email</h1>
+
+  <form id="otp-form" (paste)="onOtpPaste($event)" (submit)="$event.preventDefault()">
+    <input #otpInput type="text" class="otp-input" maxlength="1"
+           [value]="otpDigits[0]" (input)="onOtpInput(0,$event)" (keydown)="onOtpKeydown(0,$event)">
+    <input #otpInput type="text" class="otp-input" maxlength="1"
+           [value]="otpDigits[1]" (input)="onOtpInput(1,$event)" (keydown)="onOtpKeydown(1,$event)">
+    <input #otpInput type="text" class="otp-input" maxlength="1"
+           [value]="otpDigits[2]" (input)="onOtpInput(2,$event)" (keydown)="onOtpKeydown(2,$event)">
+    <input #otpInput type="text" class="otp-input" maxlength="1"
+           [value]="otpDigits[3]" (input)="onOtpInput(3,$event)" (keydown)="onOtpKeydown(3,$event)">
+    <input #otpInput type="text" class="otp-input" maxlength="1"
+           [value]="otpDigits[4]" (input)="onOtpInput(4,$event)" (keydown)="onOtpKeydown(4,$event)">
+  </form>
+
+  <div class="row">
+    <div class="col-6">
+      <button id="verify-btn" (click)="verifyOtp()" [disabled]="verifying">Vérifier</button>
     </div>
     <div class="col-6">
-    <button id="verify-btn">Renvoyer code</button>
+      <button id="resend-btn" (click)="resendCode()" [disabled]="resendCooldown>0">
+        Renvoyer code<span *ngIf="resendCooldown>0"> ({{resendCooldown}}s)</span>
+      </button>
     </div>
-    </div>
-  
+  </div>
 
-    <button id="x" aria-label="close" (click)="closeDialog()">❌</button>
-  </dialog>
+  <button id="x" aria-label="close" (click)="closeDialog()">❌</button>
+</dialog>
