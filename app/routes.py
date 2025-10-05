@@ -1120,11 +1120,22 @@ def get_questions_by_sousthematique(sous_id):
 
     return jsonify(results)
 
+POSSIBLE_ETHNICITES = [
+    "Amérindien ou Autochtone d’Alaska",
+    "Asiatique",
+    "Noir ou Afro-Américain",
+    "Hispanique ou Latino",
+    "Moyen-Oriental ou Nord-Africain",
+    "Océanien (Hawaïen ou des îles du Pacifique)",
+    "Blanc ou Européen Américain"
+]
+
 #Authentification: Login
 @api_bp.route("/auth/register/request-code", methods=["POST"])
 def register_request_code():
     data = request.get_json() or {}
-    required = ["nom","prenom","email","mot_de_passe","telephone","date_naissance","genre","role"]
+    # on remplace role par ethnicite, et ethnicite devient obligatoire
+    required = ["nom","prenom","email","mot_de_passe","telephone","date_naissance","genre","ethnicite"]
     if not all(k in data for k in required):
         return jsonify({"message":"Champs requis manquants"}), 400
 
@@ -1132,13 +1143,10 @@ def register_request_code():
     if Utilisateur.query.filter_by(email=email).first():
         return jsonify({"message":"Cet email est déjà utilisé"}), 409
 
-    # On hash le mot de passe tout de suite (le clair ne voyage pas dans le token)
     pwd_hash = bcrypt.hashpw(data["mot_de_passe"].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     code = _generate_otp(5)
     otp_hash = _hash(code)
-
-    # petit cooldown anti-spam (30s) horodaté dans le token
     sent_at = datetime.utcnow().isoformat()
 
     payload = {
@@ -1148,10 +1156,10 @@ def register_request_code():
             "email": email,
             "mot_de_passe": pwd_hash,
             "date_naissance": data.get("date_naissance"),
-            "ethnicite": data.get("ethnicite"),
+            "ethnicite": data.get("ethnicite"),   # <-- NOUVEAU et requis
             "genre": data.get("genre"),
             "telephone": data.get("telephone"),
-            "role": data.get("role","utilisateur"),
+            "role": "utilisateur",                 # <-- par défaut
         },
         "otp_hash": otp_hash,
         "sent_at": sent_at
@@ -1283,6 +1291,131 @@ def login():
         }), 200
     else:
         return jsonify({"message": "Email ou mot de passe incorrect"}), 401
+# ========= Password reset via OTP =========
+
+@api_bp.route("/auth/password/forgot/request", methods=["POST"])
+def pw_forgot_request():
+    data = request.get_json() or {}
+    email = (data.get("email") or "").strip().lower()
+    if not email:
+        return jsonify({"message": "Email requis"}), 400
+
+    user = Utilisateur.query.filter_by(email=email).first()
+    if not user:
+        # Tu peux renvoyer 200 générique si tu veux éviter de révéler l’existence
+        return jsonify({"message": "Si un compte existe pour cet email, un code a été envoyé."}), 200
+
+    code = _generate_otp(5)
+    payload = {
+        "email": email,
+        "user_id": user.id,
+        "otp_hash": _hash(code),
+        "sent_at": datetime.utcnow().isoformat(),
+        "verified": False
+    }
+    reset_token = _serializer().dumps(payload)
+
+    subject = "Réinitialisation du mot de passe – Code"
+    text = f"Votre code est : {code}\nIl expire dans 10 minutes."
+    html = f"""
+      <div style="font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif">
+        <p>Votre code de réinitialisation :</p>
+        <p style="font-size:28px;letter-spacing:6px"><b>{code}</b></p>
+        <p>Ce code expire dans 10 minutes.</p>
+      </div>
+    """
+    send_email(to=email, subject=subject, text_body=text, html_body=html)
+    return jsonify({"reset_token": reset_token, "message": "Code envoyé"}), 200
+
+
+@api_bp.route("/auth/password/forgot/resend", methods=["POST"])
+def pw_forgot_resend():
+    data = request.get_json() or {}
+    token = data.get("reset_token")
+    if not token:
+        return jsonify({"message": "reset_token requis"}), 400
+    try:
+        payload = _serializer().loads(token, max_age=600)
+    except Exception:
+        return jsonify({"message": "Token invalide ou expiré"}), 400
+
+    # cooldown 30s
+    try:
+        last = datetime.fromisoformat(payload.get("sent_at")).replace(tzinfo=None)
+    except Exception:
+        last = datetime.utcnow() - timedelta(minutes=1)
+
+    if (datetime.utcnow() - last) < timedelta(seconds=30):
+        return jsonify({"message":"Patientez avant de renvoyer un code."}), 429
+
+    code = _generate_otp(5)
+    payload["otp_hash"] = _hash(code)
+    payload["sent_at"] = datetime.utcnow().isoformat()
+    payload["verified"] = False
+
+    new_token = _serializer().dumps(payload)
+
+    subject = "Nouveau code – Réinitialisation du mot de passe"
+    text = f"Votre nouveau code est : {code}\nIl expire dans 10 minutes."
+    html = f"""
+      <div style="font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif">
+        <p>Votre nouveau code :</p>
+        <p style="font-size:28px;letter-spacing:6px"><b>{code}</b></p>
+        <p>Il expire dans 10 minutes.</p>
+      </div>
+    """
+    send_email(to=payload["email"], subject=subject, text_body=text, html_body=html)
+    return jsonify({"reset_token": new_token, "message": "Code renvoyé"}), 200
+
+
+@api_bp.route("/auth/password/forgot/verify", methods=["POST"])
+def pw_forgot_verify():
+    data = request.get_json() or {}
+    token = data.get("reset_token")
+    code = (data.get("code") or "").strip()
+    if not token or len(code) != 5 or not code.isdigit():
+        return jsonify({"message":"Requête invalide"}), 400
+    try:
+        payload = _serializer().loads(token, max_age=600)
+    except BadSignature:
+        return jsonify({"message":"Token invalide"}), 400
+    except SignatureExpired:
+        return jsonify({"message":"Code expiré, redemandez un code."}), 400
+
+    if not _check_hash(code, payload["otp_hash"]):
+        return jsonify({"message":"Code invalide"}), 400
+
+    # OK → marquer verified et renvoyer un token rafraîchi
+    payload["verified"] = True
+    new_token = _serializer().dumps(payload)
+    return jsonify({"message": "Code vérifié", "reset_token": new_token}), 200
+
+
+@api_bp.route("/auth/password/forgot/reset", methods=["POST"])
+def pw_forgot_reset():
+    data = request.get_json() or {}
+    token = data.get("reset_token")
+    new_pw = data.get("new_password") or ""
+    if not token or not new_pw:
+        return jsonify({"message":"reset_token et new_password requis"}), 400
+    if len(new_pw) < 8:
+        return jsonify({"message":"Le mot de passe doit contenir au moins 8 caractères."}), 400
+
+    try:
+        payload = _serializer().loads(token, max_age=1800)  # 30 min pour finir le flow
+    except Exception:
+        return jsonify({"message":"Token invalide ou expiré"}), 400
+
+    if not payload.get("verified"):
+        return jsonify({"message":"Code non vérifié"}), 400
+
+    user = Utilisateur.query.filter_by(email=payload["email"]).first()
+    if not user:
+        return jsonify({"message":"Utilisateur introuvable"}), 404
+
+    user.mot_de_passe = bcrypt.hashpw(new_pw.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    db.session.commit()
+    return jsonify({"message":"Mot de passe mis à jour"}), 200
 
 # Assuming these are imported at the top:
 # from yourapp.models import Admin, Utilisateur, Notification, NotificationUtilisateur
@@ -1598,7 +1731,7 @@ def ethnicity_distribution():
         )
         .filter(
             or_(*conditions),                      # filtre "début de chaîne"
-            Utilisateur.genre.in_(['Homme', 'Femme'])
+            Utilisateur.genre.in_(['Femme', 'Homme'])
         )
         .group_by(Utilisateur.ethnicite, Utilisateur.genre)
         .all()
