@@ -1,12 +1,13 @@
 from app.extensions import db
 from datetime import date
-from sqlalchemy.dialects.postgresql import JSONB   # <-- ajouter
-from sqlalchemy.orm import validates               # <-- ajouter
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import validates
+
 
 class Thematique(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
-    description = db.Column(db.Text, nullable=True) 
+    description = db.Column(db.Text, nullable=True)
     date_ouverture = db.Column(db.Date, nullable=True)
     date_cloture = db.Column(db.Date, nullable=True)
     sous_thematiques = db.relationship("SousThematique", backref="thematique", cascade="all, delete-orphan")
@@ -21,41 +22,51 @@ class SousThematique(db.Model):
 
     questions = db.relationship("Question", backref="sous_thematique", cascade="all, delete-orphan")
 
+
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     texte = db.Column(db.Text, nullable=False)
     sous_thematique_id = db.Column(db.Integer, db.ForeignKey("sousthematique.id"), nullable=False)
 
-    # Liste des choix affichés dans la liste déroulante
-    options = db.Column(JSONB, nullable=False, default=list)
+    # Type de champ: 'liste' | 'text' | 'date'
+    type_champ = db.Column(db.String(20), nullable=False, default="liste")
+
+    # Liste des choix pour le type 'liste'. Null/None pour autres types.
+    options = db.Column(JSONB, nullable=True)
 
     reponses = db.relationship("Reponse", backref="question", cascade="all, delete-orphan")
 
     @validates("options")
     def _validate_options(self, key, options):
-        if not isinstance(options, list) or len(options) == 0:
-            raise ValueError("`options` doit être une liste non vide.")
-        cleaned, seen = [], set()
-        for o in options:
-            if not isinstance(o, str):
-                raise ValueError("Chaque option doit être une chaîne.")
-            s = o.strip()
-            if not s:
-                raise ValueError("Les options vides sont interdites.")
-            if s in seen:
-                raise ValueError("Options en double interdites.")
-            if len(s) > 255:
-                raise ValueError("Une option dépasse 255 caractères.")
-            cleaned.append(s)
-            seen.add(s)
-        return cleaned
+        # Pour les questions de type 'liste', options doit être une liste non vide de chaînes uniques.
+        # Pour 'text' ou 'date', options est ignoré et forcé à None.
+        qtype = getattr(self, "type_champ", None)
+        if qtype == "liste":
+            if not isinstance(options, list) or len(options) == 0:
+                raise ValueError("`options` doit être une liste non vide pour le type 'liste'.")
+            cleaned, seen = [], set()
+            for o in options:
+                if not isinstance(o, str):
+                    raise ValueError("Chaque option doit être une chaîne.")
+                s = o.strip()
+                if not s:
+                    raise ValueError("Les options vides sont interdites.")
+                if s in seen:
+                    raise ValueError("Options en double interdites.")
+                if len(s) > 255:
+                    raise ValueError("Une option dépasse 255 caractères.")
+                cleaned.append(s)
+                seen.add(s)
+            return cleaned
+        else:
+            return None
 
 
 class Utilisateur(db.Model):
     __tablename__ = 'utilisateur'
 
     id = db.Column(db.Integer, primary_key=True)
-    
+
     nom = db.Column(db.String(120), nullable=False)
     prenom = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), nullable=False, unique=True)
@@ -96,10 +107,11 @@ class Admin(db.Model):
     date_naissance = db.Column(db.Date, nullable=True)
     telephone = db.Column(db.String(20), nullable=True)
 
+
 class Reponse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     contenu = db.Column(db.String(255), nullable=False)
-    date_creation = db.Column(db.Date, nullable= True)
+    date_creation = db.Column(db.Date, nullable=True)
     question_id = db.Column(db.Integer, db.ForeignKey("question.id"), nullable=False)
     utilisateur_id = db.Column(db.Integer, db.ForeignKey("utilisateur.id"), nullable=False)
 
@@ -115,11 +127,12 @@ class NotificationUtilisateur(db.Model):
     notification = db.relationship("Notification", back_populates="liaisons_utilisateurs")
     utilisateur = db.relationship("Utilisateur", back_populates="liaisons_notifications")
 
+
 class Notification(db.Model):
     __tablename__ = 'notification'
 
     id = db.Column(db.Integer, primary_key=True)
-    titre = db.Column(db.String(255), nullable=False) 
+    titre = db.Column(db.String(255), nullable=False)
     contenu = db.Column(db.Text, nullable=False)
     date_envoi = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
@@ -130,4 +143,3 @@ class Notification(db.Model):
         cascade="all, delete-orphan"
     )
 
-    

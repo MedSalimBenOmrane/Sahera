@@ -211,7 +211,10 @@ def get_sous_thematiques_with_questions(thematique_id):
         sous_data = {
             "id": sous.id,
             "titre": sous.titre,
-            "questions": [{"id": q.id, "texte": q.texte, "options": q.options} for q in sous.questions]
+            "questions": [
+                {"id": q.id, "texte": q.texte, "type": getattr(q, "type_champ", "liste"), "options": q.options}
+                for q in sous.questions
+            ]
         }
         response["sous_thematiques"].append(sous_data)
 
@@ -305,7 +308,7 @@ def delete_thematique(id):
 #Récupérer toutes les thématiques non complétées pour ce client  , un thematique completes , ca veut dire le client a repondu a toutes les questions de toutes les sous thematiques qui appartient a cce thematique
 #Admin, User 
 
-# crée 
+# crée thematique 
 import io, csv
 from flask import request, abort, jsonify
 @api_bp.route("/thematiques/<int:thematique_id>/import_csv", methods=["POST"])
@@ -330,7 +333,7 @@ def import_sous_thematiques_questions(thematique_id):
     try:
         stream = io.StringIO(file.stream.read().decode('utf-8'))
         reader = csv.DictReader(stream)
-        expected = {'sous_thematique', 'question', 'options'}
+        expected = {'sous_thematique', 'question', 'type', 'options'}
         if set(reader.fieldnames or []) != expected:
             abort(400, description="Entêtes CSV attendues: sous_thematique,question,options")
     except Exception as e:
@@ -344,13 +347,20 @@ def import_sous_thematiques_questions(thematique_id):
     for row in reader:
         titre_sous = (row.get('sous_thematique') or '').strip()
         texte_q = (row.get('question') or '').strip()
+        type_str = (row.get('type') or '').strip().lower()
         raw_opts = row.get('options')
 
-        if not titre_sous or not texte_q or raw_opts is None:
+        if not titre_sous or not texte_q or not type_str:
             # ligne incomplète
             continue
 
-        options = _normalize_options(raw_opts)
+        if type_str not in ("liste", "text", "date"):
+            # type non supporté
+            continue
+
+        options = None
+        if type_str == "liste":
+            options = _normalize_options(raw_opts)
 
         key = (thematique.id, titre_sous)
         sous = cache_sous.get(key)
@@ -363,7 +373,7 @@ def import_sous_thematiques_questions(thematique_id):
                 created_subs += 1
             cache_sous[key] = sous
 
-        question = Question(texte=texte_q, sous_thematique_id=sous.id, options=options)
+        question = Question(texte=texte_q, sous_thematique_id=sous.id, type_champ=type_str, options=options)
         db.session.add(question)
         created_qs += 1
 
@@ -640,6 +650,7 @@ def get_questions():
         "id": q_.id,
         "texte": q_.texte,
         "sous_thematique_id": q_.sous_thematique_id,
+        "type": getattr(q_, "type_champ", "liste"),
         "options": q_.options
     } for q_ in rows]
 
@@ -655,7 +666,13 @@ def get_question(id):
         JSON of the question data or 404 if not found.
     """
     question = Question.query.get_or_404(id)
-    return jsonify({"id": question.id, "texte": question.texte, "sous_thematique_id": question.sous_thematique_id,"options": question.options })
+    return jsonify({
+        "id": question.id,
+        "texte": question.texte,
+        "sous_thematique_id": question.sous_thematique_id,
+        "type": getattr(question, "type_champ", "liste"),
+        "options": question.options
+    })
 #Admin
 @api_bp.route("/questions", methods=["POST"])
 def create_question():
@@ -668,15 +685,23 @@ def create_question():
       }
     """
     data = request.get_json() or {}
-    if "texte" not in data or "sous_thematique_id" not in data or "options" not in data:
-        abort(400, description="Champs requis: texte, sous_thematique_id, options")
+    if "texte" not in data or "sous_thematique_id" not in data:
+        abort(400, description="Champs requis: texte, sous_thematique_id")
 
-    options = _normalize_options(data["options"])
+    type_str = (data.get("type") or "liste").strip().lower()
+    if type_str not in ("liste", "text", "date"):
+        abort(400, description="type invalide: doit être 'liste', 'text' ou 'date'")
 
-    q = Question(texte=data["texte"], sous_thematique_id=data["sous_thematique_id"], options=options)
+    options = None
+    if type_str == "liste":
+        if "options" not in data:
+            abort(400, description="`options` est requis pour le type 'liste'")
+        options = _normalize_options(data["options"])
+
+    q = Question(texte=data["texte"], sous_thematique_id=data["sous_thematique_id"], type_champ=type_str, options=options)
     db.session.add(q)
     db.session.commit()
-    return jsonify({"id": q.id, "texte": q.texte, "sous_thematique_id": q.sous_thematique_id, "options": q.options}), 201
+    return jsonify({"id": q.id, "texte": q.texte, "sous_thematique_id": q.sous_thematique_id, "type": getattr(q, "type_champ", "liste"), "options": q.options}), 201
 #Admin
 @api_bp.route("/questions/<int:id>", methods=["PUT"])
 def update_question(id):
@@ -699,6 +724,26 @@ def update_question(id):
     if "sous_thematique_id" in data:
         q.sous_thematique_id = data["sous_thematique_id"]
 
+    # Mise à jour du type (liste/text/date)
+    if "type" in data:
+        new_type = (data.get("type") or "").strip().lower()
+        if new_type not in ("liste", "text", "date"):
+            abort(400, description="type invalide: doit être 'liste', 'text' ou 'date'")
+        if new_type == "liste" and "options" in data:
+            # Si on passe à 'liste', options exigées
+            new_opts = _normalize_options(data.get("options"))
+            # Cohérence avec réponses existantes
+            used_values = db.session.query(Reponse.contenu).filter(Reponse.question_id == q.id).distinct().all()
+            used_values = {val for (val,) in used_values}
+            missing = [v for v in used_values if v not in new_opts]
+            if missing:
+                abort(409, description=f"Impossible de définir des options qui excluent des réponses existantes: {missing}")
+            q.options = new_opts
+        elif new_type != "liste":
+            # Pour text/date, pas d'options
+            q.options = None
+        q.type_champ = new_type
+
     if "options" in data:
         new_opts = _normalize_options(data["options"])
         # sécurité: vérifier cohérence avec réponses existantes
@@ -710,7 +755,7 @@ def update_question(id):
         q.options = new_opts
 
     db.session.commit()
-    return jsonify({"id": q.id, "texte": q.texte, "sous_thematique_id": q.sous_thematique_id, "options": q.options})
+    return jsonify({"id": q.id, "texte": q.texte, "sous_thematique_id": q.sous_thematique_id, "type": getattr(q, "type_champ", "liste"), "options": q.options})
 #Admin
 @api_bp.route("/questions/<int:id>", methods=["DELETE"])
 def delete_question(id):
@@ -1019,9 +1064,76 @@ def create_reponse():
         date_creation = date.today()
 
     q = Question.query.get_or_404(data["question_id"])
-    if not q.options or not isinstance(q.options, list):
+    qtype = getattr(q, "type_champ", "liste")
+    if qtype == "liste" and (not q.options or not isinstance(q.options, list)):
         abort(400, description="La question n'a pas d'options définies.")
-    _assert_value_in_options(data["contenu"], q.options)
+    if qtype == "liste":
+        if qtype == "liste":
+            _assert_value_in_options(data["contenu"], q.options)
+        elif qtype == "text":
+            if (data["contenu"] or "").strip() == "":
+                abort(400, description="Le contenu ne peut pas être vide.")
+        elif qtype == "date":
+            try:
+                _date.fromisoformat(data["contenu"])
+            except Exception:
+                abort(400, description="Le contenu doit être une date au format YYYY-MM-DD.")
+        elif qtype == "text":
+            if (data["contenu"] or "").strip() == "":
+                abort(400, description="Le contenu ne peut pas être vide.")
+        elif qtype == "date":
+            try:
+                _date.fromisoformat(data["contenu"])
+            except Exception:
+                abort(400, description="Le contenu doit être une date au format YYYY-MM-DD.")
+        elif qtype == "text":
+            if (data["contenu"] or "").strip() == "":
+                abort(400, description="Le contenu ne peut pas être vide.")
+        elif qtype == "date":
+            try:
+                _date.fromisoformat(data["contenu"])
+            except Exception:
+                abort(400, description="Le contenu doit être une date au format YYYY-MM-DD.")
+        elif qtype == "text":
+            if (data["contenu"] or "").strip() == "":
+                abort(400, description="Le contenu ne peut pas être vide.")
+        elif qtype == "date":
+            try:
+                _date.fromisoformat(data["contenu"])
+            except Exception:
+                abort(400, description="Le contenu doit être une date au format YYYY-MM-DD.")
+        elif qtype == "text":
+            if (data["contenu"] or "").strip() == "":
+                abort(400, description="Le contenu ne peut pas être vide.")
+        elif qtype == "date":
+            try:
+                _date.fromisoformat(data["contenu"])
+            except Exception:
+                abort(400, description="Le contenu doit être une date au format YYYY-MM-DD.")
+        elif qtype == "text":
+            if (data["contenu"] or "").strip() == "":
+                abort(400, description="Le contenu ne peut pas être vide.")
+        elif qtype == "date":
+            try:
+                _date.fromisoformat(data["contenu"])
+            except Exception:
+                abort(400, description="Le contenu doit être une date au format YYYY-MM-DD.")
+        elif qtype == "text":
+            if (data["contenu"] or "").strip() == "":
+                abort(400, description="Le contenu ne peut pas être vide.")
+        elif qtype == "date":
+            try:
+                _date.fromisoformat(data["contenu"])
+            except Exception:
+                abort(400, description="Le contenu doit être une date au format YYYY-MM-DD.")
+    elif qtype == "text":
+        if (data["contenu"] or "").strip() == "":
+            abort(400, description="Le contenu ne peut pas être vide.")
+    elif qtype == "date":
+        try:
+            _date.fromisoformat(data["contenu"])
+        except Exception:
+            abort(400, description="Le contenu doit être une date au format YYYY-MM-DD.")
 
     r = Reponse(
         contenu=data["contenu"],
@@ -1048,9 +1160,11 @@ def update_reponse(id):
 
     if "contenu" in data:
         q = Question.query.get_or_404(data.get("question_id", r.question_id))
-        if not q.options or not isinstance(q.options, list):
+        qtype = getattr(q, "type_champ", "liste")
+        if qtype == "liste" and (not q.options or not isinstance(q.options, list)):
             abort(400, description="La question n'a pas d'options définies.")
-        _assert_value_in_options(data["contenu"], q.options)
+        if qtype == "liste":
+            _assert_value_in_options(data["contenu"], q.options)
         r.contenu = data["contenu"]
 
     if "date_creation" in data:
@@ -1063,9 +1177,23 @@ def update_reponse(id):
         # si on change de question, revalider la cohérence contenu/options
         new_q = Question.query.get_or_404(data["question_id"])
         if "contenu" in data:
-            _assert_value_in_options(data["contenu"], new_q.options)
+            if getattr(new_q, "type_champ", "liste") == "liste":
+                _assert_value_in_options(data["contenu"], new_q.options)
         else:
-            _assert_value_in_options(r.contenu, new_q.options)
+            if getattr(new_q, "type_champ", "liste") == "liste":
+                _assert_value_in_options(r.contenu, new_q.options)
+        # validations pour les types non 'liste'
+        new_type = getattr(new_q, "type_champ", "liste")
+        if new_type != "liste":
+            value = data.get("contenu", r.contenu)
+            if new_type == "text":
+                if (value or "").strip() == "":
+                    abort(400, description="Le contenu ne peut pas être vide.")
+            elif new_type == "date":
+                try:
+                    _date.fromisoformat(value)
+                except Exception:
+                    abort(400, description="Le contenu doit être une date au format YYYY-MM-DD.")
         r.question_id = new_q.id
 
     r.utilisateur_id = data.get("utilisateur_id", r.utilisateur_id)
@@ -1115,6 +1243,7 @@ def get_questions_by_sousthematique(sous_id):
     results = [{
         "id": q.id,
         "texte": q.texte,
+        "type": getattr(q, "type_champ", "liste"),
         "options": q.options
     } for q in questions]
 
