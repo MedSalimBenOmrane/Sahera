@@ -1,0 +1,68 @@
+<main class="table">
+  <section class="table__header">
+    <h1>Détails de la question : “{{ questionTitre }}”</h1>
+  </section>
+
+  <section class="table__body">
+    <table>
+      <colgroup>
+        <col style="width: 10%;">
+        <col style="width: 15%;">
+        <col style="width: 15%;">
+        <col style="width: 60%;">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>ID Utilisateur</th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Réponse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 1) Loader centré -->
+        <tr *ngIf="isLoading">
+          <td colspan="4" class="p-0">
+            <div
+              class="d-flex justify-content-center align-items-center"
+              style="height: 200px;"
+            >
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement…</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- 2) Après chargement : données ou état vide -->
+        <ng-container *ngIf="!isLoading">
+          <!-- a) Les lignes de réponses -->
+          <tr *ngFor="let row of rows">
+            <td>{{ row.userId }}</td>
+            <td>{{ row.nom }}</td>
+            <td>{{ row.prenom }}</td>
+            <td>{{ row.valeur }}</td>
+          </tr>
+
+          <!-- b) Etat vide si aucune réponse -->
+          <tr *ngIf="rows.length === 0">
+            <td colspan="4" class="p-0">
+              <div
+                class="d-flex flex-column justify-content-center align-items-center"
+                style="height: 200px;"
+              >
+                <img
+                  src="assets/images/empty-folder.png"
+                  alt="Aucune réponse"
+                  class="mb-2"
+                  style="max-width: 150px;"
+                />
+                <p class="mb-0">Aucune réponse pour cette question.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </section>
+</main>

@@ -1,0 +1,88 @@
+<div class="container my-4">
+  <div class="glass-container p-4">
+    <h1>Mes Réponses :</h1>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a class="nav-link"
+           [class.active]="selectedTab==='all'"
+           (click)="selectTab('all')"
+           href="javascript:void(0)">Tous</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link"
+           [class.active]="selectedTab==='completed'"
+           (click)="selectTab('completed')"
+           href="javascript:void(0)">Complétés</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link"
+           [class.active]="selectedTab==='incomplete'"
+           (click)="selectTab('incomplete')"
+           href="javascript:void(0)">Incomplétés</a>
+      </li>
+    </ul>
+ <!-- Loader -->
+    <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Chargement…</span>
+      </div>
+    </div>
+
+    <!-- Contenu -->
+    <ng-container *ngIf="!isLoading">
+      <div class="list-wrap">
+        <div *ngIf="activeList.length > 0; else emptyState"
+             class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-2">
+          <div class="col mb-3" *ngFor="let r of pageItems">
+            <app-card
+              [mode]="'mes-reponses'"
+              [id]="r.id"
+              [title]="r.title"
+              [description]="r.description"
+              [publicationDate]="r.publicationDate"
+              [isSessionOpen]="r.isSessionOpen"
+              [sessionCloseDate]="r.sessionCloseDate"
+              [isAnswered]="r.isAnswered"
+              [responseDate]="r.responseDate || ''"
+            ></app-card>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination en bas -->
+      <nav *ngIf="activeList.length && totalPages > 1"
+           class="pagination-wrap d-flex justify-content-center mt-4"
+           aria-label="Pagination des réponses">
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">«</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">Précédent</button>
+          </li>
+
+          <li class="page-item" *ngFor="let p of pageNumbers" [class.active]="p === currentPage">
+            <button class="page-link" (click)="goToPage(p)">{{ p }}</button>
+          </li>
+
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">»</button>
+          </li>
+        </ul>
+      </nav>
+    </ng-container>
+
+    <!-- État vide -->
+    <ng-template #emptyState>
+      <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 60vh;">
+        <img src="assets/images/empty-folder.png" alt="Aucun contenu" class="mb-3 img-fluid" style="max-width: 200px;" />
+        <p class="fs-5 mb-0">Aucune donnée à afficher pour cet onglet.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

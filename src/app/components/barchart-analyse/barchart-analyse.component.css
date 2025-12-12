@@ -1,0 +1,11 @@
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  height: 42vh;                 /* hauteur du graphe */
+}
+
+/* fond du canvas transparent même si un CSS global met du blanc */
+:host canvas {
+  background: transparent !important;
+}

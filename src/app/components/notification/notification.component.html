@@ -1,0 +1,57 @@
+<!-- src/app/components/notification/notification.component.html -->
+<div class="wrapper">
+  <section class="text-container gradient" [class.show]="isShown">
+    <div class="container-fluid">
+      <!-- Ligne 1 : Objet + Date -->
+      <div class="row mb-2">
+        <div class="col-12 col-md-9 fw-bold">
+          Objet : {{ notification.objet }}
+        </div>
+        <div class="col-12 col-md-3 text-md-end text-muted">
+          {{ notification.date | date: 'dd/MM/yyyy HH:mm' }}
+        </div>
+      </div>
+
+      <!-- Ligne 2 : Sender + “Marquer comme lue” -->
+      <div class="row mb-3 align-items-center">
+        <div class="col-12 col-md-10">
+          {{ notification.sender }}
+        </div>
+        <div
+          class="col-12 col-md-2 text-md-end mt-1 mt-md-0 d-flex justify-content-md-end"
+        >
+          <div class="d-flex align-items-center gap-2">
+  <!-- Admin : bouton supprimer -->
+  
+
+  <!-- Utilisateur : case à cocher -->
+  <ng-container *ngIf="!isAdminView">
+    <input
+      type="checkbox"
+      [checked]="notification.seen"
+      (change)="onCheckboxChange($event)"
+      id="cbx-{{ index }}"
+      class="cyberpunk-checkbox"
+    />
+    <label for="cbx-{{ index }}" class="cyberpunk-checkbox-label">
+      Marquer comme lue
+    </label>
+  </ng-container>
+</div>
+        </div>
+      </div>
+
+      <!-- Texte complet de la notification -->
+      <p *ngIf="isShown">
+        {{ notification.message }}
+      </p>
+    </div>
+  </section>
+
+  <!-- Bouton pour dérouler / replier le texte -->
+  <button
+    class="show-btn fa fa-chevron-down"
+    [class.rotate]="isShown"
+    (click)="toggleText()"
+  ></button>
+</div>

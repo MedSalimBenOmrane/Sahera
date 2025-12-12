@@ -1,0 +1,94 @@
+/* Appliqué sur l’élément hôte du composant */
+:host {
+  display: block;
+}
+
+/* 1) Grille générale */
+.layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto;   /* nav, main, footer */
+  min-height: 100vh;                       /* occupe tout l’écran */
+}
+
+/* 2) Main plein milieu */
+.page-container {
+  position: relative;                  /* pour position:absolute des enfants */
+  overflow: hidden;     
+               /* on coupe tout débordement des blobs */
+  background-color: var(--color-lz04012l);
+}
+
+/* 3) Plan de fond uni */
+.page-background {
+  position: absolute;
+  inset: 0;                            /* remplit tout le main */
+  background-color: var(--color-lz04012l);
+  z-index: 0;
+}
+
+/* 4) Blobs au-dessus du fond */
+.blobs {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  transform: translateY(-50%);
+  width: 35vh;
+  height: 50vh;
+  z-index: 1;                          /* au-dessus du fond, sous le contenu */
+}
+
+.blob {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  filter: blur(80px);
+}
+.blob.a { background-color: #ffd8a67e; animation: circular2 40s linear infinite; }
+.blob.b { background-color: #ffeddacb; animation: circular 20s linear infinite; }
+.blob.c { background-color: #ffd4abd8; animation: circular 60s linear infinite; }
+
+
+@keyframes circular {
+    0% {
+        transform: translate(0, -60px);
+    }
+    25% {
+        transform: translate(60px, 0);
+    }
+    50% {
+        transform: translate(0, 60px);
+    }
+    75% {
+        transform: translate(-60px, 0);
+    }
+    100% {
+        transform: translate(0, -60px);
+    }
+}
+
+@keyframes circular2 {
+    0% {
+        transform: translate(0, 60px);
+    }
+    25% {
+        transform: translate(-60px, 0);
+    }
+    50% {
+        transform: translate(0, -60px);
+    }
+    75% {
+        transform: translate(60px, 0);
+    }
+    100% {
+        transform: translate(0, 60px);
+    }
+}
+.page-content {
+  position: relative;
+  z-index: 2;
+}
+
+
+

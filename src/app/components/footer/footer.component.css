@@ -1,0 +1,84 @@
+/* Container général du footer */
+.footer {
+  background-color: #ffffff;
+  color: #4a1c2a; /* même teinte bordeaux que vos liens */
+  font-family: sans-serif;
+  z-index: 2;
+}
+
+/* Partie haute : logo + réseaux */
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 2rem 0;
+}
+
+/* Logo */
+.footer-brand img {
+  max-width: 160px;
+  height: auto;
+}
+
+/* Bloc "Nos réseaux" */
+.footer-social {
+  text-align: right;
+}
+
+.footer-title {
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+}
+
+.footer-social ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-social li {
+  margin-bottom: 0.75rem;
+}
+
+.footer-social a {
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.footer-social a i {
+  margin-right: 0.5rem;
+  font-size: 1.25rem;
+}
+
+/* Ligne et texte du bas */
+.footer-bottom {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.footer-bottom hr {
+  border: none;
+  border-top: 1px solid #c4a89d;
+  margin-bottom: 0.75rem;
+}
+
+.footer-bottom p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #777777;
+}
+
+/* Responsive : empilement sur petits écrans */
+@media (max-width: 768px) {
+  .footer-top {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .footer-social {
+    margin-top: 1.5rem;
+  }
+}

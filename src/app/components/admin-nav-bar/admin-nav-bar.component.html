@@ -1,0 +1,108 @@
+<nav class="navbar navbar-expand-lg" [ngStyle]="{ 'background-color': 'var(--color-m3ube7fu)' }">
+  <div class="container d-flex align-items-center">
+    <!-- Logo -->
+    <a class="navbar-brand flex-shrink-0" routerLink="/admin">
+      <img src="assets/images/logo.png" alt="Brand Logo">
+    Admin</a>
+
+    <!-- Bouton mobile -->
+    <button
+      class="navbar-toggler ms-auto"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarContent"
+      aria-controls="navbarContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <!-- Menu -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav ms-auto align-items-center">
+
+        <!-- Mes réponses -->
+        <li class="nav-item">
+          <a
+            class="nav-link menu__link"
+            routerLink="/admin/participants"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <mat-icon>people_outline</mat-icon>
+            Participants
+          </a>
+        </li>
+
+        <!-- Questionnaire -->
+        <li class="nav-item">
+          <a
+            class="nav-link menu__link"
+            routerLink="/admin/questionnaires"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <mat-icon>help_outline</mat-icon>
+            Questionnaire
+          </a>
+        </li>
+
+        <!-- Notifications avec badge -->
+        <li class="nav-item">
+  <a
+    class="nav-link menu__link"
+    routerLink="admin/messages"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    <!-- Icône englobée dans un conteneur pour position relative -->
+    <span class="icon-with-badge position-relative">
+      <mat-icon>notifications</mat-icon>
+      <!-- Badge superposé sur l’icône -->
+      
+    </span>
+    <!-- Texte “Notifications” reste à droite de l’icône -->
+    Messages
+  </a>
+</li>
+
+        <!-- Compte (dropdown) -->
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link menu__link dropdown-toggle"
+            href="#"
+            id="accountDropdown"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <mat-icon>person</mat-icon>
+            Compte
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+            <li>
+              <a
+                class="dropdown-item"
+                routerLink="/modifier-coordonnees"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+              >
+                <mat-icon>edit</mat-icon>
+                Modifier mes coordonnées
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" role="button" (click)="logout()">
+                <mat-icon>logout</mat-icon>
+                Se déconnecter
+              </a>
+            </li>
+          </ul>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>

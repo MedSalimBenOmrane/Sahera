@@ -1,0 +1,125 @@
+/* ────────────────────────────────────────────────────────────── */
+/* questionnaire.component.css                                  */
+/* Styles pour la grille et le badge sur la page Questionnaire  */
+/* ────────────────────────────────────────────────────────────── */
+
+/* Reprends votre style “verre” pour le conteneur global */
+.glass-container {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  -webkit-backdrop-filter: blur(12.1px);
+  min-height: 80vh;
+  border: 1px solid rgba(0, 0, 0, 0.26);
+}
+
+/* Si vous aviez un style .child ici pour différencier, gardez-le ou supprimez-le */
+/* .child {
+  background: rgba(255, 255, 255, 0.642);
+  border-radius: 8px;
+} */
+
+/* ────────────────────────────────────────────────────────────── */
+/* Wrapper autour de <app-card> pour placer le badge en coin     */
+/* ────────────────────────────────────────────────────────────── */
+.card-wrapper {
+  position: relative;
+  height: 100%; /* s’assure que le wrapper prenne la hauteur de la carte */
+}
+
+/* ────────────────────────────────────────────────────────────── */
+/* Badge “Ouvert” / “Fermé” placé en haut à droite              */
+/* ────────────────────────────────────────────────────────────── */
+.corner-badge {
+  position: absolute;
+  top: -0.5rem;
+  left:-0.5rem;       /* espace souhaité du bord supérieur du wrapper */
+  z-index: 10;       /* pour rester devant le contenu de la carte */
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2em 0.6em;
+  border-radius: 8px;
+  color: #fff;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Couleurs spécifiques au badge */
+.status-open {
+  background-color: #198754; /* vert Bootstrap “success” */
+}
+.status-open:hover {
+  background-color: #157347;
+}
+
+.status-closed {
+  background-color: #dc3545; /* rouge Bootstrap “danger” */
+}
+.status-closed:hover {
+  background-color: #a71d2a;
+}
+
+/* ────────────────────────────────────────────────────────────── */
+/* Ajustements responsives si besoin                              */
+/* ────────────────────────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+  .corner-badge {
+    top: 0.3rem;
+    right: 0.3rem;
+    font-size: 0.7rem;
+    padding: 0.15em 0.5em;
+  }
+  /* Si vous voulez réduire la hauteur des cartes sur petit écran : */
+  .card {
+    height: 30vh; /* optionnel, selon votre design */
+  }
+}
+/* Container en colonne qui occupe (presque) toute la hauteur de l’écran */
+.glass-container {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  -webkit-backdrop-filter: blur(12.1px);
+  border: 1px solid rgba(0, 0, 0, 0.26);
+
+  /* occupe la hauteur du viewport (ajuste 8rem si tu as un header) */
+  min-height: calc(100vh - 8rem);
+
+  display: flex;
+  flex-direction: column;
+
+  /* espace bas pour que la nav ne colle pas au bord */
+  padding-bottom: 12px;
+}
+
+/* La zone liste prend l’espace disponible */
+.list-wrap {
+  flex: 1 1 auto;
+}
+
+/* La pagination reste dans le flux, poussée en bas s’il y a peu d’items */
+.pagination-wrap {
+  position: static;     /* surtout pas fixed */
+  margin-top: auto;     /* pousse la nav en bas du container */
+  align-self: center;   /* centre horizontalement */
+}
+
+.pagination {
+  background: rgba(255, 234, 218, 0.238);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.page-link { color: #111 !important; background: transparent; border: 1px solid rgba(0,0,0,.15); }
+.page-link:hover { color: #000 !important; background: rgba(0,0,0,.04); }
+.page-item.active .page-link { color: #000 !important; background: rgba(0,0,0,.08); border-color: rgba(0,0,0,.25); }
+.page-item.disabled .page-link { color: rgba(0,0,0,.35) !important; background: transparent; border-color: rgba(0,0,0,.1); }
+.page-link:focus { box-shadow: none; }
+
+/* ⚠️ ne laisse aucune ancienne règle .pagination-fixed { position: fixed; ... } */

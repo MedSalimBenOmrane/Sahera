@@ -1,0 +1,496 @@
+/* ===== Styles globaux ===== */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Jost', sans-serif;
+    background: linear-gradient(-45deg, #F3ECEA, #f9d7d7, #ffbab5);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+.login .navbar-brand {
+  display: flex;
+  justify-content: center; /* centre horizontalement */
+  margin-top: 20px;        /* ajustez l’espacement vertical si besoin */
+}
+
+/* L’image elle-même garde sa largeur adaptative, sans avoir besoin de justify-content */
+.login .navbar-brand img {
+  width: clamp(120px, 8vw, 300px);
+  height: auto;
+  display: block;
+}
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.logo {
+    text-align: center;
+    margin: 20px 0;
+    z-index: 100;
+}
+.logo img {
+    max-width: 150px;
+    height: auto;
+    display: inline-block;
+}
+
+/* ===== Container principal ===== */
+.main {
+    width: 450px;
+    height: 620px;
+    background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") 
+               no-repeat center/cover;
+    border-radius: 10px;
+    box-shadow: 5px 10px 15px #000;
+    overflow: hidden;
+}
+
+/* ===== Masquage du checkbox utilisé pour le slide ===== */
+#chk {
+    display: none;
+}
+
+/* ===== Formulaires Signup & Login ===== */
+.signup {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.login {
+    height: 600px;
+    background: #f8e6d6;
+    border-radius: 60% / 10%;
+    transform: translateY(-180px);
+    
+    transition: .8s ease-in-out;
+	box-shadow: 15px 20px 20px #000;
+}
+
+/* ===== Titres “Inscription” / “Connexion” ===== */
+label.titleInscription,
+label.titleConnexion {
+    color: #4a1c2a;
+    font-size: 2.3em;
+    justify-content: center;
+    display: flex;
+    margin: 50px;
+    margin-bottom: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .5s ease-in-out;
+}
+
+/* Lorsque l’on bascule vers “Connexion” */
+.login label.titleConnexion {
+    color: #4a1c2a;
+    transform: scale(.6);
+}
+
+/* Lorsque checkbox est coché : on remonte “Connexion” et on agrandit son label */
+#chk:checked ~ .login {
+    transform: translateY(-620px);
+}
+#chk:checked ~ .login label {
+    transform: scale(1);
+}
+/* Et on réduit le label “Inscription” */
+#chk:checked ~ .signup label.titleInscription {
+    transform: scale(.6);
+}
+
+/* ===== Styles des inputs & bouton par défaut ===== */
+.input {
+    width: 85%;
+    height: 10px;
+    background: #ffffff80;
+    justify-content: center;
+    display: flex;
+    margin: 15px auto;
+    padding: 12px;
+    border: 1px solid #000;      /* Bordure noire par défaut */
+    outline: none;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color .2s ease-in-out;
+}
+/* Corrige le rendu du <select> qui hérite de .input */
+select.input {
+  display: block;          /* au lieu de flex */
+  height: auto;            /* laisse le navigateur gérer la hauteur */
+  min-height: 30px;        /* confort visuel */
+  padding: 5px 6px;
+  line-height: 1.2;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+  appearance: auto;
+}
+
+/* Couleur lisible du texte (au cas où) */
+select.input option { color: #111; }
+
+/* Optionnel: griser le placeholder tant que non choisi */
+select.input:invalid { color: #6b7280; }
+#dateNaissance{  width: 85%;
+    height: 10px;
+    background: #ffffff80;
+    justify-content: center;
+    display: flex;
+    margin: 15px auto;
+    padding: 12px;
+    border: 1px solid #000;      /* Bordure noire par défaut */
+    outline: none;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: border-color .2s ease-in-out;}
+
+/* Classe appliquée en erreur */
+.error-border {
+    border-color: red !important;
+}
+
+/* Spécificité pour les champs date (même mise en forme horizontale) */
+.date {
+    width: 85%;
+    height: 10px;
+    justify-content: center;
+}
+
+/* ===== Styles du bouton ===== */
+button {
+    width: 60%;
+    height: 40px;
+    margin: 10px auto;
+    justify-content: center;
+    display: block;
+    color: #fff;
+    background: #4a1c2a;
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 30px;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    transition: .2s ease-in;
+    cursor: pointer;
+}
+.login button{
+	background: #4a1c2ac7;	
+	color: #ffffff;
+    
+}
+.login button:hover{
+	background: #8a4a5dc7;	
+	color: #ffffff;
+}
+button:hover {
+    background: #4a1c2ac7;
+}
+
+/* ===== Styles spécifique “Genre” (radio) ===== */
+.genre-container {
+    display: flex;
+    align-items: center;
+    width: 85%;
+    margin: 15px auto;
+    padding-left: 20px;
+    font-weight: bold;
+}
+.genre-label {
+    margin-right: 10px;
+    white-space: nowrap;
+}
+.genre-radio {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+    cursor: pointer;
+    user-select: none;
+}
+.genre-radio input[type="radio"] {
+    margin-right: 5px;
+    margin-top: 12px;
+}
+.pwd{
+	color: #4a1c2a;
+	font-size: 1em;
+	justify-content: center;
+	display: flex;
+	margin: 40px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: .5s ease-in-out;
+}
+
+/* ===== Adaptation pour écrans ≥768px ===== */
+@media (min-width: 768px) {
+    .logo {
+        text-align: right;
+        margin: 20px 20px 0 0;
+    }
+    .main {
+        width: 350px;
+    }
+}
+.form-check-input {
+    margin: 15px 14px;
+}
+.form-check-label{
+    margin: 12px 10px;
+}
+/* 1) Par défaut (mobile), on cache les images */
+.side-img {
+  display: none;
+}
+
+/* 2) Sur desktop (≥768px), on affiche et on aligne en flex */
+@media (min-width: 768px) {
+  .login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+  }
+
+  .side-img {
+    display: block;
+    width: clamp(400px, 40vw, 700px);
+    height: auto;
+    object-fit: contain;
+    
+
+  /* Ombre qui suit la transparence du PNG */
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+
+  }
+
+  /* si vous voulez un décalage vertical différent : */
+  .side-img--left { margin-right: 0rem; }
+  .side-img--right { margin-left: 1rem; }
+}
+
+/* Dialog Styles */
+dialog {
+    padding: 1rem 3rem;
+    background: #c7c7c7;
+    max-width: 100%;
+    min-width: 40%;
+    margin: auto; /* Center the dialog */
+    padding: 10%;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    border-radius: 20px;
+    border: 0;
+    color: black;
+    box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.793);
+    animation: fadeIn 1s ease both;
+      padding: 50px 20px;
+  text-align: center;
+}
+/*
+dialog::backdrop {
+    animation: fadeIn 1s ease both;
+    background: rgba(89, 89, 89, 0.127);
+    z-index: 2;
+    backdrop-filter: blur(7px);
+}*/
+#x {
+    filter: grayscale(1);
+    width: 0%;
+    height: 0px;
+    border: none;
+    margin: 0px;
+    background: none;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    transition: ease filter, transform 0.3s;
+    cursor: pointer;
+    transform-origin: center;
+}
+
+#x:hover {
+    filter: grayscale(0);
+    transform: scale(1.1);
+}
+.title {
+  font-size: 25px;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 700;
+}
+.subtitle {
+  font-size: 18px;
+  margin: 20px 0 10px;
+  text-align: center;
+}
+#otp-form {
+  width: 100%;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+}
+#otp-form input {
+  border: none;
+  background-color: #1215172c;
+  color: white;
+  font-size: 32px;
+  text-align: center;
+  padding: 10px;
+  width: 100%;
+  max-width: 70px;
+  height: 70px;
+  border-radius: 4px;
+  outline: 2px solid rgb(66, 66, 66);
+}
+#otp-form input:focus-visible {
+  outline: 2px solid royalblue;
+}
+#otp-form input.filled {
+  outline: 2px solid rgb(7, 192, 99);
+}
+
+/* Consent box */
+.consent-box {
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto 16px;
+  text-align: left;
+}
+.consent-scroll {
+  max-height: 240px;
+  overflow: auto;
+  padding: 16px 16px; /* plus d’espace haut/bas */
+  background: #ffffff69;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  color: #111;
+  line-height: 1.6;
+}
+.consent-scroll::before,
+.consent-scroll::after {
+  content: "";
+  display: block;
+  height: 8px; /* espace de respiration en haut et bas même au bord du scroll */
+}
+.consent-scroll h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+}
+.consent-scroll h3 {
+  margin: 14px 0 6px;
+  font-size: 16px;
+  color: #4a1c2a;
+  font-weight: 700;
+}
+.consent-scroll p { margin: 6px 0; }
+.consent-check { display: flex; gap: 8px; align-items: start; margin-top: 10px; }
+.consent-check input[type="checkbox"] { margin-top: 4px; }
+.consent-list { margin: 6px 0 6px 18px; padding: 0; }
+.consent-list li { margin: 4px 0; }
+.consent-strong { font-weight: 700; color: #2b2b2b; }
+.consent-note { font-size: 13px; color: #444; }
+.consent-mail a { color: #1a73e8; text-decoration: none; }
+.consent-mail a:hover { text-decoration: underline; }
+#verify-btn {
+  cursor: pointer;
+  display: inline-block;
+  align-self: center;
+  margin-top: 30px;
+  background: royalblue;
+  color: white;
+  padding: 7px 10px;
+  border-radius: 4px;
+  font-size: 16px;
+  border: none;
+}
+
+.side-slideshow { display: none; }
+
+@media (min-width: 768px) {
+  .side-slideshow {
+    position: relative;
+    display: block;
+    width: clamp(520px, 48vw, 900px);
+    height: 620px;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+  }
+
+  .slide-layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .8s ease;
+
+    /* image affichée */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+
+    /* masque (si tu utilises la variante variable CSS, garde aussi ces 2 lignes) */
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+
+    /* Variante robuste (si tu as choisi la variable CSS dans le HTML) */
+    /* -webkit-mask-image: var(--mask);
+       mask-image: var(--mask); */
+
+    /* ombre qui suit la forme PNG */
+    filter: drop-shadow(0 25px 60px rgba(0,0,0,.4));
+  }
+  .slide-layer.is-active { opacity: 1; }
+
+  /* voile noir en bas, À L’INTÉRIEUR du masque */
+  .slide-layer::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 60%;
+    background: linear-gradient(to top, rgba(0,0,0,.85), rgba(0, 0, 0, 0.408), rgba(0,0,0,0));
+    pointer-events: none;
+  }
+ .slide-caption {
+    position: absolute;
+
+    /* milieu vertical */
+    top: 90%;
+    transform: translateY(-50%);
+
+    /* safe-area à gauche/droite (modifiable via la variable) */
+    left: var(--cap-pad, 10%);
+    right: var(--cap-pad, 10%);
+
+    /* style */
+    z-index: 1;
+    text-align: left;
+    color: #fbd2d2;
+    padding: 12px 24px;
+    font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-weight: 500;
+    line-height: 1.35;
+    font-size: clamp(33px, 4vw, 39px);
+    text-shadow: 0 2px 6px rgba(0,0,0,.6);
+
+
+  }
+}

@@ -1,0 +1,47 @@
+/* Container en colonne qui occupe (presque) toute la hauteur de l’écran */
+.glass-container {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  -webkit-backdrop-filter: blur(12.1px);
+  border: 1px solid rgba(0, 0, 0, 0.26);
+
+  /* occupe la hauteur du viewport (ajuste 8rem si besoin pour tenir compte du header) */
+  min-height: calc(100vh - 8rem);
+
+  display: flex;
+  flex-direction: column;
+
+  /* espace bas pour que la nav ne colle pas au bord */
+  padding-bottom: 12px;
+}
+
+/* La zone liste prend l’espace disponible */
+.list-wrap {
+  flex: 1 1 auto;
+}
+
+/* La pagination reste dans le flux, mais poussée en bas s’il y a peu d’items */
+.pagination-wrap {
+  position: static;       /* surtout pas fixed */
+  margin-top: auto;       /* 👈 pousse la nav en bas du container */
+  align-self: center;     /* centre l’élément dans l’axe horizontal */
+}
+
+.pagination {
+  background: rgba(255, 234, 218, 0.238);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.page-link { color: #111 !important; background: transparent; border: 1px solid rgba(0,0,0,.15); }
+.page-link:hover { color: #000 !important; background: rgba(0,0,0,.04); }
+.page-item.active .page-link { color: #000 !important; background: rgba(0,0,0,.08); border-color: rgba(0,0,0,.25); }
+.page-item.disabled .page-link { color: rgba(0,0,0,.35) !important; background: transparent; border-color: rgba(0,0,0,.1); }
+.page-link:focus { box-shadow: none; }
+
+/* ⚠️ Assure-toi d’avoir bien supprimé toute ancienne règle .pagination-fixed { position: fixed; ... } */

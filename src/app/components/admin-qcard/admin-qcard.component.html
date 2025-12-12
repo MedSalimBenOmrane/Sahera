@@ -1,0 +1,122 @@
+<!-- card.component.html -->
+<div class="card custom-card">
+  <div class="card-body child d-flex flex-column">
+
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <!-- 1. Top-row : à gauche Titre + Badge “Ouvert/Fermé”,         -->
+    <!--    à droite Dates (“Publié : …” / “jusqu’au : …”)            -->
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <div class="top-row d-flex justify-content-between align-items-start mb-2">
+      <!-- 1.a. Bloc gauche : Titre + Badge “Ouert/Fermé” -->
+      <div class="left-head d-flex flex-column">
+        <!-- Titre -->
+        <h5 class="card-title mb-1 text-truncate">{{ title }}</h5>
+        <!-- Badge “Ouvert” / “Fermé” juste sous le titre -->
+       <ng-container *ngIf="isOpen() ; else badgeClosed">
+    <span class="status-open"><mat-icon>lock_open</mat-icon> Ouvert </span>
+  </ng-container>
+  <ng-template #badgeClosed>
+    <span class="status-closed"> <mat-icon>lock</mat-icon> Fermé </span>
+  </ng-template>
+      </div>
+
+      <!-- 1.b. Bloc droit : Dates publiées -->
+      <div class="dates text-end">
+        <p class="small mb-1">Date d'Ouverture : {{ publicationDate | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p class="small mb-0">{{ getBadgeText()}}</p>
+      </div>
+    </div>
+
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <!-- 2. Description (limitée à 2 lignes)                          -->
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <p class="card-text description mb-3">
+      {{ description }}
+    </p>
+
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <!-- 3. Bas de carte :                                              -->
+    <!--    a) Mode “mes-reponses” → Statut + date réponse              -->
+    <!--    b) Mode “questionnaire”  → (rien d’autre ici)                -->
+    <!--    Puis, en-dessous, les boutons (cent rés sur mobile)         -->
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <div class="mt-auto bottom-row d-flex flex-column">
+      
+       
+         
+        <div class="actions d-flex">
+        <!-- Si mode “questionnaire”, on affiche un seul bouton “Répondre” -->
+        
+          <button type="button" class="btn btn-sm btn-success" (click)="modify()">
+            Modifier 
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger" (click)="delete()">
+            Supprimer 
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="viewResponse()">
+            Voir Réponse 
+          </button>
+        </div>
+      
+    </div>
+
+  </div>
+</div>
+<dialog #editDialog>
+  <h1>Modifier la Thématique</h1>
+
+  <div class="row">
+    <div class="col-5">Titre :</div>
+    <div class="col-7">
+      <input
+        type="text"
+        class="input5"
+        [(ngModel)]="editTitre"
+      />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-5">Description :</div>
+    <div class="col-7">
+      <textarea
+        class="input5 textarea-message"
+        rows="3"
+        [(ngModel)]="editDescription"
+      ></textarea>
+    </div>
+  </div>
+  <div class="row">
+  <div class="col-5">Date d’ouverture :</div>
+  <div class="col-7">
+    <input
+      type="date"
+      class="input5"
+      [(ngModel)]="editDateOuverture"
+    />
+  </div>
+</div>
+  <div class="row">
+    <div class="col-5">Date de clôture :</div>
+    <div class="col-7">
+      <input
+        type="date"
+        class="input5"
+        [(ngModel)]="editDateFermeture"
+      />
+    </div>
+  </div>
+
+  <div class="row justify-content-center mt-3">
+    <button class="boton-elegante" (click)="applyEdit()">
+      Appliquer
+    </button>
+    
+  </div>
+
+  <button
+    class="x"
+    aria-label="close"
+    (click)="closeEditDialog()"
+  >❌</button>
+</dialog>

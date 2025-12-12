@@ -1,0 +1,403 @@
+/* Empêche le logo de rétrécir */
+.navbar-brand {
+  flex-shrink: 0;
+}
+
+/* Logo responsive */
+.navbar-brand img {
+  width: clamp(120px, 8vw, 300px);
+  height: auto;
+}
+
+/* Aligne la dropdown à droite du menu */
+.dropdown-menu-end {
+  right: 0;
+  left: auto;
+}
+
+/* Optionnel : agrandir légèrement les emojis pour plus de lisibilité */
+.nav-link,
+.dropdown-item {
+  font-size: 1rem;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Si vous voulez un peu plus d’espacement autour de l’emoji : */
+.nav-link,
+.dropdown-item {
+  letter-spacing: 0.02em;
+}
+
+/* ===== Responsive menu mobile/tablette ===== */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    width: 100%;
+    padding: 0;
+  }
+  .navbar-nav {
+    width: 100%;
+  }
+  .navbar-nav .nav-item {
+    width: 100%;
+  }
+  .navbar-nav .nav-link,
+  .navbar-nav .dropdown-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .navbar-nav .nav-item:last-child .nav-link,
+  .navbar-nav .dropdown-menu .dropdown-item:last-child {
+    border-bottom: none;
+  }
+  .dropdown-menu {
+    width: 100%;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+  }
+  .dropdown-menu .dropdown-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .dropdown-menu .dropdown-item:last-child {
+    border-bottom: none;
+  }
+}
+
+.menu__link {
+  color: #4a1c2a;
+  line-height: 2;
+  position: relative;
+}
+
+/* Ligne sous le lien au survol */
+.menu__link::before {
+  content: '';
+  padding-left: 0%;
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background-color: #000000;
+  position: absolute;
+  bottom: -0.25rem;
+  left: 0;
+  transition: width 0.4s;
+}
+
+/* Effet au survol : la ligne s’étend */
+.menu__link:hover::before {
+  width: 100%;
+}
+
+/* Effet actif (même règle que hover, mais dès affichage) */
+.menu__link.active::before {
+  width: 100%;
+}
+
+/* Espace entre l’icône et le texte */
+.nav-link mat-icon,
+.dropdown-item mat-icon {
+  vertical-align: middle;
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+/* Pour le toggler en mobile */
+.navbar-toggler mat-icon {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+/* Ajuster l’alignement vertical si nécessaire */
+.nav-link,
+.dropdown-item {
+  display: inline-flex;
+  align-items: center;
+}
+.badge {
+  font-size: 0.75rem;
+  padding: 0.25em 0.5em;
+}
+.icon-with-badge {
+  display: inline-block;      /* pour ne prendre que la taille de l’icône */
+}
+
+/* Badge superposé sur l’icône */
+.badge-on-icon {
+  top: 1px;                     /* coller en haut du conteneur */
+  right: 12px;                   /* coller à droite du conteneur */
+  transform: translate(25%, -25%);
+  /* Ajustez translate(%) selon la taille de l’icône / de la badge :
+     ici, 25% vers la droite et -25% vers le haut pour que le badge « flotte » 
+     sur le coin supérieur droit de l’icône */
+  font-size: 0.65rem;         /* taille plus petite pour le badge */
+  padding: 0.25em 0.4em;      /* rétrécit un peu le padding */
+  line-height: 1;             /* évite que le texte du badge soit décalé */
+}
+/* Dialog Styles */
+dialog {
+    padding: 1rem 3rem;
+    background: #c7c7c7cd;
+    max-width: 100%;
+    margin: auto; /* Center the dialog */
+    padding: 10%;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    border-radius: 20px;
+    border: 0;
+    color: black;
+    box-shadow: 0 5px 30px 0 rgb(0 0 0 / 10%);
+    animation: fadeIn 1s ease both;
+}
+
+dialog::backdrop {
+    animation: fadeIn 1s ease both;
+    background: rgba(89, 89, 89, 0.127);
+    z-index: 2;
+    backdrop-filter: blur(7px);
+}
+
+.x {
+    filter: grayscale(1);
+    border: none;
+    background: none;
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    transition: ease filter, transform 0.3s;
+    cursor: pointer;
+    transform-origin: center;
+}
+
+.x:hover {
+    filter: grayscale(0);
+    transform: scale(1.1);
+}
+
+h2 {
+    font-weight: 600;
+    font-size: 2rem;
+    padding-bottom: 1rem;
+}
+
+
+
+.col-5 {
+    flex: 0 0 42%;
+}
+
+.col-7 {
+    flex: 0 0 58%;
+}
+
+.input5 {
+    border: 2px solid transparent;
+    width: 100%; /* Ensure the input takes full width */
+    height: 2.5em;
+    padding-left: 0.7em;
+    outline: none;
+    overflow: hidden;
+    background-color: #F3F3F3;
+    border-radius: 10px;
+    transition: all 0.5s;
+}
+
+.input5:hover,
+.input5:focus {
+    border: 2px solid #4A9DEC;
+    box-shadow: 0px 0px 0px 7px rgba(74, 157, 236, 0.2);
+    background-color: white;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* From Uiverse.io by iZOXVL */ 
+.boton-elegante {
+  padding: 15px 30px;
+  border: 2px solid #2c2c2c;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 30px;
+  transition: all 0.4s ease;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+  font-weight: bold;
+}
+
+.boton-elegante::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  transform: scale(0);
+  transition: transform 0.5s ease;
+}
+
+.boton-elegante:hover::after {
+  transform: scale(4);
+}
+
+.boton-elegante:hover {
+  border-color: #4a1c2a;
+  background: #4a1c2a;
+}
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+
+}
+
+.row {
+  background: transparent;    /* enlève tout fond sur la "ligne" */
+  padding: 0;                 /* ou ajustez vos paddings */
+}
+.row .col-7 {
+  background: transparent;    /* si vous aviez un fond appliqué ici */
+}
+.row .col-5 {
+  background: transparent;    /* si vous aviez un fond appliqué ici */
+}
+/* dans clients.component.css */
+
+.actions-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  /* facultatif : pour que le contenu ne soit pas trop large */
+  align-items: flex-start;
+}
+
+.actions-cell .btn-modifier,
+.actions-cell .btn-supprimer {
+  padding: 0.3rem 0.4rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* vous pouvez adapter les couleurs : */
+.btn-modifier {
+  background-color: #04006dc0;
+  color: white;
+  width:90px
+}
+.btn-supprimer {
+  background-color: #9e0b00c4;
+  color: white;
+  width:90px
+}
+.button {
+  position: relative;
+  width: 150px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border: 1px solid #34974d;
+  background-color: #3aa856;
+}
+
+.button, .button__icon, .button__text {
+  transition: all 0.3s;
+}
+
+.button .button__text {
+  transform: translateX(30px);
+  color: #fff;
+  font-weight: 600;
+}
+
+.button .button__icon {
+  position: absolute;
+  transform: translateX(102px);
+  height: 40px;
+  width: 40px;
+  background-color: #34974d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button .svg {
+  width: 30px;
+  stroke: #fff;
+}
+
+.button:hover {
+  background: #34974d;
+}
+
+.button:hover .button__text {
+  color: transparent;
+}
+
+.button:hover .button__icon {
+  width: 150px;
+  transform: translateX(0);
+}
+
+.button:active .button__icon {
+  background-color: #2e8644;
+}
+
+.button:active {
+  border: 1px solid #2e8644;
+}
+.cssbuttons-io-button {
+  display: flex;
+  align-items: center;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 0.7em 1.4em 0.7em 1.1em;
+  margin: 0 4em;
+  color: white;
+  background: #ad5389;
+  background: linear-gradient(
+    0deg,
+    rgba(20, 167, 62, 1) 0%,
+    rgb(18, 145, 56) 0%,
+    rgb(73, 173, 81) 100%
+  );
+  border: none;
+  box-shadow: 0 0.7em 1.5em -0.5em #14a73e98;
+  letter-spacing: 0.05em;
+  border-radius: 20em;
+}
+
+.cssbuttons-io-button svg {
+  margin-right: 6px;
+}
+
+.cssbuttons-io-button:hover {
+  box-shadow: 0 0.5em 1.5em -0.5em #14a73e98;
+}
+
+.cssbuttons-io-button:active {
+  box-shadow: 0 0.3em 1em -0.5em #14a73e98;
+}

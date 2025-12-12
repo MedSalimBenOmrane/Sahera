@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+
+  .container {
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .container::after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    mix-blend-mode: overlay;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+
+  .blobs {
+    width: 35vh;
+    height: 50vh;
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 10%;
+    transform: translateY(-50%);
+    z-index: 0;
+  }
+
+  
+
+  @keyframes circular {
+    0% {
+      transform: translate(0, -60px);
+    }
+    25% {
+      transform: translate(60px, 0);
+    }
+    50% {
+      transform: translate(0, 60px);
+    }
+    75% {
+      transform: translate(-60px, 0);
+    }
+    100% {
+      transform: translate(0, -60px);
+    }
+  }
+
+  @keyframes circular2 {
+    0% {
+      transform: translate(0, 60px);
+    }
+    25% {
+      transform: translate(-60px, 0);
+    }
+    50% {
+      transform: translate(0, -60px);
+    }
+    75% {
+      transform: translate(60px, 0);
+    }
+    100% {
+      transform: translate(0, 60px);
+    }
+  }
+
+  .content {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+   
+  }
+
+  .row {
+    width: 100%;
+    display: flex;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .container2 {
+    background-color: #00000042;
+    height: 60vh;
+    color: #ffd0f3;
+    flex: 1; /* Utilise tout l'espace disponible */
+    z-index: 3;
+    padding: 20px;
+    margin-left: 2%;
+    box-sizing: border-box;
+background: rgba(12, 13, 26, 0.63);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(13px);
+-webkit-backdrop-filter: blur(13px);
+border: 1px solid rgba(12, 13, 26, 0.8);
+
+  }
+  .container3 {
+    background-color: #00000042;
+    margin-top: 2%;
+    padding: 2.5%;
+    color: #ffd0f3;
+    max-height: 40%;
+    flex: 1; /* Utilise tout l'espace disponible */
+    z-index: 3;
+    margin-left: 2%;
+    box-sizing: border-box;
+background: rgba(12, 13, 26, 0.63);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(13px);
+-webkit-backdrop-filter: blur(13px);
+border: 1px solid rgba(12, 13, 26, 0.8);
+
+  }
+
+
+  
+.childContainer{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: .3fr repeat(2, 1fr);
+    grid-column-gap: 15px;
+    grid-row-gap: 15px;
+  }
+  
+  .circle2{
+    width: 40px;
+    height: 40px;
+    background-color: #3498db;
+    border-radius: 50%;
+  }
+  
+  
+  #circles2{
+    display: flex;
+  }
+  
+  .border-white{
+    border: 1px solid white;
+  }
+  
+  a {
+    text-decoration: none; /* Remove underline */
+    color: inherit; /* Keep the default text color */
+  }
+  
+  a:hover {
+    text-decoration: underline; /* Add underline on hover */
+    color: white; /* Change text color to white on hover */
+  }
+
+  app-pie-chart{
+    transform: scale(0.8);
+  }
+  
+  .container4 {
+    background-color: #00000042;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    padding: 2.5%;
+    color: #763636;
+    height: 48.8%; /* Ajuster la hauteur selon les besoins */
+    flex: 1; /* Utilise tout l'espace disponible */
+    z-index: 3;
+    margin-left: 1%;
+    margin-right: 1%;
+    box-sizing: border-box;
+    background: rgba(60, 16, 16, 0.141);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(13px);
+    -webkit-backdrop-filter: blur(13px);
+    border: 1px solid rgba(12, 13, 26, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .container7 {
+    background-color: #0000001f;
+    margin-top: 1%;
+    padding: 2.5%;
+    color: #763636;
+    min-height: 100%; /* Ajuster la hauteur selon les besoins */
+    width:48%;
+    flex: 1; /* Utilise tout l'espace disponible */
+    z-index: 3;
+    margin-left:1% ;
+    margin-right: 2%;
+    
+    box-sizing: border-box;
+     background: rgba(60, 16, 16, 0.141);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(13px);
+    -webkit-backdrop-filter: blur(13px);
+    border: 1px solid rgba(12, 13, 26, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .container8 {
+    background-color: #00000042;
+    margin-top: 1%;
+    padding: 2.5%;
+    color: #763636;
+    min-height: 100%; /* Ajuster la hauteur selon les besoins */
+    width:48%;
+    flex: 1; /* Utilise tout l'espace disponible */
+    z-index: 3;
+    
+    box-sizing: border-box;
+     background: rgba(60, 16, 16, 0.141);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(13px);
+    -webkit-backdrop-filter: blur(13px);
+    border: 1px solid rgba(12, 13, 26, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .container5 {
+    background-color: #00000042;
+    margin-top: 2%;
+    margin-bottom: 1%;
+    padding: 2.5%;
+    color: #763636;
+    height: 97%; /* Ajuster la hauteur selon les besoins */
+    flex: 1; /* Utilise tout l'espace disponible */
+    z-index: 3;
+    
+    box-sizing: border-box;
+     background: rgba(60, 16, 16, 0.141);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(130, 60, 51, 0.1);
+    backdrop-filter: blur(13px);
+    -webkit-backdrop-filter: blur(13px);
+    border: 1px solid rgba(12, 13, 26, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  app-pie-chart {
+    width: 100%; /* Pour que le canevas prenne toute la largeur */
+    height: 100%; /* Pour que le canevas prenne toute la hauteur */
+    transform: scale(1); /* Ajuster le zoom si nécessaire */
+  }
+
+  .container4{
+            /* empêche une barre externe au conteneur */
+  display: flex;
+  align-items: stretch;         /* laisse l’enfant occuper la hauteur */
+  justify-content: stretch;
+}
+  

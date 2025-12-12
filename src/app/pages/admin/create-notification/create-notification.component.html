@@ -1,0 +1,84 @@
+<!-- create-notification.component.html -->
+<div class="container my-4">
+  <div class="glass-container p-4">
+
+    <!-- entête -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h1>Historique des Messages</h1>
+      <button class="btn btn-primary" (click)="openCreateDialog()">Envoyer message</button>
+    </div>
+
+    <!-- dialog -->
+    <dialog #dialog>
+      <h2>Envoyer une Notification</h2>
+      <div class="mb-3">
+        <label>Objet :</label>
+        <input type="text" class="form-control" [(ngModel)]="newNotif.titre" placeholder="Titre" />
+      </div>
+      <div class="mb-3">
+        <label>Message :</label>
+        <textarea class="form-control" rows="5" [(ngModel)]="newNotif.contenu" placeholder="Votre message"></textarea>
+      </div>
+      <button class="btn btn-success" (click)="sendNotification()">Envoyer</button>
+      <button class="btn btn-secondary ms-2" (click)="closeDialog()">Annuler</button>
+    </dialog>
+
+    <hr />
+
+    <!-- 👇 la zone liste prend l’espace disponible -->
+    <div class="list-wrap">
+
+      <!-- Loader -->
+      <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+        <div class="spinner-border" role="status"><span class="visually-hidden">Chargement...</span></div>
+      </div>
+
+      <!-- Liste | vide -->
+      <ng-container *ngIf="!isLoading">
+        <ng-container *ngIf="notifications && notifications.length > 0; else emptyState">
+          <app-notification
+            *ngFor="let notif of notifications; let i = index"
+            [notification]="notif"
+            [index]="i"
+            [isAdminView]="true"
+            (deleteNotification)="onDeleteNotification($event)">
+          </app-notification>
+        </ng-container>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <div class="d-flex flex-column justify-content-center align-items-center" style="min-height:60vh;">
+          <p class="mb-3 fs-5">Vous n’avez aucune notification pour le moment.</p>
+          <h2 class="mb-3">Pas de notification</h2>
+          <img src="assets/images/empty-folder.png" alt="Aucune notification" class="img-fluid" style="max-width:200px;">
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- 👇 pagination poussée en bas du container -->
+    <nav *ngIf="notifications?.length && totalPages > 1"
+         class="pagination-wrap d-flex justify-content-center mt-4"
+         aria-label="Pagination des notifications">
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">«</button>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">Précédent</button>
+        </li>
+
+        <li class="page-item" *ngFor="let p of pageNumbers" [class.active]="p === currentPage">
+          <button class="page-link" (click)="goToPage(p)">{{ p }}</button>
+        </li>
+
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">»</button>
+        </li>
+      </ul>
+    </nav>
+
+  </div>
+</div>

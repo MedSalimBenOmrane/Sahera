@@ -1,0 +1,26 @@
+<!-- HEADER -->
+<div class="layout">
+
+<!-- (le HTML de la navbar provient de la version Nuxt du site) :contentReference[oaicite:0]{index=0}
+        et son fond utilise la variable CSS  --color-m3ube7fu :contentReference[oaicite:1]{index=1} -->
+  <app-navbar       *ngIf="showNavbar && !auth.isAdmin"></app-navbar>
+  <app-admin-nav-bar *ngIf="showNavbar &&  auth.isAdmin"></app-admin-nav-bar>
+<!-- CONTENU PRINCIPAL -->
+<main class="page-container">
+<div class="page-background"></div>
+
+    <div class="blobs">
+      <div class="blob a"></div>
+      <div class="blob b"></div>
+      <div class="blob c"></div>
+    </div>
+
+    <div class="page-content">
+        
+    <router-outlet></router-outlet>
+    </div>
+</main>
+</div>
+<!-- FOOTER -->
+<app-footer></app-footer>
+<!-- © 2024 … extrait du footer du site :contentReference[oaicite:2]{index=2} -->

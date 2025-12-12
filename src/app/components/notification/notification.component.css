@@ -1,0 +1,131 @@
+/* src/app/components/notification/notification.component.css */
+
+/* === Styles du conteneur global === */
+.wrapper {
+  background: #ffffff65;
+  border-radius: 16px 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  -webkit-backdrop-filter: blur(12.1px);
+  position: relative;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.26);
+  margin-bottom: 5px;
+}
+
+/* Contenu textuel tronqué ou étendu selon isShown */
+.text-container {
+  font-family: Helvetica, Arial, sans-serif;
+  line-height: 1.75rem;
+  max-height: 130px;         /* tronque le contenu si trop long */
+  overflow: hidden;
+  padding: 10px 15px 60px 15px;
+  transition: max-height 0.5s ease;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.text-container.show {
+  max-height: 2000px;        /* on agrandit pour montrer tout le message */
+}
+
+/* Effet “gradient” pour le fade en bas du texte */
+.gradient::before {
+  content: '';
+  height: 100px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+
+  transition: height 0.25s ease;
+  border-radius: 16px;
+}
+
+.text-container.show.gradient::before {
+  height: 50px;  /* gradient plus court quand on est en “show” */
+}
+
+/* === Bouton pour dérouler/replier le texte === */
+.show-btn {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .6);
+  background-color: #4a1c2a;
+  border: none;
+  border-radius: 100%;
+  bottom: 10px;
+  color: #fff;
+  cursor: pointer;
+  height: 40px;
+  left: 50%;
+  margin-left: -20px;
+  position: absolute;
+  transition: background-color 0.25s ease;
+  width: 40px;
+  font-size: 20px;
+}
+
+.show-btn:hover {
+  background-color: #4a1c2a;
+}
+
+.show-btn.rotate {
+  transform: rotate(180deg);
+}
+
+/* === Styles pour la “cyberpunk checkbox” === */
+
+/*
+  On garde l’input type="checkbox" dans le DOM, mais on le masque en lui donnant
+  opacity: 0; width: 0; height: 0; position: absolute. Cela permet au label
+  d’être associé à l’input, et à l’animation CSS de fonctionner via :checked.
+*/
+input.cyberpunk-checkbox {
+  appearance: none;
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
+}
+
+/* On définit la vraie case via le pseudo-élément :before du label */
+.cyberpunk-checkbox-label {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  color: #000;           /* Couleur du texte “Marquer comme lue” */
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Les styles du box rond (par défaut non coché) */
+.cyberpunk-checkbox-label .cyberpunk-checkbox + .cyberpunk-checkbox-custom {
+  /* ce sélecteur n’existe pas si on n’utilise pas un <span> */
+}
+
+/* IMPORTANT : on crée un pseudo-élément sur le label pour afficher la case */
+.cyberpunk-checkbox-label:before {
+  content: '';
+  display: inline-block;
+  background-color: transparent;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #30cfd0;
+  border-radius: 5px;
+  margin-right: 10px;
+  transition: all 0.3s ease-in-out;
+  box-sizing: border-box;
+}
+
+/* Quand l’input est checked, on fait apparaître le carré plein */
+input.cyberpunk-checkbox:checked + .cyberpunk-checkbox-label:before {
+  background-color: #30cfd0;
+  transform: scale(1);
+}
+@media (max-width: 45em) {
+ .text-container {
+
+  padding: 5px 10px 180px 10px;
+
+}
+}

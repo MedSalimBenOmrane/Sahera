@@ -1,0 +1,419 @@
+.glass-container {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  -webkit-backdrop-filter: blur(12.1px);
+  min-height: 80vh;
+  border: 1px solid rgba(0, 0, 0, 0.26);
+}
+
+.reveal {
+    position: relative;
+    opacity: 0;
+  }
+  
+  .reveal.active {
+    opacity: 1;
+  }
+  .active.fade-bottom {
+    animation: fade-bottom 1s ease-in;
+  }
+  .active.fade-left {
+    animation: fade-left 1s ease-in;
+  }
+  .active.fade-right {
+    animation: fade-right 1s ease-in;
+  }
+  @keyframes fade-bottom {
+    0% {
+      transform: translateY(50px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes fade-left {
+    0% {
+      transform: translateX(-100px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fade-right {
+    0% {
+      transform: translateX(100px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }  
+
+/* CSS Styles */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+:root {
+    --vs-primary: 29, 92, 255;
+}
+
+/* Dialog Styles */
+dialog {
+    padding: 1rem 3rem;
+    background: #c7c7c7cd;
+    max-width: 100%;
+    margin: auto; /* Center the dialog */
+    padding: 3%;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    border-radius: 20px;
+    border: 0;
+    color: black;
+    box-shadow: 0 5px 30px 0 rgb(0 0 0 / 10%);
+    animation: fadeIn 1s ease both;
+}
+
+dialog::backdrop {
+    animation: fadeIn 1s ease both;
+    background: rgba(89, 89, 89, 0.127);
+    z-index: 2;
+    backdrop-filter: blur(7px);
+}
+
+.x {
+    filter: grayscale(1);
+    border: none;
+    background: none;
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    transition: ease filter, transform 0.3s;
+    cursor: pointer;
+    transform-origin: center;
+}
+
+.x:hover {
+    filter: grayscale(0);
+    transform: scale(1.1);
+}
+
+h2 {
+    font-weight: 600;
+    font-size: 2rem;
+    padding-bottom: 1rem;
+}
+
+
+
+.col-5 {
+    flex: 0 0 40%;
+}
+
+.col-7 {
+    flex: 0 0 60%;
+}
+
+.input5 {
+    border: 2px solid transparent;
+    width: 100%; /* Ensure the input takes full width */
+    height: 2.5em;
+    padding-left: 0.8em;
+    outline: none;
+    overflow: hidden;
+    background-color: #F3F3F3;
+    border-radius: 10px;
+    transition: all 0.5s;
+}
+
+.input5:hover,
+.input5:focus {
+    border: 2px solid #4A9DEC;
+    box-shadow: 0px 0px 0px 7px rgba(74, 157, 236, 0.2);
+    background-color: white;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* From Uiverse.io by iZOXVL */ 
+.boton-elegante {
+  padding: 15px 30px;
+  border: 2px solid #2c2c2c;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 30px;
+  transition: all 0.4s ease;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+  font-weight: bold;
+}
+
+.boton-elegante::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  transform: scale(0);
+  transition: transform 0.5s ease;
+}
+
+.boton-elegante:hover::after {
+  transform: scale(4);
+}
+
+.boton-elegante:hover {
+  border-color: #4a1c2a;
+  background: #4a1c2a;
+}
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+
+}
+
+.row {
+  background: transparent;    /* enlève tout fond sur la "ligne" */
+  padding: 0;                 /* ou ajustez vos paddings */
+}
+.row .col-7 {
+  background: transparent;    /* si vous aviez un fond appliqué ici */
+}
+.row .col-5 {
+  background: transparent;    /* si vous aviez un fond appliqué ici */
+}
+/* dans clients.component.css */
+
+.actions-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  /* facultatif : pour que le contenu ne soit pas trop large */
+  align-items: flex-start;
+}
+
+
+
+
+.button {
+  position: relative;
+  width: 150px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border: 1px solid #34974d;
+  background-color: #3aa856;
+}
+
+.button, .button__icon, .button__text {
+  transition: all 0.3s;
+}
+
+.button .button__text {
+  transform: translateX(30px);
+  color: #fff;
+  font-weight: 600;
+}
+
+.button .button__icon {
+  position: absolute;
+  transform: translateX(102px);
+  height: 40px;
+  width: 40px;
+  background-color: #34974d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button .svg {
+  width: 30px;
+  stroke: #fff;
+}
+
+.button:hover {
+  background: #34974d;
+}
+
+.button:hover .button__text {
+  color: transparent;
+}
+
+.button:hover .button__icon {
+  width: 150px;
+  transform: translateX(0);
+}
+
+.button:active .button__icon {
+  background-color: #2e8644;
+}
+
+.button:active {
+  border: 1px solid #2e8644;
+}
+.input5 {
+  border: 2px solid transparent;
+  width: 100%;
+  padding-left: 0.8em;
+  outline: none;
+  background-color: #F3F3F3;
+  border-radius: 10px;
+  transition: all 0.5s;
+  font-size: 1rem;
+}
+
+/* Spécifique au textarea */
+.textarea-message {
+  resize: vertical;
+  height: auto;
+  min-height: 8em; /* valeur de base si rows ne fonctionne pas toujours */
+  line-height: 1.5;
+  padding: 0.5em;
+  font-family: inherit;
+}
+
+/* Optionnel : ajuste la taille des colonnes dans la modale */
+.row .col-5 {
+  flex: 0 0 25%;
+  max-width: 25%;
+  padding-right: 0.5rem;
+  align-self: center;
+    align-self: flex-start; /* aligne en haut */
+  padding-top: 6px;        /* petit espacement avec le textarea */
+}
+
+
+.row .col-7 {
+  flex: 0 0 75%;
+  max-width: 75%;
+}
+
+.cssbuttons-io-button {
+  display: flex;
+  align-items: center;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 0.7em 1.4em 0.7em 1.1em;
+  color: white;
+  background: #ad5389;
+  background: linear-gradient(
+    0deg,
+    rgb(16, 127, 47) 0%,
+    rgb(78, 187, 87) 100%
+  );
+  border: none;
+  box-shadow: 0 0.7em 1.5em -0.5em #14a73e98;
+  letter-spacing: 0.05em;
+  border-radius: 20em;
+}
+
+.cssbuttons-io-button svg {
+  margin-right: 6px;
+}
+
+.cssbuttons-io-button:hover {
+  box-shadow: 0 0.5em 1.5em -0.5em #14a73e98;
+}
+
+.cssbuttons-io-button:active {
+  box-shadow: 0 0.3em 1em -0.5em #14a73e98;
+}
+.cssbuttons-io-button {
+  display: flex;
+  align-items: center;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 0.7em 1.4em 0.7em 1.1em;
+  color: white;
+  background: #ad5389;
+  background: linear-gradient(
+    0deg,
+    rgb(18, 145, 56) 0%,
+    rgb(73, 173, 81) 100%
+  );
+  border: none;
+  box-shadow: 0 0.7em 1.5em -0.5em #14a73e98;
+  letter-spacing: 0.05em;
+  border-radius: 20em;
+}
+
+.cssbuttons-io-button svg {
+  margin-right: 6px;
+}
+
+.cssbuttons-io-button:hover {
+  box-shadow: 0 0.5em 1.5em -0.5em #14a73e98;
+}
+
+.cssbuttons-io-button:active {
+  box-shadow: 0 0.3em 1em -0.5em #14a73e98;
+}
+/* create-notification.component.css */
+
+/* container colonne qui occupe la hauteur */
+.glass-container{
+  background: rgba(0,0,0,0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+  backdrop-filter: blur(12.1px);
+  -webkit-backdrop-filter: blur(12.1px);
+  border: 1px solid rgba(0,0,0,0.26);
+  min-height: calc(100vh - 8rem);
+  display:flex;
+  flex-direction:column;
+  padding-bottom:12px;
+}
+
+/* la liste prend l’espace */
+.list-wrap{ flex:1 1 auto; }
+
+/* pagination en bas, pas fixed */
+.pagination-wrap{
+  position: static;
+  margin-top: auto;
+  align-self: center;
+}
+
+.pagination{
+  background: rgba(255,234,218,.238);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+}
+.page-link{ color:#111!important; background:transparent; border:1px solid rgba(0,0,0,.15); }
+.page-link:hover{ color:#000!important; background:rgba(0,0,0,.04); }
+.page-item.active .page-link{ color:#000!important; background:rgba(0,0,0,.08); border-color:rgba(0,0,0,.25); }
+.page-item.disabled .page-link{ color:rgba(0,0,0,.35)!important; background:transparent; border-color:rgba(0,0,0,.1); }
+.page-link:focus{ box-shadow:none; }
+
+/* ⚠️ ne garde aucune ancienne règle .pagination-fixed { position: fixed; ... } */

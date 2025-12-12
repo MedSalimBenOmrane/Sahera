@@ -1,0 +1,118 @@
+<nav class="navbar navbar-expand-lg" [ngStyle]="{ 'background-color': 'var(--color-m3ube7fu)' }">
+  <div class="container d-flex align-items-center">
+    <!-- Logo -->
+    <a class="navbar-brand flex-shrink-0" routerLink="/">
+      <img src="assets/images/logo.png" alt="Brand Logo">
+    </a>
+
+    <!-- Bouton mobile -->
+    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+      aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <!-- Menu -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav ms-auto align-items-center">
+
+        <!-- Mes réponses -->
+        <li class="nav-item">
+          <a class="nav-link menu__link" routerLink="/mes-reponses" routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }">
+            <mat-icon>assignment</mat-icon>
+            Mes réponses
+          </a>
+        </li>
+
+        <!-- Questionnaire -->
+        <li class="nav-item">
+          <a class="nav-link menu__link" routerLink="/questionnaire" routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }">
+            <mat-icon>help_outline</mat-icon>
+            Questionnaire
+          </a>
+        </li>
+
+        <!-- Notifications avec badge -->
+      <li class="nav-item">
+  <a class="nav-link menu__link" routerLink="/notifications" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+    <span class="icon-with-badge position-relative">
+      <mat-icon>notifications</mat-icon>
+
+      <!-- ✅ on lit l’observable dans le *ngIf -->
+      <ng-container *ngIf="(unreadTotal$ | async) as unread">
+        <span *ngIf="unread > 0" class="badge rounded-pill bg-danger position-absolute badge-on-icon">
+          {{ unread }}
+        </span>
+      </ng-container>
+    </span>
+    Notifications
+  </a>
+</li>
+
+        <!-- Compte (dropdown) -->
+            <li class="nav-item dropdown">
+      <a class="nav-link menu__link dropdown-toggle" href="#" id="accountDropdown"
+         role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <mat-icon>person</mat-icon> Compte
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+        <li>
+          <a class="dropdown-item" href="#" (click)="openProfileDialog(); $event.preventDefault()">
+            <mat-icon>edit</mat-icon> Modifier mes coordonnées
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item" role="button" (click)="logout()">
+            <mat-icon>logout</mat-icon> Se déconnecter
+          </a>
+        </li>
+      </ul>
+    </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<dialog #profileDialog>
+  <h2>Modifier mes coordonnées</h2>
+
+  <div *ngIf="isLoading">Chargement…</div>
+  <div *ngIf="errorMsg" class="text-danger">{{ errorMsg }}</div>
+
+  <ng-container *ngIf="!isLoading && !errorMsg">
+    <div class="row" *ngFor="let field of formFields">
+      <div class="col-5">{{ field.label }} :</div>
+      <div class="col-7">
+        <input
+          *ngIf="field.type!=='select'"
+          [type]="field.type"
+          class="input5"
+          [placeholder]="field.label"
+          [(ngModel)]="form[field.key]"
+          name="{{ field.key }}"
+        />
+        <select
+          *ngIf="field.type==='select'"
+          class="input5"
+          [(ngModel)]="form[field.key]"
+          name="{{ field.key }}"
+        >
+          <option value="" disabled selected>{{ field.label }}</option>
+          <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="boton-elegante" (click)="saveProfile()">
+        Enregistrer les changements
+      </button>
+    </div>
+  </ng-container>
+
+  <button class="x" aria-label="close" (click)="closeDialog()">❌</button>
+</dialog>

@@ -1,0 +1,78 @@
+<!-- card.component.html -->
+<div class="card custom-card">
+  <div class="card-body child d-flex flex-column">
+
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <!-- 1. Top-row : à gauche Titre + Badge “Ouvert/Fermé”,         -->
+    <!--    à droite Dates (“Publié : …” / “jusqu’au : …”)            -->
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <div class="top-row d-flex justify-content-between align-items-start mb-2">
+      <!-- 1.a. Bloc gauche : Titre + Badge “Ouert/Fermé” -->
+      <div class="left-head d-flex flex-column">
+        <!-- Titre -->
+        <h5 class="card-title mb-1 text-truncate">{{ title }}</h5>
+        <!-- Badge “Ouvert” / “Fermé” juste sous le titre -->
+       <ng-container *ngIf="isSessionOpen; else badgeClosed">
+    <span class="status-open"><mat-icon>lock_open</mat-icon> Ouvert </span>
+  </ng-container>
+  <ng-template #badgeClosed>
+    <span class="status-closed"> <mat-icon>lock</mat-icon> Fermé </span>
+  </ng-template>
+      </div>
+
+      <!-- 1.b. Bloc droit : Dates publiées -->
+      <div class="dates text-end">
+        <p class="small mb-1">Publié : {{ publicationDate | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p class="small mb-0">jusqu’au :{{ sessionCloseDate | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+    </div>
+
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <!-- 2. Description (limitée à 2 lignes)                          -->
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <p class="card-text description mb-3">
+      {{ description }}
+    </p>
+
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <!-- 3. Bas de carte :                                              -->
+    <!--    a) Mode “mes-reponses” → Statut + date réponse              -->
+    <!--    b) Mode “questionnaire”  → (rien d’autre ici)                -->
+    <!--    Puis, en-dessous, les boutons (cent rés sur mobile)         -->
+    <!-- ────────────────────────────────────────────────────────────── -->
+    <div class="mt-auto bottom-row d-flex flex-column">
+      <!-- 3.a. Statut du questionnaire (uniquement si “mes-reponses”) -->
+      <div class="status mb-2" *ngIf="mode === 'mes-reponses'">
+        <ng-container *ngIf="isAnswered; else notYet">
+          <span class="text-success d-flex align-items-center">
+             Questionnaire complété
+          </span>
+        </ng-container>
+        <ng-template #notYet>
+          <span class="text-danger">
+             En attente de réponses
+          </span>
+        </ng-template>
+      </div>
+
+      <!-- 3.b. Actions (Boutons) : Centrés sur mobile, alignés à droite sur desktop -->
+      <div class="actions d-flex">
+        <!-- Si mode “mes-reponses”, on affiche “Modifier” + “Supprimer” -->
+        <ng-container *ngIf="mode === 'mes-reponses'">
+
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="onModify()">
+            Modifier
+          </button>
+        </ng-container>
+
+        <!-- Si mode “questionnaire”, on affiche un seul bouton “Répondre” -->
+        <ng-container *ngIf="mode === 'questionnaire'">
+          <button type="button" class="btn btn-sm btn-success" (click)="onRespond()">
+            Répondre
+          </button>
+        </ng-container>
+      </div>
+    </div>
+
+  </div>
+</div>

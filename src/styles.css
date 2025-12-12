@@ -1,0 +1,34 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~bootstrap/dist/css/bootstrap.css"  ; 
+@import "ngx-toastr/toastr";
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+@import '~@fortawesome/fontawesome-free/scss/fontawesome.scss';
+@import '~@fortawesome/fontawesome-free/scss/solid.scss';
+@import '~@fortawesome/fontawesome-free/scss/regular.scss';
+@import '~@fortawesome/fontawesome-free/scss/brands.scss';
+ 
+@import '~mdb-angular-ui-kit/assets/scss/mdb.scss';
+:root {
+  --color-m3ube7fu: #ffffff; /* couleur navbar */
+  --color-lz04012l: #fef4ea; /* couleur fond container */
+}
+
+/* Forcer ngx-toastr tout en haut (sauf top layer de <dialog>) */
+.toast-container,
+.toast-top-right,
+.toast-top-left,
+.toast-bottom-right,
+.toast-bottom-left,
+.toast-top-center,
+.toast-bottom-center,
+.toast-center-center {
+  z-index: 2147483647 !important; /* max */
+  position: fixed !important;
+  pointer-events: none;           /* clics traversent le conteneur */
+}
+
+/* Autoriser le clic sur le toast lui-même */
+.toast-container .ngx-toastr {
+  pointer-events: auto;
+}

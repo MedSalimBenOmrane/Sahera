@@ -1,0 +1,439 @@
+* {
+    margin: 0;
+    padding: 0;
+
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+@media print {
+ .table, .table__body {
+  overflow: visible;
+  height: auto !important;
+  width: auto !important;
+ }
+}
+
+/*@page {
+    size: landscape;
+    margin: 0; 
+}*/
+
+.glass-container {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  -webkit-backdrop-filter: blur(12.1px);
+  min-height: 80vh;
+  border: 1px solid rgba(0, 0, 0, 0.26);
+    
+}
+
+main.table {
+    width: 82vw;
+    min-height: 83VH;
+    margin: 3vh 18vh;
+    background: rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+   border: 1px solid rgba(0, 0, 0, 0.26);
+    margin-bottom:1%;
+    border-radius: .8rem;
+    overflow: hidden;
+}
+
+.table__header {
+    width: 100%;
+    height: 10%;
+    background-color: #fff4;
+    padding: .8rem 1rem;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.table__header .input-group {
+    width: 35%;
+    height: 100%;
+    background-color: #fff5;
+    padding: 0 .8rem;
+    border-radius: 2rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: .2s;
+}
+
+.table__header .input-group:hover {
+    width: 45%;
+    background-color: #fff8;
+    box-shadow: 0 .1rem .4rem #0002;
+}
+
+.table__header .input-group img {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.table__header .input-group input {
+    width: 100%;
+    padding: 0 .5rem 0 .3rem;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
+.table__body {
+    width: 95%;
+    max-height: calc(89% - 1.6rem);
+    background-color: #fffb;
+
+    margin: .8rem auto;
+    border-radius: .6rem;
+
+    overflow: auto;
+    overflow: overlay;
+}
+
+
+.table__body::-webkit-scrollbar{
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+.table__body::-webkit-scrollbar-thumb{
+    border-radius: .5rem;
+    background-color: #0004;
+    visibility: hidden;
+}
+
+.table__body:hover::-webkit-scrollbar-thumb{ 
+    visibility: visible;
+}
+
+
+table {
+    width: 100%;
+}
+
+td img {
+    width: 36px;
+    height: 36px;
+    margin-right: .5rem;
+    border-radius: 50%;
+
+    vertical-align: middle;
+}
+
+table, th, td {
+    border-collapse: collapse;
+    padding: 1rem;
+    text-align: left;
+}
+
+thead th {
+    position: sticky;
+    top: 0;
+    left: 0;
+    background-color: #4a1c2a5a;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #0000000b;
+}
+
+tbody tr {
+    --delay: .1s;
+    transition: .5s ease-in-out var(--delay), background-color 0s;
+}
+
+tbody tr.hide {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+tbody tr:hover {
+    background-color: #fff6 !important;
+}
+
+tbody tr td,
+tbody tr td p,
+tbody tr td img {
+    transition: .2s ease-in-out;
+}
+
+tbody tr.hide td,
+tbody tr.hide td p {
+    padding: 0;
+    font: 0 / 0 sans-serif;
+    transition: .2s ease-in-out .5s;
+}
+
+tbody tr.hide td img {
+    width: 0;
+    height: 0;
+    transition: .2s ease-in-out .5s;
+}
+
+.status {
+    padding: .4rem 0;
+    border-radius: 2rem;
+    text-align: center;
+}
+
+.status.delivered {
+    background-color: #86e49d;
+    color: #006b21;
+}
+
+.status.cancelled {
+    background-color: #d893a3;
+    color: #b30021;
+}
+
+.status.pending {
+    background-color: #ebc474;
+}
+
+.status.shipped {
+    background-color: #6fcaea;
+}
+
+
+@media (max-width: 1000px) {
+    td:not(:first-of-type) {
+        min-width: 12.1rem;
+    }
+}
+
+thead th span.icon-arrow {
+    display: inline-block;
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 50%;
+    border: 1.4px solid transparent;
+    
+    text-align: center;
+    font-size: 1rem;
+    
+    margin-left: .5rem;
+    transition: .2s ease-in-out;
+}
+
+thead th:hover span.icon-arrow{
+    border: 1.4px solid #4a1c2a;
+}
+
+thead th:hover {
+    color: #4a1c2a;
+}
+
+thead th.active span.icon-arrow{
+    background-color: #4a1c2a;
+    color: #fff;
+}
+
+thead th.asc span.icon-arrow{
+    transform: rotate(180deg);
+}
+
+thead th.active,tbody td.active {
+    color: #4a1c2a;
+}
+table {
+  border-collapse: collapse;
+}
+table, th, td {
+  border: 1px solid #ccc;
+}
+
+.btn-outline-primary {
+    margin: 0px 20px;
+    padding: 3px  5px ;
+  border: 1px solid #580c22;
+  color: white;
+  background-color: #580c22;
+  
+}
+.btn-outline-primary:hover {
+    border: 1px solid #0d6efd ;
+  background-color: #0d6efd;
+  color: #fff;
+}
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2em;
+}
+
+/* simple spinner CSS */
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 5px solid rgba(0,0,0,0.1);
+  border-top-color: rgba(0,0,0,0.6);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+/* ======= Dialog base ======= */
+dialog.analysis-dialog {
+  padding: 1rem 3rem;
+  background: #e9e9e9e7;
+  max-width: 820px;
+  width: calc(100% - 2rem);
+  margin: auto;
+  border-radius: 20px;
+  border: 0;
+  color: #111;
+  box-shadow: 0 5px 30px 0 rgb(0 0 0 / 10%);
+  animation: fadeIn 0.25s ease both;
+}
+
+/* Flou d’arrière-plan */
+dialog.analysis-dialog::backdrop {
+  animation: fadeIn 0.25s ease both;
+  background: rgba(89, 89, 89, 0.15);
+  backdrop-filter: blur(7px);
+}
+
+/* Titre & sous-titre */
+.analysis-title {
+  font-weight: 600;
+  font-size: 1.6rem;
+  margin: 0 0 .6rem 0;
+  padding: 0;
+}
+
+.analysis-subtitle {
+  margin-bottom: .75rem;
+  font-size: 0.95rem;
+}
+
+/* Bouton X */
+.analysis-close {
+  filter: grayscale(1);
+  border: none;
+  background: none;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  transition: filter 0.2s, transform 0.2s;
+  cursor: pointer;
+  transform-origin: center;
+  font-size: 1.1rem;
+}
+.analysis-close:hover {
+  filter: grayscale(0);
+  transform: scale(1.08);
+}
+
+/* Loader centré */
+.analysis-loading {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Conteneur du chart : donne une hauteur pour Chart.js */
+.analysis-chart {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  height: 42vh;        /* ajuste selon ton goût */
+  background: transparent;
+}
+
+/* Tableau dans le modal */
+.analysis-table {
+  margin-top: 1rem;
+  border: 1px solid #0e0e0e;
+}
+.analysis-table th,
+.analysis-table td {
+  background: #fff;
+}
+
+/* Animation légère */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Espace entre graphe et tableau */
+.analysis-chart {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  height: 42vh;
+  background: transparent;
+  margin-bottom: 12px;                /* <= espacement demandé */
+}
+
+/* Tableau transparent (“verre”) */
+.analysis-table,
+.analysis-table thead,
+.analysis-table tbody,
+.analysis-table tr,
+.analysis-table th,
+.analysis-table td {
+  background: transparent !important; /* retire tout blanc résiduel */
+}
+
+.analysis-table {
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+.analysis-table th,
+.analysis-table td {
+  border-color: rgba(255,255,255,0.25);
+  color: #111;                        /* lisible sur fond clair du dialog */
+}
+
+/* Aucune pastille/fond derrière “Question :” */
+.analysis-subtitle,
+.analysis-subtitle * {
+  background: transparent !important;
+}
+
+
+/* Colonne "Nombre de réponses" : tout sur UNE ligne */
+td.inline-actions{
+  display: flex;
+  align-items: center;
+  gap: .5rem;          /* espace entre nb et boutons */
+  white-space: nowrap; /* empêche les retours à la ligne */
+}
+
+/* Nombre un peu mis en avant */
+.inline-actions .answers-count{
+  font-weight: 600;
+}
+
+/* Boutons compacts */
+.inline-actions .btn{
+  padding: .28rem .56rem;
+  font-size: .8rem;
+  line-height: 1.1;
+}
+
+/* (optionnel) sur très petits écrans, autoriser le retour à la ligne */
+@media (max-width: 520px){
+  td.inline-actions{
+    flex-wrap: wrap;      /* si pas assez de place */
+    white-space: normal;  /* autorise retour à la ligne */
+  }
+  .inline-actions .btn{
+    flex: 0 0 auto;       /* les boutons restent côte à côte si possible */
+  }
+}
+
