@@ -1,4 +1,5 @@
 /* ===== Styles globaux ===== */
+
 body {
     margin: 0;
     padding: 0;
@@ -15,10 +16,24 @@ body {
 .login .navbar-brand {
   display: flex;
   justify-content: center; /* centre horizontalement */
-  margin-top: 20px;        /* ajustez l’espacement vertical si besoin */
+  margin-top: 20px;        /* ajustez l’'?Tespacement vertical si besoin */
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-/* L’image elle-même garde sa largeur adaptative, sans avoir besoin de justify-content */
+html {
+  -webkit-text-size-adjust: 100%; /* évite que Safari zoome le texte tout seul */
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  min-height: 100dvh; /* plus fiable que 100vh sur iOS */
+}
+/* L’'?Timage elle-mÇÎ¶Ýme garde sa largeur adaptative, sans avoir besoin de justify-content */
 .login .navbar-brand img {
   width: clamp(120px, 8vw, 300px);
   height: auto;
@@ -50,7 +65,7 @@ body {
 /* ===== Container principal ===== */
 .main {
     width: 450px;
-    height: 620px;
+    height: 645px;
     background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") 
                no-repeat center/cover;
     border-radius: 10px;
@@ -58,7 +73,7 @@ body {
     overflow: hidden;
 }
 
-/* ===== Masquage du checkbox utilisé pour le slide ===== */
+/* ===== Masquage du checkbox utilisÇÎ¶÷ pour le slide ===== */
 #chk {
     display: none;
 }
@@ -80,7 +95,7 @@ body {
 	box-shadow: 15px 20px 20px #000;
 }
 
-/* ===== Titres “Inscription” / “Connexion” ===== */
+/* ===== Titres ’'?oInscription’'?? / ’'?oConnexion’'?? ===== */
 label.titleInscription,
 label.titleConnexion {
     color: #4a1c2a;
@@ -94,43 +109,42 @@ label.titleConnexion {
     transition: .5s ease-in-out;
 }
 
-/* Lorsque l’on bascule vers “Connexion” */
+/* Lorsque l’'?Ton bascule vers ’'?oConnexion’'?? */
 .login label.titleConnexion {
     color: #4a1c2a;
     transform: scale(.6);
 }
 
-/* Lorsque checkbox est coché : on remonte “Connexion” et on agrandit son label */
+/* Lorsque checkbox est cochÇÎ¶÷ : on remonte ’'?oConnexion’'?? et on agrandit son label */
 #chk:checked ~ .login {
-    transform: translateY(-620px);
+    transform: translateY(-645px);
 }
 #chk:checked ~ .login label {
     transform: scale(1);
 }
-/* Et on réduit le label “Inscription” */
+/* Et on rÇÎ¶÷duit le label ’'?oInscription’'?? */
 #chk:checked ~ .signup label.titleInscription {
     transform: scale(.6);
 }
 
-/* ===== Styles des inputs & bouton par défaut ===== */
+/* ===== Styles des inputs & bouton par dÇÎ¶÷faut ===== */
 .input {
     width: 85%;
-    height: 10px;
     background: #ffffff80;
-    justify-content: center;
-    display: flex;
-    margin: 15px auto;
-    padding: 12px;
+    display: block;
+    margin: 10px auto;
+    padding: 5px 5px;
     border: 1px solid #000;      /* Bordure noire par défaut */
     outline: none;
     border-radius: 5px;
     box-sizing: border-box;
     transition: border-color .2s ease-in-out;
 }
-/* Corrige le rendu du <select> qui hérite de .input */
+
+/* Corrige le rendu du <select> qui hÇÎ¶÷rite de .input */
 select.input {
   display: block;          /* au lieu de flex */
-  height: auto;            /* laisse le navigateur gérer la hauteur */
+  height: auto;            /* laisse le navigateur gÇÎ¶÷rer la hauteur */
   min-height: 30px;        /* confort visuel */
   padding: 5px 6px;
   line-height: 1.2;
@@ -139,38 +153,43 @@ select.input {
   appearance: auto;
 }
 
-/* Couleur lisible du texte (au cas où) */
+/* Couleur lisible du texte (au cas oÇÎÇ¯) */
 select.input option { color: #111; }
 
 /* Optionnel: griser le placeholder tant que non choisi */
 select.input:invalid { color: #6b7280; }
-#dateNaissance{  width: 85%;
-    height: 10px;
+#dateNaissance {
+    width: 85%;
     background: #ffffff80;
-    justify-content: center;
-    display: flex;
-    margin: 15px auto;
-    padding: 12px;
-    border: 1px solid #000;      /* Bordure noire par défaut */
+    display: block;
+    margin: 10px auto;
+    padding: 5px 5px;
+    border: 1px solid #000;
     outline: none;
     border-radius: 5px;
     box-sizing: border-box;
-    transition: border-color .2s ease-in-out;}
+    transition: border-color .2s ease-in-out;
+}
 
-/* Classe appliquée en erreur */
+
+/* Classe appliquÇÎ¶÷e en erreur */
 .error-border {
     border-color: red !important;
 }
 
-/* Spécificité pour les champs date (même mise en forme horizontale) */
+/* SpÇÎ¶÷cificitÇÎ¶÷ pour les champs date (mÇÎ¶Ýme mise en forme horizontale) */
 .date {
     width: 85%;
     height: 10px;
+    margin: 10px auto;
+    padding: 5px 5px;
     justify-content: center;
 }
 
 /* ===== Styles du bouton ===== */
 button {
+    -webkit-appearance: none; /* important pour iOS */
+    appearance: none;
     width: 60%;
     height: 40px;
     margin: 10px auto;
@@ -187,6 +206,7 @@ button {
     transition: .2s ease-in;
     cursor: pointer;
 }
+
 .login button{
 	background: #4a1c2ac7;	
 	color: #ffffff;
@@ -200,12 +220,12 @@ button:hover {
     background: #4a1c2ac7;
 }
 
-/* ===== Styles spécifique “Genre” (radio) ===== */
+/* ===== Styles spÇÎ¶÷cifique ’'?oGenre’'?? (radio) ===== */
 .genre-container {
     display: flex;
     align-items: center;
     width: 85%;
-    margin: 15px auto;
+    margin: 10px auto;
     padding-left: 20px;
     font-weight: bold;
 }
@@ -235,7 +255,7 @@ button:hover {
 	transition: .5s ease-in-out;
 }
 
-/* ===== Adaptation pour écrans ≥768px ===== */
+/* ===== Adaptation pour ÇÎ¶÷crans ’'%¶ó768px ===== */
 @media (min-width: 768px) {
     .logo {
         text-align: right;
@@ -251,12 +271,12 @@ button:hover {
 .form-check-label{
     margin: 12px 10px;
 }
-/* 1) Par défaut (mobile), on cache les images */
+/* 1) Par dÇÎ¶÷faut (mobile), on cache les images */
 .side-img {
   display: none;
 }
 
-/* 2) Sur desktop (≥768px), on affiche et on aligne en flex */
+/* 2) Sur desktop (’'%¶ó768px), on affiche et on aligne en flex */
 @media (min-width: 768px) {
   .login-wrapper {
     display: flex;
@@ -278,7 +298,7 @@ button:hover {
 
   }
 
-  /* si vous voulez un décalage vertical différent : */
+  /* si vous voulez un dÇÎ¶÷calage vertical diffÇÎ¶÷rent : */
   .side-img--left { margin-right: 0rem; }
   .side-img--right { margin-left: 1rem; }
 }
@@ -375,7 +395,7 @@ dialog::backdrop {
 .consent-scroll {
   max-height: 240px;
   overflow: auto;
-  padding: 16px 16px; /* plus d’espace haut/bas */
+  padding: 16px 16px; /* plus d’'?Tespace haut/bas */
   background: #ffffff69;
   border: 1px solid #dddddd;
   border-radius: 8px;
@@ -386,7 +406,7 @@ dialog::backdrop {
 .consent-scroll::after {
   content: "";
   display: block;
-  height: 8px; /* espace de respiration en haut et bas même au bord du scroll */
+  height: 8px; /* espace de respiration en haut et bas mÇÎ¶Ýme au bord du scroll */
 }
 .consent-scroll h2 {
   margin: 0 0 8px;
@@ -438,7 +458,7 @@ dialog::backdrop {
     opacity: 0;
     transition: opacity .8s ease;
 
-    /* image affichée */
+    /* image affichÇÎ¶÷e */
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -460,7 +480,7 @@ dialog::backdrop {
   }
   .slide-layer.is-active { opacity: 1; }
 
-  /* voile noir en bas, À L’INTÉRIEUR du masque */
+  /* voile noir en bas, ÇÎÇ¨ L’'?TINTÇÎ%RIEUR du masque */
   .slide-layer::after {
     content: "";
     position: absolute;
@@ -476,7 +496,7 @@ dialog::backdrop {
     top: 90%;
     transform: translateY(-50%);
 
-    /* safe-area à gauche/droite (modifiable via la variable) */
+    /* safe-area ÇÎÇ¨ gauche/droite (modifiable via la variable) */
     left: var(--cap-pad, 10%);
     right: var(--cap-pad, 10%);
 
@@ -493,4 +513,50 @@ dialog::backdrop {
 
 
   }
+}
+
+
+/* Normalisation des cases à cocher / radios sur iOS */
+input[type="checkbox"],
+input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #4a1c2a;
+  border-radius: 3px;
+  background: #fff;
+  display: inline-block;
+  position: relative;
+}
+
+/* Checkbox cochée */
+input[type="checkbox"]:checked {
+  background: #4a1c2a;
+}
+
+/* Radio circulaire */
+input[type="radio"] {
+  border-radius: 50%;
+}
+
+input[type="radio"]:checked {
+  background: #4a1c2a;
+}
+
+
+/* même taille de police partout pour éviter le zoom iOS */
+input,
+select,
+button {
+  font-size: 16px;
+}
+
+/* rendre le champ date cohérent avec les autres */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 40px;          /* même hauteur que tes autres champs visuellement */
+  padding: 4px 12px;     /* adapte si tu veux */
+  line-height: 1;
 }
