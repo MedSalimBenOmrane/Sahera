@@ -1,10 +1,9 @@
 <div class="container my-4">
   <div class="glass-container">
     <div class="title p-4">
-      <h1>Thème : {{ thematiqueTitre }}</h1>
+      <h1>{{ 'qna.theme' | translate }} {{ thematiqueTitre }}</h1>
     </div>
 
-    <!-- TOAST top-right -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
       <div *ngIf="toast.show" class="alert shadow-sm mb-0"
         [ngClass]="{'alert-danger': toast.type==='error', 'alert-success': toast.type==='success'}">
@@ -12,17 +11,14 @@
       </div>
     </div>
 
-    <!-- 1) Loader sous-thématiques -->
     <div *ngIf="isLoadingST" class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
       <div class="spinner-border" role="status">
-        <span class="visually-hidden">Chargement des sous-thématiques…</span>
+        <span class="visually-hidden">{{ 'qna.loadingSubthemes' | translate }}</span>
       </div>
     </div>
 
     <ng-container *ngIf="!isLoadingST">
-      <!-- Aucun ST -->
       <ng-container *ngIf="sousThematiques.length > 0; else emptyST">
-        <!-- 2) Tabs -->
         <div class="tabs p-1">
           <ng-container *ngFor="let st of sousThematiques; let i = index">
             <input type="radio" name="tabs" [id]="'tab' + i" [checked]="i===0" />
@@ -30,28 +26,25 @@
 
             <div class="tab">
               <div class="title">
-                <h2>Questions pour « {{ st.titre }} »</h2>
+                <h2>{{ 'qna.questionsFor' | translate:{ title: st.titre } }}</h2>
               </div>
 
-              <!-- Loader questions -->
               <div *ngIf="loadingQuestionsMap[st.id]" class="d-flex justify-content-center align-items-center"
                 style="min-height: 20vh;">
                 <div class="spinner-border" role="status">
-                  <span class="visually-hidden">Chargement des questions…</span>
+                  <span class="visually-hidden">{{ 'qna.loadingSubthemes' | translate }}</span>
                 </div>
               </div>
 
-              <!-- Questions -->
               <ul *ngIf="!loadingQuestionsMap[st.id] && getQuestions(st).length > 0" class="list-unstyled">
                 <li *ngFor="let q of getQuestions(st)" class="mb-3">
                   <div class="mb-1 fw-medium">
                     {{ q.question }} <span class="text-danger">*</span>
                   </div>
 
-                  <!-- Type = liste -->
                   <ng-container *ngIf="q.type === 'liste'; else nonListeTpl">
                     <mat-form-field appearance="fill" class="w-100">
-                      <mat-label>— Sélectionnez une option —</mat-label>
+                      <mat-label>{{ 'qna.selectOption' | translate }}</mat-label>
                       <mat-select [(ngModel)]="reponses[st.id][q.id]" name="resp-{{st.id}}-{{q.id}}" required
                         panelClass="mobile-select-panel">
                         <mat-option *ngFor="let opt of getOptions(q)" [value]="opt">{{ opt }}</mat-option>
@@ -59,11 +52,10 @@
                     </mat-form-field>
                   </ng-container>
 
-                  <!-- Type = text | date -->
                   <ng-template #nonListeTpl>
                     <mat-form-field appearance="fill" class="w-100">
                       <mat-label>
-                        {{ q.type === 'date' ? '— Choisissez une date —' : '— Saisissez votre réponse —' }}
+                        {{ q.type === 'date' ? ('qna.chooseDate' | translate) : ('qna.enterAnswer' | translate) }}
                       </mat-label>
                       <input
                         matInput
@@ -76,18 +68,16 @@
                 </li>
               </ul>
 
-              <!-- Aucune question -->
               <div *ngIf="!loadingQuestionsMap[st.id] && getQuestions(st).length===0"
                 class="d-flex flex-column justify-content-center align-items-center" style="min-height: 20vh;">
-                <img src="assets/images/empty-folder.png" alt="Pas de question" class="mb-2"
+                <img src="assets/images/empty-folder.png" [attr.alt]="'qna.noQuestions' | translate" class="mb-2"
                   style="max-width: 150px;" />
-                <p class="mb-0">Aucune question pour cette sous-thématique.</p>
+                <p class="mb-0">{{ 'qna.noQuestions' | translate }}</p>
               </div>
 
-              <!-- Bouton enregistrer -->
               <div class="actions text-end mt-2" *ngIf="!loadingQuestionsMap[st.id] && getQuestions(st).length > 0">
                 <button (click)="saveReponses(st)" class="btn btn-primary">
-                  Enregistrer les réponses
+                  {{ 'qna.saveAnswers' | translate }}
                 </button>
               </div>
             </div>
@@ -96,12 +86,11 @@
       </ng-container>
     </ng-container>
 
-    <!-- template état vide ST -->
     <ng-template #emptyST>
       <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 60vh;">
-        <p class="mb-3 fs-5">Aucune sous-thématique disponible.</p>
-        <h2 class="mb-3">Pas de contenu</h2>
-        <img src="assets/images/empty-folder.png" alt="Pas de sous-thématique" class="img-fluid"
+        <p class="mb-3 fs-5">{{ 'qna.emptySubthemeLead' | translate }}</p>
+        <h2 class="mb-3">{{ 'qna.emptySubthemeTitle' | translate }}</h2>
+        <img src="assets/images/empty-folder.png" [attr.alt]="'qna.emptySubthemeTitle' | translate" class="img-fluid"
           style="max-width: 200px;" />
       </div>
     </ng-template>

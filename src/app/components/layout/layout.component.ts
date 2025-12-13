@@ -19,7 +19,8 @@ export class LayoutComponent implements OnInit {
       )
       .subscribe(event => {
         // Ici event est bien un NavigationEnd
-        this.showNavbar  = !event.urlAfterRedirects.startsWith('/login');
+        const url = event.urlAfterRedirects || event.url;
+        this.showNavbar  = !(url.startsWith('/login') || url.startsWith('/landing'));
       });
   }
 }

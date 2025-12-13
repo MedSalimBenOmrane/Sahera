@@ -1,7 +1,7 @@
-// custom-line-chart.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { AgeDistribution, DashboardService } from 'src/app/services/dashboard.service';
+import { TranslationService } from 'src/app/services/translation.service';
 
 @Component({
   selector: 'app-custom-line-chart',
@@ -11,7 +11,7 @@ import { AgeDistribution, DashboardService } from 'src/app/services/dashboard.se
 export class CustomLineChartComponent implements OnInit {
   private chart!: Chart;
 
-  constructor(private dashboardService: DashboardService) {
+  constructor(private dashboardService: DashboardService, private i18n: TranslationService) {
     Chart.register(...registerables);
   }
 
@@ -26,15 +26,15 @@ export class CustomLineChartComponent implements OnInit {
   private createChart(data: AgeDistribution): void {
     const ctx = document.getElementById('MyLineChart_') as HTMLCanvasElement;
     this.chart = new Chart(ctx, {
-      type: 'line',            // ← ici !
+      type: 'line',
       data: {
-        labels: data.labels,   // ['0-17','18-30',…]
+        labels: data.labels,
         datasets: [{
-          label: 'Nombre d’utilisateurs',
-          data: data.counts,   // [12,34,…]
-          fill: false,         // pas de zone colorée sous la courbe
+          label: this.i18n.translate('dashboard.usersLabel'),
+          data: data.counts,
+          fill: false,
           borderColor: 'rgb(0, 123, 255)',
-          tension: 0.1,        // lissage de la courbe
+          tension: 0.1,
           pointBackgroundColor: 'rgb(0, 123, 255)',
           pointBorderColor: '#fff',
           pointHoverBackgroundColor: '#fff',
@@ -45,7 +45,7 @@ export class CustomLineChartComponent implements OnInit {
         plugins: {
           title: {
             display: true,
-            text: 'Répartition par tranche d’âge',
+            text: this.i18n.translate('dashboard.ageDistributionTitle'),
             color: 'black',
             font: { size: 16 },
             padding: { top: 10, bottom: 30 }

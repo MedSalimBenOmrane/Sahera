@@ -51,6 +51,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BarchartAnalyseComponent } from './components/barchart-analyse/barchart-analyse.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { TranslatePipe } from './pipes/translate.pipe';
+import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -79,6 +81,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
      ComingSoonPageComponent,
      EditCoordonneesUserComponent,
      BarchartAnalyseComponent,
+     TranslatePipe,
+     LandingPageComponent,
 
   ],
   imports: [

@@ -1,11 +1,10 @@
 <div class="container my-4">
   <div class="glass-container p-2">
-    <h1>Historique des Notifications :</h1>
+    <h1>{{ 'notifications.title' | translate }}</h1>
 
-    <!-- zone liste/état vide -->
     <div class="list-wrap">
       <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-        <div class="spinner-border" role="status"><span class="visually-hidden">Chargement...</span></div>
+        <div class="spinner-border" role="status"><span class="visually-hidden">{{ 'notifications.loading' | translate }}</span></div>
       </div>
 
       <ng-container *ngIf="!isLoading">
@@ -22,14 +21,13 @@
 
       <ng-template #emptyState>
         <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 60vh;">
-          <p class="mb-3 fs-5">Vous n’avez aucune notification pour le moment.</p>
-          <h2 class="mb-3">Pas de notification</h2>
-          <img src="assets/images/empty-folder.png" alt="Aucune notification" class="img-fluid" style="max-width: 200px;" />
+          <p class="mb-3 fs-5">{{ 'notifications.emptyLead' | translate }}</p>
+          <h2 class="mb-3">{{ 'notifications.emptyTitle' | translate }}</h2>
+          <img src="assets/images/empty-folder.png" [attr.alt]="'notifications.emptyTitle' | translate" class="img-fluid" style="max-width: 200px;" />
         </div>
       </ng-template>
     </div>
 
-    <!-- pagination à la fin (poussée en bas si peu de contenu) -->
     <nav
       *ngIf="notifications?.length && totalPages > 1"
       class="pagination-wrap d-flex justify-content-center mt-4"
@@ -37,10 +35,10 @@
     >
       <ul class="pagination">
         <li class="page-item" [class.disabled]="currentPage === 1">
-          <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">«</button>
+          <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">⏮</button>
         </li>
         <li class="page-item" [class.disabled]="currentPage === 1">
-          <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">Précédent</button>
+          <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">{{ 'pagination.prev' | translate }}</button>
         </li>
 
         <li class="page-item" *ngFor="let p of pageNumbers" [class.active]="p === currentPage">
@@ -48,10 +46,10 @@
         </li>
 
         <li class="page-item" [class.disabled]="currentPage === totalPages">
-          <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+          <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">{{ 'pagination.next' | translate }}</button>
         </li>
         <li class="page-item" [class.disabled]="currentPage === totalPages">
-          <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">»</button>
+          <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">⏭</button>
         </li>
       </ul>
     </nav>

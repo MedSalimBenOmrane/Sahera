@@ -1,5 +1,6 @@
 import { Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
+import { TranslationService } from 'src/app/services/translation.service';
 Chart.register(...registerables);
 
 @Component({
@@ -10,10 +11,12 @@ Chart.register(...registerables);
 export class BarchartAnalyseComponent implements OnChanges, OnDestroy {
   @Input() labels: string[] = [];
   @Input() values: number[] = [];
-  @Input() title = 'Analyse des réponses';
+  @Input() title = '';
 
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
   private chart?: Chart;
+
+  constructor(private i18n: TranslationService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['labels'] || changes['values'] || changes['title']) {
@@ -35,16 +38,13 @@ export class BarchartAnalyseComponent implements OnChanges, OnDestroy {
       data: {
         labels: this.labels,
         datasets: [{
-          label: 'Nombre de réponses',
+          label: this.i18n.translate('dashboard.analysis.count'),
           data: this.values,
-
-          // --- “Barres en verre” ---
           backgroundColor: 'rgba(0, 255, 17, 0.28)',
           borderColor: 'rgba(0, 255, 72, 0.45)',
           borderWidth: 1.5,
           borderRadius: 8,
           borderSkipped: false,
-          // un peu plus fines que la colonne
           barPercentage: 0.7,
           categoryPercentage: 0.7
         }]
@@ -56,7 +56,7 @@ export class BarchartAnalyseComponent implements OnChanges, OnDestroy {
         plugins: {
           title: {
             display: true,
-            text: this.title,
+            text: this.title || this.i18n.translate('dashboard.analysis.responses'),
             color: '#111'
           },
           legend: { display: false }

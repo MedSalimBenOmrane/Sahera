@@ -16,26 +16,28 @@ import { ComingSoonPageComponent } from './pages/coming-soon-page/coming-soon-pa
 import { NoAuthGuard } from './guards/no-auth.guard';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 
 const routes: Routes = [
-  // Login accessible uniquement si NON connecté
+  // Login accessible uniquement si non connecte
   { path: 'login', component: LogInSignINComponent, canActivate: [NoAuthGuard] },
+  { path: 'landingpage', component: LandingPageComponent, canActivate: [NoAuthGuard] },
 
-{
-  path: 'admin',
-  canActivate: [AdminGuard],
-  children: [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-    { path: 'dashboard', component: DashboardComponent },
-    { path: 'participants', component: ClientsComponent },
-    { path: 'questionnaires', component: GenrateQuestionnaireComponent },
-    { path: 'thematique/:id/:titre', component: ThematiqueDetailsComponent },
-    { path: 'question/:id', component: QuestionDetailsComponent },
-    { path: 'messages', component: CreateNotificationComponent },
-  ]
-},
+  {
+    path: 'admin',
+    canActivate: [AdminGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'participants', component: ClientsComponent },
+      { path: 'questionnaires', component: GenrateQuestionnaireComponent },
+      { path: 'thematique/:id/:titre', component: ThematiqueDetailsComponent },
+      { path: 'question/:id', component: QuestionDetailsComponent },
+      { path: 'messages', component: CreateNotificationComponent },
+    ]
+  },
 
-  // Zones protégées (utilisateur connecté)
+  // Zones protegees (utilisateur connecte)
   { path: 'mes-reponses', component: MesReponsesComponent, canActivate: [AuthGuard] },
   { path: 'questionnaire', component: QuestionnaireComponent, canActivate: [AuthGuard] },
   { path: 'questionnaire/:id/:titre', component: QAndAComponent, canActivate: [AuthGuard] },
@@ -43,9 +45,9 @@ const routes: Routes = [
 
   { path: 'coming_soon', component: ComingSoonPageComponent },
 
-  // Par défaut, on va vers /login
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' }
+  // Par defaut, on va vers la landing page
+  { path: '', redirectTo: 'landingpage', pathMatch: 'full' },
+  { path: '**', redirectTo: 'landing' }
 ];
 
 @NgModule({

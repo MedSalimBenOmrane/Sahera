@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { DashboardService, GenderDistribution } from 'src/app/services/dashboard.service';
+import { TranslationService } from 'src/app/services/translation.service';
 
 @Component({
   selector: 'app-pie-chart',
@@ -13,7 +14,7 @@ export class PieChartComponent implements OnInit {
   public chart: any;
   
 
-  constructor(private dashboardService: DashboardService) {
+  constructor(private dashboardService: DashboardService, private i18n: TranslationService) {
     Chart.register(...registerables);
   }
 
@@ -30,13 +31,13 @@ export class PieChartComponent implements OnInit {
     this.chart = new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: ['Femmes', 'Hommes'],
+        labels: [this.i18n.translate('dashboard.gender.female'), this.i18n.translate('dashboard.gender.male')],
         datasets: [{
-          label: 'Répartition par genre',
+          label: this.i18n.translate('dashboard.genderDistributionTitle'),
           data: [data.Femme, data.Homme],
           backgroundColor: [
-            'rgb(255, 0, 55)',   // Femmes
-            'rgb(0, 153, 255)'   // Autre
+            'rgb(255, 0, 55)',
+            'rgb(0, 153, 255)'
           ],
           hoverOffset: 4
         }]

@@ -2,14 +2,15 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { finalize } from 'rxjs';
 import { Client } from 'src/app/models/client.model';
 import { ClientsService } from 'src/app/services/clients.service';
+import { TranslationService } from 'src/app/services/translation.service';
 
 interface FormField {
   key: keyof ClientForm;
-  label: string;
+  labelKey: string;
   type: 'text'|'email'|'password'|'date'|'select';
-  options?: string[];
+  options?: Array<{ value: string; labelKey: string }>;
 }
-  type ClientForm = Omit<Client,'date_naissance'> & {
+type ClientForm = Omit<Client,'date_naissance'> & {
   date_naissance?: string;
   };
 type Meta = {
@@ -26,53 +27,37 @@ export class ClientsComponent implements OnInit {
   clients: Client[] = [];
  isLoading = false;
   errorMsg: string | null = null;
-  // date en string pour le <input type="date">
-// Recherches
 searchId: number | null = null; 
 searchNom: string = '';
 searchPrenom: string = '';
 
-// Liste affichée (filtrée ou résultat ID)
 displayedClients: Client[] = [];
 
-// Indicateur filtre actif (pour cacher pagination)
 get hasAnyFilter(): boolean {
-  // ID présent OU nom/prénom saisis
   return (this.searchId !== null && this.searchId > 0)
       || !!this.searchNom.trim()
       || !!this.searchPrenom.trim();
 }
 
-  // Création vs édition
   isEditMode = false;
   currentId: number | null = null;
 
-  // Form data
   form: Partial<ClientForm> = {};
 
   formFields: FormField[] = [
-    { key: 'nom',            label: 'Nom',           type: 'text' },
-    { key: 'prenom',         label: 'Prénom',        type: 'text' },
-    { key: 'email',          label: 'Email',         type: 'email' },
-    { key: 'mot_de_passe',   label: 'Mot de passe',  type: 'password' },
-    { key: 'telephone',      label: 'Téléphone',     type: 'text' },
-    { key: 'date_naissance', label: 'Date de naissance', type: 'date' },
-    { key: 'genre',          label: 'Genre',         type: 'select', options: ['Homme','Femme'] },
-    { key: 'ethnicite',      label: 'Ethnicité',     type: 'select', options: [
-      'Amérindien ou Autochtone d’Alaska',
-      'Asiatique',
-      'Noir ou Afro-Américain',
-      'Hispanique ou Latino',
-      'Moyen-Oriental ou Nord-Africain',
-      'Océanien (Hawaïen ou des îles du Pacifique)',
-      'Blanc ou Européen Américain'
-    ]},
-    { key: 'role',           label: 'Rôle',          type: 'text' }
+    { key: 'nom',            labelKey: 'auth.signup.name',        type: 'text' },
+    { key: 'prenom',         labelKey: 'auth.signup.firstName',   type: 'text' },
+    { key: 'email',          labelKey: 'auth.signup.email',       type: 'email' },
+    { key: 'mot_de_passe',   labelKey: 'auth.signup.password',    type: 'password' },
+    { key: 'telephone',      labelKey: 'auth.signup.phone',       type: 'text' },
+    { key: 'date_naissance', labelKey: 'auth.signup.birthDate',   type: 'date' },
+    { key: 'genre',          labelKey: 'auth.signup.genderLabel', type: 'select' },
+    { key: 'ethnicite',      labelKey: 'auth.signup.ethnicity',   type: 'select' },
+    { key: 'role',           labelKey: 'admin.table.role',        type: 'text' }
   ];
-  // 🔹 Pagination
   meta?: Meta;
   currentPage = 1;
-  perPage = 4; // MAX_PER_PAGE côté back
+  perPage = 4; 
   get totalPages(): number { return this.meta?.pages ?? 1; }
   get pageNumbers(): number[] {
     const total = this.totalPages, cur = this.currentPage;
@@ -84,7 +69,17 @@ get hasAnyFilter(): boolean {
   @ViewChild('dialog', { static: true })
   private dialogRef!: ElementRef<HTMLDialogElement>;
 
-  constructor(private svc: ClientsService) {}
+  constructor(private svc: ClientsService, public i18n: TranslationService) {
+    this.formFields = this.formFields.map(field => {
+      if (field.key === 'genre') {
+        return { ...field, options: this.i18n.getOptions('gender') };
+      }
+      if (field.key === 'ethnicite') {
+        return { ...field, options: this.i18n.getOptions('ethnicity') };
+      }
+      return field;
+    });
+  }
 
   ngOnInit(): void {
     this.loadPage(1);
@@ -100,16 +95,15 @@ onSearchChanged(): void {
 
 private fetchById(id: number): void {
   this.isLoading = true;
-  this.svc.getClientById(id)   // << use mapping
+  this.svc.getClientById(id)
     .pipe(finalize(() => this.isLoading = false))
     .subscribe({
       next: (client) => this.displayedClients = [client],
-      error: _ => this.displayedClients = []   // 404 → aucun résultat
+      error: _ => this.displayedClients = []
     });
 }
 
 private recomputeDisplayed(): void {
-  // Si ID est vide -> filtre local nom/prénom
   let list = [...this.clients];
 
   const nom = this.searchNom.trim().toLowerCase();
@@ -135,7 +129,7 @@ private recomputeDisplayed(): void {
         this.clients = items;
         this.meta = meta as Meta;
         this.currentPage = this.meta.page;
-        this.recomputeDisplayed();  // << afficher selon filtres
+        this.recomputeDisplayed(); 
       },
       error: err => {
         console.error('Erreur API :', err);
@@ -147,27 +141,20 @@ private recomputeDisplayed(): void {
     });
 }
 
-  // 🔹 handlers pagination
   goToPage(p:number){ if(p<1 || p>this.totalPages || p===this.currentPage) return; this.loadPage(p); }
   firstPage(){ this.goToPage(1); }
   prevPage(){ this.goToPage(this.currentPage - 1); }
   nextPage(){ this.goToPage(this.currentPage + 1); }
   lastPage(){ this.goToPage(this.totalPages); }
 
-
-
-  /** Ouvre le dialogue en mode création */
   openCreateDialog() {
     this.isEditMode = false;
     this.currentId  = null;
     this.form       = {};
-    // on cast en any pour accéder à showModal()
     (this.dialogRef.nativeElement as any).showModal();
   }
 
-  /** Ouvre le dialogue en mode édition */
 openEditDialog(c: Client): void {
-  console.log('openEditDialog appelé pour', c);
   this.isEditMode = true;
   this.currentId  = c.id;
     const dateObj = typeof c.date_naissance === 'string'
@@ -182,7 +169,6 @@ openEditDialog(c: Client): void {
     genre:          c.genre,
     ethnicite:      c.ethnicite,
     role:           c.role,
-    // 2) Puis on peut appeler toISOString() sans crainte
     date_naissance: dateObj
       ? dateObj.toISOString().slice(0,10)
       : ''
@@ -190,7 +176,6 @@ openEditDialog(c: Client): void {
   (this.dialogRef.nativeElement as any).showModal();
 }
 
-  /** Crée ou met à jour */
 saveClient() {
   const dateObj = new Date(this.form.date_naissance as string);
   const payload = new Client(
@@ -224,12 +209,10 @@ saveClient() {
 
 confirmDelete(client: Client) {
   const fullName = `${client.nom} ${client.prenom}`;
-  if (!window.confirm(`Voulez-vous vraiment supprimer "${fullName}" ?`)) {
+  if (!window.confirm(this.i18n.translate('admin.confirmDelete', { name: fullName }))) {
     return;
   }
 
-  // 👉 si on supprime le dernier item de la page et qu'il existe une page précédente,
-  // on reculera d'une page; sinon on reste sur la page actuelle.
   const targetPage =
     (this.clients.length === 1 && this.currentPage > 1)
       ? this.currentPage - 1
@@ -243,7 +226,6 @@ confirmDelete(client: Client) {
 
 
 
-  /** Ferme le dialog */
   closeDialog() {
     (this.dialogRef.nativeElement as any).close();
   }

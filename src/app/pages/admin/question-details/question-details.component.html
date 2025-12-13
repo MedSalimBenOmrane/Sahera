@@ -1,6 +1,6 @@
 <main class="table">
   <section class="table__header">
-    <h1>Détails de la question : “{{ questionTitre }}”</h1>
+    <h1>{{ 'admin.questionDetails.title' | translate:{ title: questionTitre } }}</h1>
   </section>
 
   <section class="table__body">
@@ -13,14 +13,13 @@
       </colgroup>
       <thead>
         <tr>
-          <th>ID Utilisateur</th>
-          <th>Nom</th>
-          <th>Prénom</th>
-          <th>Réponse</th>
+          <th>{{ 'admin.questionDetails.userId' | translate }}</th>
+          <th>{{ 'admin.questionDetails.name' | translate }}</th>
+          <th>{{ 'admin.questionDetails.firstname' | translate }}</th>
+          <th>{{ 'admin.questionDetails.answer' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        <!-- 1) Loader centré -->
         <tr *ngIf="isLoading">
           <td colspan="4" class="p-0">
             <div
@@ -28,15 +27,13 @@
               style="height: 200px;"
             >
               <div class="spinner-border" role="status">
-                <span class="visually-hidden">Chargement…</span>
+                <span class="visually-hidden">{{ 'generic.loading' | translate }}</span>
               </div>
             </div>
           </td>
         </tr>
 
-        <!-- 2) Après chargement : données ou état vide -->
         <ng-container *ngIf="!isLoading">
-          <!-- a) Les lignes de réponses -->
           <tr *ngFor="let row of rows">
             <td>{{ row.userId }}</td>
             <td>{{ row.nom }}</td>
@@ -44,7 +41,6 @@
             <td>{{ row.valeur }}</td>
           </tr>
 
-          <!-- b) Etat vide si aucune réponse -->
           <tr *ngIf="rows.length === 0">
             <td colspan="4" class="p-0">
               <div
@@ -53,11 +49,11 @@
               >
                 <img
                   src="assets/images/empty-folder.png"
-                  alt="Aucune réponse"
+                  [attr.alt]="'admin.questionDetails.empty' | translate"
                   class="mb-2"
                   style="max-width: 150px;"
                 />
-                <p class="mb-0">Aucune réponse pour cette question.</p>
+                <p class="mb-0">{{ 'admin.questionDetails.empty' | translate }}</p>
               </div>
             </td>
           </tr>

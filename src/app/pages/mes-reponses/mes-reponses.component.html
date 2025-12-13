@@ -1,36 +1,33 @@
 <div class="container my-4">
   <div class="glass-container p-4">
-    <h1>Mes Réponses :</h1>
+    <h1>{{ 'answers.title' | translate }}</h1>
 
-    <!-- Nav tabs -->
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
         <a class="nav-link"
            [class.active]="selectedTab==='all'"
            (click)="selectTab('all')"
-           href="javascript:void(0)">Tous</a>
+           href="javascript:void(0)">{{ 'answers.tabs.all' | translate }}</a>
       </li>
       <li class="nav-item">
         <a class="nav-link"
            [class.active]="selectedTab==='completed'"
            (click)="selectTab('completed')"
-           href="javascript:void(0)">Complétés</a>
+           href="javascript:void(0)">{{ 'answers.tabs.completed' | translate }}</a>
       </li>
       <li class="nav-item">
         <a class="nav-link"
            [class.active]="selectedTab==='incomplete'"
            (click)="selectTab('incomplete')"
-           href="javascript:void(0)">Incomplétés</a>
+           href="javascript:void(0)">{{ 'answers.tabs.incomplete' | translate }}</a>
       </li>
     </ul>
- <!-- Loader -->
     <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
       <div class="spinner-border" role="status">
-        <span class="visually-hidden">Chargement…</span>
+        <span class="visually-hidden">{{ 'answers.loading' | translate }}</span>
       </div>
     </div>
 
-    <!-- Contenu -->
     <ng-container *ngIf="!isLoading">
       <div class="list-wrap">
         <div *ngIf="activeList.length > 0; else emptyState"
@@ -51,16 +48,15 @@
         </div>
       </div>
 
-      <!-- Pagination en bas -->
       <nav *ngIf="activeList.length && totalPages > 1"
            class="pagination-wrap d-flex justify-content-center mt-4"
-           aria-label="Pagination des réponses">
+           [attr.aria-label]="'answers.title' | translate">
         <ul class="pagination">
           <li class="page-item" [class.disabled]="currentPage === 1">
-            <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">«</button>
+            <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">⏮</button>
           </li>
           <li class="page-item" [class.disabled]="currentPage === 1">
-            <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">Précédent</button>
+            <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">{{ 'answers.pagination.prev' | translate }}</button>
           </li>
 
           <li class="page-item" *ngFor="let p of pageNumbers" [class.active]="p === currentPage">
@@ -68,20 +64,19 @@
           </li>
 
           <li class="page-item" [class.disabled]="currentPage === totalPages">
-            <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+            <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">{{ 'answers.pagination.next' | translate }}</button>
           </li>
           <li class="page-item" [class.disabled]="currentPage === totalPages">
-            <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">»</button>
+            <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">⏭</button>
           </li>
         </ul>
       </nav>
     </ng-container>
 
-    <!-- État vide -->
     <ng-template #emptyState>
       <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 60vh;">
-        <img src="assets/images/empty-folder.png" alt="Aucun contenu" class="mb-3 img-fluid" style="max-width: 200px;" />
-        <p class="fs-5 mb-0">Aucune donnée à afficher pour cet onglet.</p>
+        <img src="assets/images/empty-folder.png" [attr.alt]="'answers.empty' | translate" class="mb-3 img-fluid" style="max-width: 200px;" />
+        <p class="fs-5 mb-0">{{ 'answers.empty' | translate }}</p>
       </div>
     </ng-template>
   </div>

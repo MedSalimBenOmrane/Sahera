@@ -1,0 +1,46 @@
+<body>
+  <div class="banner">
+    <div class="auth-lang-switch" aria-label="Language selector">
+      <button type="button"
+              [class.active]="i18n.currentLang === 'fr'"
+              (click)="setLang('fr')">FR</button>
+      <button type="button"
+              [class.active]="i18n.currentLang === 'en'"
+              (click)="setLang('en')">EN</button>
+    </div>
+
+    <ul class="circles">
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+
+    <div class="content">
+      <div class="hero-panel">
+        <div class="hero-copy">
+          <h3>{{ 'landing.title' | translate }}</h3>
+          <p>{{ 'landing.subtitle' | translate }}</p>
+        </div>
+        <button class="glow-on-hover mt-3" type="button" (click)="connecter()">
+          {{ 'landing.cta' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</body>

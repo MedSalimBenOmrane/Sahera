@@ -1,60 +1,39 @@
-<!-- card.component.html -->
 <div class="card custom-card">
   <div class="card-body child d-flex flex-column">
-
-    <!-- ────────────────────────────────────────────────────────────── -->
-    <!-- 1. Top-row : à gauche Titre + Badge “Ouvert/Fermé”,         -->
-    <!--    à droite Dates (“Publié : …” / “jusqu’au : …”)            -->
-    <!-- ────────────────────────────────────────────────────────────── -->
     <div class="top-row d-flex justify-content-between align-items-start mb-2">
-      <!-- 1.a. Bloc gauche : Titre + Badge “Ouert/Fermé” -->
       <div class="left-head d-flex flex-column">
-        <!-- Titre -->
         <h5 class="card-title mb-1 text-truncate">{{ title }}</h5>
-        <!-- Badge “Ouvert” / “Fermé” juste sous le titre -->
        <ng-container *ngIf="isOpen() ; else badgeClosed">
-    <span class="status-open"><mat-icon>lock_open</mat-icon> Ouvert </span>
+    <span class="status-open"><mat-icon>lock_open</mat-icon> {{ 'card.status.open' | translate }} </span>
   </ng-container>
   <ng-template #badgeClosed>
-    <span class="status-closed"> <mat-icon>lock</mat-icon> Fermé </span>
+    <span class="status-closed"> <mat-icon>lock</mat-icon> {{ 'card.status.closed' | translate }} </span>
   </ng-template>
       </div>
 
-      <!-- 1.b. Bloc droit : Dates publiées -->
       <div class="dates text-end">
-        <p class="small mb-1">Date d'Ouverture : {{ publicationDate | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p class="small mb-1">{{ 'admin.card.openDate' | translate }} {{ publicationDate | date:'dd/MM/yyyy HH:mm' }}</p>
         <p class="small mb-0">{{ getBadgeText()}}</p>
       </div>
     </div>
 
-    <!-- ────────────────────────────────────────────────────────────── -->
-    <!-- 2. Description (limitée à 2 lignes)                          -->
-    <!-- ────────────────────────────────────────────────────────────── -->
     <p class="card-text description mb-3">
       {{ description }}
     </p>
 
-    <!-- ────────────────────────────────────────────────────────────── -->
-    <!-- 3. Bas de carte :                                              -->
-    <!--    a) Mode “mes-reponses” → Statut + date réponse              -->
-    <!--    b) Mode “questionnaire”  → (rien d’autre ici)                -->
-    <!--    Puis, en-dessous, les boutons (cent rés sur mobile)         -->
-    <!-- ────────────────────────────────────────────────────────────── -->
     <div class="mt-auto bottom-row d-flex flex-column">
       
-       
          
         <div class="actions d-flex">
-        <!-- Si mode “questionnaire”, on affiche un seul bouton “Répondre” -->
         
           <button type="button" class="btn btn-sm btn-success" (click)="modify()">
-            Modifier 
+            {{ 'admin.card.edit' | translate }} 
           </button>
           <button type="button" class="btn btn-sm btn-outline-danger" (click)="delete()">
-            Supprimer 
+            {{ 'admin.card.delete' | translate }} 
           </button>
           <button type="button" class="btn btn-sm btn-outline-primary" (click)="viewResponse()">
-            Voir Réponse 
+            {{ 'admin.card.viewResponses' | translate }} 
           </button>
         </div>
       
@@ -63,10 +42,10 @@
   </div>
 </div>
 <dialog #editDialog>
-  <h1>Modifier la Thématique</h1>
+  <h1>{{ 'admin.card.editDialogTitle' | translate }}</h1>
 
   <div class="row">
-    <div class="col-5">Titre :</div>
+    <div class="col-5">{{ 'admin.card.title' | translate }}</div>
     <div class="col-7">
       <input
         type="text"
@@ -77,7 +56,7 @@
   </div>
 
   <div class="row">
-    <div class="col-5">Description :</div>
+    <div class="col-5">{{ 'admin.card.description' | translate }}</div>
     <div class="col-7">
       <textarea
         class="input5 textarea-message"
@@ -87,7 +66,7 @@
     </div>
   </div>
   <div class="row">
-  <div class="col-5">Date d’ouverture :</div>
+  <div class="col-5">{{ 'admin.card.open' | translate }}</div>
   <div class="col-7">
     <input
       type="date"
@@ -97,7 +76,7 @@
   </div>
 </div>
   <div class="row">
-    <div class="col-5">Date de clôture :</div>
+    <div class="col-5">{{ 'admin.card.close' | translate }}</div>
     <div class="col-7">
       <input
         type="date"
@@ -109,7 +88,7 @@
 
   <div class="row justify-content-center mt-3">
     <button class="boton-elegante" (click)="applyEdit()">
-      Appliquer
+      {{ 'generic.apply' | translate }}
     </button>
     
   </div>
@@ -118,5 +97,5 @@
     class="x"
     aria-label="close"
     (click)="closeEditDialog()"
-  >❌</button>
+  >×</button>
 </dialog>

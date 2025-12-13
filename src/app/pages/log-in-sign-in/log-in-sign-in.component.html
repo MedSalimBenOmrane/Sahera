@@ -4,41 +4,44 @@
 </head>
 
 <body>
-  <div class="login-wrapper">
-    <!-- image à gauche (desktop only) -->
-<div class="side-slideshow" aria-label="Diaporama décor">
-  
-    <div class="slide-layer"
-     [ngStyle]="{'--cap-pad':'10%'}"
-    *ngFor="let src of slides; let i = index"
-    [class.is-active]="i === currentSlide"
-    [ngStyle]="{
-      'background-image': 'url(' + src + ')',
-      '-webkit-mask-image': 'url(' + src + ')',
-      'mask-image': 'url(' + src + ')'
-    }"
-  >
-    <div class="slide-caption" *ngIf="captions?.length">
-      {{ captions[i] }}
-    </div>
+  <div class="auth-lang-switch" aria-label="Language selector">
+    <button type="button"
+            [class.active]="i18n.currentLang === 'fr'"
+            (click)="setLang('fr')">FR</button>
+    <button type="button"
+            [class.active]="i18n.currentLang === 'en'"
+            (click)="setLang('en')">EN</button>
   </div>
+  <div class="login-wrapper">
+    <div class="side-slideshow" [attr.aria-label]="'auth.slideshow.label' | translate">
+      <div class="slide-layer"
+       [ngStyle]="{'--cap-pad':'10%'}"
+      *ngFor="let src of slides; let i = index"
+      [class.is-active]="i === currentSlide"
+      [ngStyle]="{
+        'background-image': 'url(' + src + ')',
+        '-webkit-mask-image': 'url(' + src + ')',
+        'mask-image': 'url(' + src + ')'
+      }"
+    >
+      <div class="slide-caption" *ngIf="captionsKeys?.length">
+        {{ captionsKeys[i] | translate }}
+      </div>
+    </div>
 
-</div>
+  </div>
   <div class="main">
-    <!-- Checkbox invisible qui gère le toggle Inscription/Connexion -->
     <input type="checkbox" id="chk" aria-hidden="false" />
 
-    <!-- ===== Partie Inscription (Signup) ===== -->
     <div class="signup">
-      <!-- On lie le formGroup “signupForm” ici -->
       <form [formGroup]="signupForm" (ngSubmit)="onSignup()">
-        <label class="titleInscription" for="chk" aria-hidden="false">Inscription</label>
+        <label class="titleInscription" for="chk" aria-hidden="false">{{ 'auth.signup.title' | translate }}</label>
 
         <input class="input"
           id="nom"
           type="text"
           formControlName="nom"
-          placeholder="Nom"
+          [placeholder]="'auth.signup.name' | translate"
           (blur)="onBlurField('nom')"
           [class.error-border]="isFieldInvalid('nom')"
         />
@@ -47,7 +50,7 @@
           id="prenom"
           type="text"
           formControlName="prenom"
-          placeholder="Prénom"
+          [placeholder]="'auth.signup.firstName' | translate"
           (blur)="onBlurField('prenom')"
           [class.error-border]="isFieldInvalid('prenom')"
         />
@@ -65,7 +68,7 @@
           id="passwordSignup"
           type="password"
           formControlName="password"
-          placeholder="Password"
+          [placeholder]="'auth.signup.password' | translate"
           (blur)="onBlurField('password')"
           [class.error-border]="isFieldInvalid('password')"
         />
@@ -74,7 +77,7 @@
           id="telephone"
           type="text"
           formControlName="telephone"
-          placeholder="Téléphone"
+          [placeholder]="'auth.signup.phone' | translate"
           (blur)="onBlurField('telephone')"
           [class.error-border]="isFieldInvalid('telephone')"
         />
@@ -84,7 +87,7 @@
   class="input"
   [attr.type]="dateInputType"         
   formControlName="dateNaissance"
-  placeholder="Date de naissance"     
+  [placeholder]="'auth.signup.birthDate' | translate"     
   (focus)="dateInputType='date'"
   (click)="dateInputType='date'"       
   (blur)="onDateBlur()"
@@ -93,28 +96,17 @@
 />
 
         <div class="genre-container" role="group" aria-labelledby="genre-label">
-  <span id="genre-label" class="genre-label">Sexe :</span>
+  <span id="genre-label" class="genre-label">{{ 'auth.signup.genderLabel' | translate }}</span>
 
-  <label class="genre-radio" [class.error-border]="isFieldInvalid('genre')">
+  <label class="genre-radio" [class.error-border]="isFieldInvalid('genre')" *ngFor="let opt of genderOptions">
     <input
       class="input"
       type="radio"
       formControlName="genre"
-      [value]="'Femme'"
+      [value]="opt.value"
       (change)="onBlurField('genre')"
     />
-    Femme
-  </label>
-
-  <label class="genre-radio" [class.error-border]="isFieldInvalid('genre')">
-    <input
-      class="input"
-      type="radio"
-      formControlName="genre"
-      [value]="'Homme'"
-      (change)="onBlurField('genre')"
-    />
-    Homme
+    {{ opt.labelKey | translate }}
   </label>
 </div>
 
@@ -126,20 +118,18 @@
   [class.error-border]="isFieldInvalid('ethnicite')"
   required
 >
-  <option [ngValue]="null" disabled>Ethnicité</option>
-  <option *ngFor="let opt of ethniciteOptions" [ngValue]="opt">{{ opt }}</option>
+  <option [ngValue]="null" disabled>{{ 'auth.signup.ethnicity' | translate }}</option>
+  <option *ngFor="let opt of ethniciteOptions" [ngValue]="opt.value">{{ opt.labelKey | translate }}</option>
 </select>
 
 
-        <button type="submit">S'inscrire</button>
+        <button type="submit">{{ 'auth.signup.submit' | translate }}</button>
       </form>
     </div>
 
-    <!-- ===== Partie Connexion (Login) ===== -->
     <div class="login">
-      <!-- On lie le formGroup “loginForm” ici -->
       <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
-        <label class="titleConnexion" for="chk" aria-hidden="false">Connexion</label>
+        <label class="titleConnexion" for="chk" aria-hidden="false">{{ 'auth.login.title' | translate }}</label>
 
         <input class="input"
           id="emailLogin"
@@ -154,7 +144,7 @@
                   id="passwordLogin"
           type="password"
           formControlName="password"
-          placeholder="Password"
+          [placeholder]="'auth.signup.password' | translate"
           (blur)="onBlurLoginField('password')"
           [class.error-border]="isLoginFieldInvalid('password')"
         />
@@ -166,15 +156,15 @@
     formControlName="isAdmin"
   />
   <label class="form-check-label" for="isAdmin">
-    Se connecter en tant qu’admin
+    {{ 'auth.login.admin' | translate }}
   </label>
 </div>
 
 
 
 
-        <button type="submit">Se connecter</button>
-        <div class="pwd" (click)="openForgotDialog()">Mot de passe oublié ?</div>
+        <button type="submit">{{ 'auth.login.submit' | translate }}</button>
+        <div class="pwd" (click)="openForgotDialog()">{{ 'auth.login.forgot' | translate }}</div>
         <div class="navbar-brand "><img src="assets/images/logo.png" alt="Brand Logo"></div>
       </form>
     </div>
@@ -183,44 +173,42 @@
   </div>
 </body>
 <dialog #dialog>
-  <h1 class="title">Consentement éclairé et vérification</h1>
+  <h1 class="title">{{ 'auth.consent.title' | translate }}</h1>
 
-  <!-- Consentement: scroll obligatoire pour activer la case -->
   <div class="consent-box">
     <div class="consent-scroll" (scroll)="onConsentScroll($event)">
-      <h2>Consentement éclairé et engagement de participation</h2>
-      <h2>Titre du projet</h2>
-      <p>Étude sur l’expérience d’utilisation d’un dispositif d’acupression auriculaire pour le soulagement des symptômes généraux de la périménopause, des troubles du cycle menstruel et du stress</p>
-      <h2>Objectif du projet</h2>
-      <p><span class="consent-strong">Ce projet vise à comprendre</span> comment ce dispositif favorise le mieux-être de ses utilisatrices. Plus précisément, il cherche à évaluer le <span class="consent-strong">confort d’utilisation</span>, la <span class="consent-strong">facilité d’intégration</span> à la routine quotidienne et les effets ressentis sur des symptômes tels que les douleurs cycliques, les tensions musculaires, les troubles du sommeil, ou les variations d’humeur associées au stress ou aux changements hormonaux.</p>
-      <h2>Renseignements recueillis</h2>
-      <p>Nous collectons vos coordonnées de base (nom, prénom, âge, genre, origine ethnique et courriel) afin d’assurer le suivi de votre participation, de vous transmettre les questionnaires d’évaluation et de recueillir vos commentaires sur le dispositif. Ces informations soutiennent la validation scientifique du dispositif et la production des analyses globales menées auprès de la cohorte participante.</p>
-      <p>Les questionnaires portent sur votre expérience d’utilisation : confort du dispositif, fréquence d’usage, contexte, effets perçus sur les douleurs, le sommeil, le stress et le bien-être général, ainsi que votre satisfaction globale.</p>
-      <p><span class="consent-strong">Sécurité et confidentialité :</span> Toutes les données sont conservées sur des serveurs sécurisés, conformément à la Loi 25 sur la protection des renseignements personnels au Québec. Lors de l’analyse, l’ensemble des données sera anonymisé pour garantir la confidentialité des participantes.</p>
-      <h2>Engagement et relation de partenariat</h2>
-      <p>En recevant ce dispositif gratuitement, vous devenez partenaire actif du projet. Votre participation contribue directement à la validation scientifique et à l’amélioration du dispositif. Nous souhaitons également vous tenir informée des rapports d’analyse et de validation scientifique issus de cette étude, afin que vous puissiez suivre les résultats collectifs de la cohorte et les avancées du projet. À ce titre, vous consentez également à recevoir notre newsletter, qui vous transmettra périodiquement des nouvelles du projet, les résultats d’étape et des informations complémentaires sur les activités de recherche et de développement. Si vous décidez d’interrompre votre participation, vous vous engagez à retourner le dispositif, afin de permettre le respect du protocole d’étude.</p>
-      <h2>Durée, moments d’évaluation et retrait</h2>
-      <p>Votre participation dure environ <span class="consent-strong">une année</span>, à compter de la date où vous avez reçu le dispositif. Afin de suivre l’évolution de votre expérience dans le temps, deux évaluations vous seront demandées :</p>
+      <h2>{{ 'auth.consent.intro' | translate }}</h2>
+      <h2>{{ 'auth.consent.projectTitle' | translate }}</h2>
+      <p>{{ 'auth.consent.projectName' | translate }}</p>
+      <h2>{{ 'auth.consent.goal' | translate }}</h2>
+      <p>{{ 'auth.consent.goalText' | translate }}</p>
+      <h2>{{ 'auth.consent.data' | translate }}</h2>
+      <p>{{ 'auth.consent.dataText' | translate }}</p>
+      <p>{{ 'auth.consent.questionnaires' | translate }}</p>
+      <p>{{ 'auth.consent.security' | translate }}</p>
+      <h2>{{ 'auth.consent.partnership' | translate }}</h2>
+      <p>{{ 'auth.consent.partnershipText' | translate }}</p>
+      <h2>{{ 'auth.consent.duration' | translate }}</h2>
+      <p>{{ 'auth.consent.durationText' | translate }}</p>
       <ul class="consent-list">
-        <li>Une première après <span class="consent-strong">6 mois</span> d’utilisation continue.</li>
-        <li>Une seconde après <span class="consent-strong">12 mois</span>, au terme de votre participation.</li>
+        <li>{{ 'auth.consent.duration6' | translate }}</li>
+        <li>{{ 'auth.consent.duration12' | translate }}</li>
       </ul>
-      <p>Chaque évaluation consiste à remplir le même formulaire de suivi (questionnaire sur le confort, les effets ressentis et la satisfaction). Ces deux temps de réponse permettront d’évaluer l’évolution des effets perçus au fil du temps et de renforcer la valeur scientifique des résultats du projet.</p>
-      <p class="consent-mail">📧 Pour toute question ou pour retirer votre consentement, écrivez-nous à :
-        <a href="mailto:info@sahera.ca" rel="noopener">info@sahera.ca</a>.
-        En cas de retrait, vous devrez restituer le dispositif fourni.
+      <p>{{ 'auth.consent.durationEnd' | translate }}</p>
+      <p class="consent-mail">{{ 'auth.consent.contact' | translate }}
+        <a href="mailto:info@sahera.ca" rel="noopener">{{ 'auth.consent.email' | translate }}</a>.
+        {{ 'auth.consent.withdraw' | translate }}
       </p>
-      <h2>Consentement</h2>
-      <p class="consent-note">En cochant la case ci-dessous, vous confirmez avoir lu et compris les informations ci-dessus, et consentez à participer à cette étude selon les conditions précisées.</p>
+      <h2>{{ 'auth.consent.subtitle' | translate }}</h2>
+      <p class="consent-note">{{ 'auth.consent.check' | translate }}</p>
     </div>
     <label class="consent-check">
       <input type="checkbox" [disabled]="!consentScrolled" [checked]="consentChecked" (change)="onConsentChanged($any($event.target).checked)" />
-      Oui, je consens à participer à l’étude, j’accepte les conditions de participation et de retour du dispositif, et j’accepte de recevoir la newsletter d’information relative à cette étude.
+      {{ 'auth.consent.check' | translate }}
     </label>
   </div>
 
-  <!-- Zone OTP: activée uniquement après envoi du code (regToken présent) -->
-  <h2 class="subtitle">Entrez le code envoyé à votre email</h2>
+  <h2 class="subtitle">{{ 'auth.consent.otpTitle' | translate }}</h2>
   <form id="otp-form" (paste)="onOtpPaste($event)" (submit)="$event.preventDefault()">
     <input #otpInput type="text" class="otp-input" maxlength="1" [disabled]="!regToken"
            [value]="otpDigits[0]" (input)="onOtpInput(0,$event)" (keydown)="onOtpKeydown(0,$event)">
@@ -236,28 +224,26 @@
 
   <div class="row">
     <div class="col-6">
-      <button id="verify-btn" (click)="verifyOtp()" [disabled]="!regToken || verifying || otpDigits.join('').length!==5">Vérifier</button>
+      <button id="verify-btn" (click)="verifyOtp()" [disabled]="!regToken || verifying || otpDigits.join('').length!==5">{{ 'auth.consent.verify' | translate }}</button>
     </div>
     <div class="col-6">
       <button id="resend-btn" (click)="resendCode()" [disabled]="!regToken || resendCooldown>0">
-        Renvoyer code<span *ngIf="resendCooldown>0"> ({{resendCooldown}}s)</span>
+        {{ 'auth.consent.resend' | translate }}<span *ngIf="resendCooldown>0"> ({{resendCooldown}}s)</span>
       </button>
     </div>
   </div>
 
-  <button id="x" aria-label="close" (click)="closeDialog()">❌</button>
+  <button id="x" aria-label="close" (click)="closeDialog()">×</button>
 </dialog>
 
 
 <dialog #forgotDialog>
-  <h1 class="title">Réinitialiser le mot de passe</h1>
+  <h1 class="title">{{ 'auth.forgot.title' | translate }}</h1>
 
-  <!-- Message d’erreur rouge au-dessus de l’OTP / champs -->
   <div *ngIf="fpError" style="color:#b91c1c; margin-bottom:10px; font-weight:600;">
-    {{ fpError }}
+    {{ fpError | translate }}
   </div>
 
-  <!-- 1) Email requis -->
   <div style="margin-bottom: 12px;">
     <input
       type="email"
@@ -270,10 +256,9 @@
     />
     <button id="send-reset-code-btn"
             (click)="sendResetCode()"
-            [disabled]="fpResetToken">Envoyer le code</button>
+            [disabled]="fpResetToken">{{ 'auth.forgot.send' | translate }}</button>
   </div>
 
-  <!-- 2) OTP (affiché si on a un reset_token) -->
   <form *ngIf="fpResetToken" (paste)="onFpOtpPaste($event)" (submit)="$event.preventDefault()"
         style="margin-top: 10px;">
     <div id="otp-form">
@@ -291,26 +276,25 @@
 
     <div class="row" style="margin-top: 14px;">
       <div class="col-6">
-        <button id="verify-reset-btn" (click)="verifyResetOtp()" [disabled]="fpVerifying">Vérifier</button>
+        <button id="verify-reset-btn" (click)="verifyResetOtp()" [disabled]="fpVerifying">{{ 'auth.forgot.verify' | translate }}</button>
       </div>
       <div class="col-6">
         <button id="resend-reset-btn" (click)="resendResetCode()" [disabled]="fpResendCooldown>0">
-          Renvoyer code<span *ngIf="fpResendCooldown>0"> ({{fpResendCooldown}}s)</span>
+          {{ 'auth.forgot.resend' | translate }}<span *ngIf="fpResendCooldown>0"> ({{fpResendCooldown}}s)</span>
         </button>
       </div>
     </div>
   </form>
 
-  <!-- 3) Nouveau mot de passe (activé uniquement si OTP vérifié côté back) -->
   <div style="margin-top: 18px;">
-    <input type="password" class="input" placeholder="Nouveau mot de passe"
+    <input type="password" class="input" [placeholder]="'auth.forgot.newPassword' | translate"
            [(ngModel)]="newPw" name="newPw"
            [disabled]="!fpVerified">
-    <input type="password" class="input" placeholder="Confirmer le mot de passe"
+    <input type="password" class="input" [placeholder]="'auth.forgot.confirmPassword' | translate"
            [(ngModel)]="newPw2" name="newPw2"
            [disabled]="!fpVerified">
-    <button (click)="saveNewPassword()" [disabled]="!fpVerified">Enregistrer</button>
+    <button (click)="saveNewPassword()" [disabled]="!fpVerified">{{ 'auth.forgot.save' | translate }}</button>
   </div>
 
-  <button id="x" aria-label="close" (click)="closeForgotDialog()">❌</button>
+  <button id="x" aria-label="close" (click)="closeForgotDialog()">×</button>
 </dialog>

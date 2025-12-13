@@ -5,6 +5,15 @@
       <img src="assets/images/logo.png" alt="Brand Logo">
     </a>
 
+    <div class="lang-switch ms-3">
+      <button type="button"
+              [class.active]="isActiveLang('fr')"
+              (click)="changeLanguage('fr')">FR</button>
+      <button type="button"
+              [class.active]="isActiveLang('en')"
+              (click)="changeLanguage('en')">EN</button>
+    </div>
+
     <!-- Bouton mobile -->
     <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
       aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -15,61 +24,56 @@
     <div class="collapse navbar-collapse" id="navbarContent">
       <ul class="navbar-nav ms-auto align-items-center">
 
-        <!-- Mes réponses -->
         <li class="nav-item">
           <a class="nav-link menu__link" routerLink="/mes-reponses" routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }">
             <mat-icon>assignment</mat-icon>
-            Mes réponses
+            {{ 'navbar.myResponses' | translate }}
           </a>
         </li>
 
-        <!-- Questionnaire -->
         <li class="nav-item">
           <a class="nav-link menu__link" routerLink="/questionnaire" routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }">
             <mat-icon>help_outline</mat-icon>
-            Questionnaire
+            {{ 'navbar.questionnaire' | translate }}
           </a>
         </li>
 
-        <!-- Notifications avec badge -->
-      <li class="nav-item">
-  <a class="nav-link menu__link" routerLink="/notifications" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-    <span class="icon-with-badge position-relative">
-      <mat-icon>notifications</mat-icon>
+        <li class="nav-item">
+          <a class="nav-link menu__link" routerLink="/notifications" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <span class="icon-with-badge position-relative">
+              <mat-icon>notifications</mat-icon>
 
-      <!-- ✅ on lit l’observable dans le *ngIf -->
-      <ng-container *ngIf="(unreadTotal$ | async) as unread">
-        <span *ngIf="unread > 0" class="badge rounded-pill bg-danger position-absolute badge-on-icon">
-          {{ unread }}
-        </span>
-      </ng-container>
-    </span>
-    Notifications
-  </a>
-</li>
-
-        <!-- Compte (dropdown) -->
-            <li class="nav-item dropdown">
-      <a class="nav-link menu__link dropdown-toggle" href="#" id="accountDropdown"
-         role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        <mat-icon>person</mat-icon> Compte
-      </a>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-        <li>
-          <a class="dropdown-item" href="#" (click)="openProfileDialog(); $event.preventDefault()">
-            <mat-icon>edit</mat-icon> Modifier mes coordonnées
+              <ng-container *ngIf="(unreadTotal$ | async) as unread">
+                <span *ngIf="unread > 0" class="badge rounded-pill bg-danger position-absolute badge-on-icon">
+                  {{ unread }}
+                </span>
+              </ng-container>
+            </span>
+            {{ 'navbar.notifications' | translate }}
           </a>
         </li>
-        <li><hr class="dropdown-divider"></li>
-        <li>
-          <a class="dropdown-item" role="button" (click)="logout()">
-            <mat-icon>logout</mat-icon> Se déconnecter
+
+        <li class="nav-item dropdown">
+          <a class="nav-link menu__link dropdown-toggle" href="#" id="accountDropdown"
+             role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <mat-icon>person</mat-icon> {{ 'navbar.account' | translate }}
           </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+            <li>
+              <a class="dropdown-item" href="#" (click)="openProfileDialog(); $event.preventDefault()">
+                <mat-icon>edit</mat-icon> {{ 'navbar.editProfile' | translate }}
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" role="button" (click)="logout()">
+                <mat-icon>logout</mat-icon> {{ 'navbar.logout' | translate }}
+              </a>
+            </li>
+          </ul>
         </li>
-      </ul>
-    </li>
 
       </ul>
     </div>
@@ -78,20 +82,20 @@
 
 
 <dialog #profileDialog>
-  <h2>Modifier mes coordonnées</h2>
+  <h2>{{ 'navbar.profileTitle' | translate }}</h2>
 
-  <div *ngIf="isLoading">Chargement…</div>
-  <div *ngIf="errorMsg" class="text-danger">{{ errorMsg }}</div>
+  <div *ngIf="isLoading">{{ 'navbar.loading' | translate }}</div>
+  <div *ngIf="errorMsgKey" class="text-danger">{{ errorMsgKey | translate }}</div>
 
-  <ng-container *ngIf="!isLoading && !errorMsg">
+  <ng-container *ngIf="!isLoading && !errorMsgKey">
     <div class="row" *ngFor="let field of formFields">
-      <div class="col-5">{{ field.label }} :</div>
+      <div class="col-5">{{ field.labelKey | translate }} :</div>
       <div class="col-7">
         <input
           *ngIf="field.type!=='select'"
           [type]="field.type"
           class="input5"
-          [placeholder]="field.label"
+          [placeholder]="field.labelKey | translate"
           [(ngModel)]="form[field.key]"
           name="{{ field.key }}"
         />
@@ -101,18 +105,18 @@
           [(ngModel)]="form[field.key]"
           name="{{ field.key }}"
         >
-          <option value="" disabled selected>{{ field.label }}</option>
-          <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+          <option value="" disabled selected>{{ field.labelKey | translate }}</option>
+          <option *ngFor="let opt of field.options" [value]="opt.value">{{ opt.labelKey | translate }}</option>
         </select>
       </div>
     </div>
 
     <div class="row">
       <button class="boton-elegante" (click)="saveProfile()">
-        Enregistrer les changements
+        {{ 'navbar.save' | translate }}
       </button>
     </div>
   </ng-container>
 
-  <button class="x" aria-label="close" (click)="closeDialog()">❌</button>
+  <button class="x" aria-label="close" (click)="closeDialog()">×</button>
 </dialog>

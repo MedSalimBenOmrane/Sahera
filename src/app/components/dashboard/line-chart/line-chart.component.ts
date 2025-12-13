@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { DashboardService, EthnicityDistribution } from 'src/app/services/dashboard.service';
+import { TranslationService } from 'src/app/services/translation.service';
 
 @Component({
   selector: 'app-line-chart',
@@ -10,6 +11,10 @@ import { DashboardService, EthnicityDistribution } from 'src/app/services/dashbo
 export class LineChartComponent implements OnInit {
   public chart: any;
 
+  constructor(private dashboardService: DashboardService, private i18n: TranslationService) {
+    Chart.register(...registerables);
+  }
+
   private createChart(data: EthnicityDistribution): void {
     const ctx = document.getElementById('MyLineChart') as HTMLCanvasElement;
     this.chart = new Chart(ctx, {
@@ -18,7 +23,7 @@ export class LineChartComponent implements OnInit {
         labels: data.labels,
         datasets: [
           {
-            label: 'Femmes',
+            label: this.i18n.translate('dashboard.gender.female'),
             data: data.Femme,
             fill: true,
             backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -29,7 +34,7 @@ export class LineChartComponent implements OnInit {
             pointHoverBorderColor: 'rgb(255, 0, 55)'
           },
           {
-            label: 'Hommes',
+            label: this.i18n.translate('dashboard.gender.male'),
             data: data.Homme,
             fill: true,
             backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -45,7 +50,7 @@ export class LineChartComponent implements OnInit {
         plugins: {
           title: {
             display: true,
-            text: 'Distribution d’ethnicité par genre',
+            text: this.i18n.translate('dashboard.ethnicityTitle'),
             color: 'black',
             font: { size: 16 },
             padding: { top: 10, bottom: 30 }
@@ -84,13 +89,7 @@ export class LineChartComponent implements OnInit {
       }
     });
   }
-constructor(private dashboardService: DashboardService) {
-    // enregistre les controllers / plugins Chart.js
-    Chart.register(...registerables);
-  }
   ngOnInit(): void {
-    Chart.register(...registerables);
-     // on récupère les données du backend
     this.dashboardService.getEthnicityDistribution()
       .subscribe((data: EthnicityDistribution) => {
         this.createChart(data);

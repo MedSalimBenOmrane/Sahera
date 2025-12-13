@@ -3,7 +3,17 @@
     <!-- Logo -->
     <a class="navbar-brand flex-shrink-0" routerLink="/admin">
       <img src="assets/images/logo.png" alt="Brand Logo">
-    Admin</a>
+      Admin
+    </a>
+
+    <div class="lang-switch ms-3">
+      <button type="button"
+              [class.active]="isActiveLang('fr')"
+              (click)="changeLanguage('fr')">FR</button>
+      <button type="button"
+              [class.active]="isActiveLang('en')"
+              (click)="changeLanguage('en')">EN</button>
+    </div>
 
     <!-- Bouton mobile -->
     <button
@@ -22,7 +32,6 @@
     <div class="collapse navbar-collapse" id="navbarContent">
       <ul class="navbar-nav ms-auto align-items-center">
 
-        <!-- Mes réponses -->
         <li class="nav-item">
           <a
             class="nav-link menu__link"
@@ -31,11 +40,10 @@
             [routerLinkActiveOptions]="{ exact: true }"
           >
             <mat-icon>people_outline</mat-icon>
-            Participants
+            {{ 'admin.participants' | translate }}
           </a>
         </li>
 
-        <!-- Questionnaire -->
         <li class="nav-item">
           <a
             class="nav-link menu__link"
@@ -44,30 +52,24 @@
             [routerLinkActiveOptions]="{ exact: true }"
           >
             <mat-icon>help_outline</mat-icon>
-            Questionnaire
+            {{ 'admin.questionnaires' | translate }}
           </a>
         </li>
 
-        <!-- Notifications avec badge -->
         <li class="nav-item">
-  <a
-    class="nav-link menu__link"
-    routerLink="admin/messages"
-    routerLinkActive="active"
-    [routerLinkActiveOptions]="{ exact: true }"
-  >
-    <!-- Icône englobée dans un conteneur pour position relative -->
-    <span class="icon-with-badge position-relative">
-      <mat-icon>notifications</mat-icon>
-      <!-- Badge superposé sur l’icône -->
-      
-    </span>
-    <!-- Texte “Notifications” reste à droite de l’icône -->
-    Messages
-  </a>
-</li>
+          <a
+            class="nav-link menu__link"
+            routerLink="admin/messages"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
+            <span class="icon-with-badge position-relative">
+              <mat-icon>notifications</mat-icon>
+            </span>
+            {{ 'admin.messages' | translate }}
+          </a>
+        </li>
 
-        <!-- Compte (dropdown) -->
         <li class="nav-item dropdown">
           <a
             class="nav-link menu__link dropdown-toggle"
@@ -78,7 +80,7 @@
             aria-expanded="false"
           >
             <mat-icon>person</mat-icon>
-            Compte
+            {{ 'navbar.account' | translate }}
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
             <li>
@@ -89,14 +91,14 @@
                 [routerLinkActiveOptions]="{ exact: true }"
               >
                 <mat-icon>edit</mat-icon>
-                Modifier mes coordonnées
+                {{ 'navbar.editProfile' | translate }}
               </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
               <a class="dropdown-item" role="button" (click)="logout()">
                 <mat-icon>logout</mat-icon>
-                Se déconnecter
+                {{ 'navbar.logout' | translate }}
               </a>
             </li>
           </ul>

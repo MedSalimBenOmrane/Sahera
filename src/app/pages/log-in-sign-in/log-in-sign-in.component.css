@@ -11,6 +11,7 @@ body {
     background: linear-gradient(-45deg, #F3ECEA, #f9d7d7, #ffbab5);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
+    position: relative; /* anchor absolute children */
 }
 
 .login .navbar-brand {
@@ -30,8 +31,48 @@ html {
 }
 
 body {
-  height: 100%;
-  min-height: 100dvh; /* plus fiable que 100vh sur iOS */
+    height: 100%;
+    min-height: 100dvh; /* plus fiable que 100vh sur iOS */
+}
+
+.auth-lang-switch {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  left: auto;
+  bottom: auto;
+  display: inline-flex;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+  z-index: 999;
+  pointer-events: auto;
+}
+
+.auth-lang-switch button {
+  width: auto;
+  min-width: 46px;
+  height: 34px;
+  margin: 0;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #4a1c2a;
+  background: transparent;
+  color: #4a1c2a;
+  font-weight: 700;
+}
+
+.auth-lang-switch button.active {
+  background: #4a1c2a;
+  color: #fff;
+}
+
+.auth-lang-switch button:focus-visible {
+  outline: 2px solid #8a4a5d;
+  outline-offset: 2px;
 }
 /* L’'?Timage elle-mÇÎ¶Ýme garde sa largeur adaptative, sans avoir besoin de justify-content */
 .login .navbar-brand img {

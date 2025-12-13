@@ -3,11 +3,12 @@ import { finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Client } from 'src/app/models/client.model';
 import { ClientsService } from 'src/app/services/clients.service';
+import { TranslationService } from 'src/app/services/translation.service';
 interface FormField {
   key: keyof ClientForm;
-  label: string;
+  labelKey: string;
   type: 'text'|'email'|'password'|'date'|'select';
-  options?: string[];
+  options?: Array<{ value: string; labelKey: string }>;
 }
 type ClientForm = Omit<Client,'date_naissance'> & { date_naissance?: string; };
 @Component({
@@ -26,35 +27,41 @@ export class EditCoordonneesUserComponent implements OnInit {
   private userId!: number;
 
   formFields: FormField[] = [
-    { key: 'nom',            label: 'Nom',           type: 'text' },
-    { key: 'prenom',         label: 'Prénom',        type: 'text' },
-    { key: 'email',          label: 'Email',         type: 'email' },
-    { key: 'mot_de_passe',   label: 'Mot de passe',  type: 'password' },
-    { key: 'telephone',      label: 'Téléphone',     type: 'text' },
-    { key: 'date_naissance', label: 'Date de naissance', type: 'date' },
-    { key: 'genre',          label: 'Genre',         type: 'select', options: ['Homme','Femme'] },
-    { key: 'ethnicite',      label: 'Ethnicité',     type: 'select', options: [
-      'Amérindien ou Autochtone d’Alaska','Asiatique','Noir ou Afro-Américain',
-      'Hispanique ou Latino','Moyen-Oriental ou Nord-Africain',
-      'Océanien (Hawaïen ou des îles du Pacifique)','Blanc ou Européen Américain'
-    ]},
-    { key: 'role',           label: 'Rôle',          type: 'text' }
+    { key: 'nom',            labelKey: 'auth.signup.name',        type: 'text' },
+    { key: 'prenom',         labelKey: 'auth.signup.firstName',   type: 'text' },
+    { key: 'email',          labelKey: 'auth.signup.email',       type: 'email' },
+    { key: 'mot_de_passe',   labelKey: 'auth.signup.password',    type: 'password' },
+    { key: 'telephone',      labelKey: 'auth.signup.phone',       type: 'text' },
+    { key: 'date_naissance', labelKey: 'auth.signup.birthDate',   type: 'date' },
+    { key: 'genre',          labelKey: 'auth.signup.genderLabel', type: 'select' },
+    { key: 'ethnicite',      labelKey: 'auth.signup.ethnicity',   type: 'select' },
+    { key: 'role',           labelKey: 'admin.table.role',        type: 'text' }
   ];
 
   constructor(
     private svc: ClientsService,
-    private router: Router
-  ) {}
+    private router: Router,
+    public i18n: TranslationService
+  ) {
+    this.formFields = this.formFields.map(field => {
+      if (field.key === 'genre') {
+        return { ...field, options: this.i18n.getOptions('gender') };
+      }
+      if (field.key === 'ethnicite') {
+        return { ...field, options: this.i18n.getOptions('ethnicity') };
+      }
+      return field;
+    });
+  }
 
   ngOnInit(): void {
     const id = localStorage.getItem('userId');
     if (!id) {
-      this.errorMsg = 'Utilisateur non authentifié.';
+      this.errorMsg = 'navbar.error.loadProfile';
       return;
     }
     this.userId = +id;
     this.loadUser();
-    // on ouvre immédiatement le dialog
     (this.dialogRef.nativeElement as any).showModal();
   }
 
@@ -66,7 +73,7 @@ export class EditCoordonneesUserComponent implements OnInit {
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: user => this.fillForm(user),
-      error: () => this.errorMsg = 'Impossible de charger vos données.'
+      error: () => this.errorMsg = 'navbar.error.loadProfile'
     });
   }
 
@@ -103,13 +110,12 @@ export class EditCoordonneesUserComponent implements OnInit {
 
     this.svc.updateClient(payload).subscribe({
       next: () => this.closeDialog(),
-      error: () => this.errorMsg = 'Erreur lors de la mise à jour.'
+      error: () => this.errorMsg = 'navbar.error.updateProfile'
     });
   }
 
   closeDialog() {
     (this.dialogRef.nativeElement as any).close();
-    // on retourne à l'accueil
     this.router.navigate(['/']);
   }
 }

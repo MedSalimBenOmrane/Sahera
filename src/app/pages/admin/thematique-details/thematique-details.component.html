@@ -1,6 +1,6 @@
 <main class="table" id="customers_table">
   <section class="table__header">
-    <h1> Détails de la thématique « {{ thematiqueTitre }} »</h1>
+    <h1> {{ 'admin.details.title' | translate:{ title: thematiqueTitre } }}</h1>
   </section>
 
   <div *ngIf="isLoading" class="spinner-container">
@@ -11,10 +11,10 @@
     <table *ngIf="!isLoading">
       <thead>
         <tr>
-          <th>Sous-thématique</th>
-          <th>Question</th>
+          <th>{{ 'admin.details.subtheme' | translate }}</th>
+          <th>{{ 'admin.details.question' | translate }}</th>
           <th (click)="sortTable('count')" [class.active]="sortColumn==='count'" [class.asc]="sortAsc">
-            Nombre de réponses
+            {{ 'admin.details.answersCount' | translate }}
             <span class="icon-arrow">&uarr;</span>
           </th>
         </tr>
@@ -22,15 +22,12 @@
 
       <tbody>
         <ng-container *ngFor="let st of sousThematiques">
-          <!-- pas de questions -->
           <tr *ngIf="!questionsMap[st.id]?.length">
             <td>{{ st.titre }}</td>
-            <td colspan="2">Aucune question</td>
+            <td colspan="2">{{ 'admin.details.noQuestion' | translate }}</td>
           </tr>
 
-          <!-- avec questions -->
           <ng-container *ngIf="questionsMap[st.id]?.length">
-            <!-- première ligne, cellule fusionnée -->
             <tr>
               <td [attr.rowspan]="questionsMap[st.id].length">
                 {{ st.titre }}
@@ -44,17 +41,16 @@
                 </span>
 
                 <button class="btn btn-sm btn-outline-primary" (click)="goToQuestionDetails(questionsMap[st.id][0])">
-                  Voir Réponse
+                  {{ 'admin.details.view' | translate }}
                 </button>
 
                 <button class="btn btn-sm btn-outline-primary" (click)="openAnalysis(questionsMap[st.id][0])"
                   [disabled]="!(questionsMap[st.id][0].options?.length)">
-                  Analyser
+                  {{ 'admin.details.analyze' | translate }}
                 </button>
               </td>
             </tr>
 
-            <!-- lignes suivantes de la même sous-thématique -->
             <tr *ngFor="let q of questionsMap[st.id]; let i = index" [hidden]="i === 0">
               <td>{{ q.question }}</td>
               <td class="inline-actions">
@@ -63,12 +59,12 @@
                 </span>
 
                 <button class="btn btn-sm btn-outline-primary" (click)="goToQuestionDetails(q)">
-                  Voir Réponse
+                  {{ 'admin.details.view' | translate }}
                 </button>
 
                 <button class="btn btn-sm btn-outline-primary" (click)="openAnalysis(q)"
                   [disabled]="!(q.options?.length)">
-                  Analyser
+                  {{ 'admin.details.analyze' | translate }}
                 </button>
               </td>
             </tr>
@@ -78,41 +74,32 @@
     </table>
   </section>
 
-  <!-- ========= MODAL D’ANALYSE ========= -->
-  <!-- ========= MODAL D’ANALYSE ========= -->
   <dialog #analysisDialog class="analysis-dialog">
-    <!-- Bouton X -->
-    <button class="analysis-close" aria-label="Fermer" (click)="closeAnalysis()">❌</button>
+    <button class="analysis-close" aria-label="Fermer" (click)="closeAnalysis()">×</button>
 
-    <!-- Titre -->
-    <h2 class="analysis-title">Analyse des réponses</h2>
+    <h2 class="analysis-title">{{ 'admin.analysis.title' | translate }}</h2>
 
-    <!-- Sous-titre (question) -->
     <div class="analysis-subtitle">
-      <strong>Question :</strong> {{ analysis.questionLabel || '—' }}
+      <strong>{{ 'admin.analysis.question' | translate }}</strong> {{ analysis.questionLabel || '' }}
     </div>
 
-    <!-- Loader -->
     <div *ngIf="analysis.loading" class="analysis-loading">
-      <div class="spinner-border" role="status"><span class="visually-hidden">Chargement…</span></div>
+      <div class="spinner-border" role="status"><span class="visually-hidden">{{ 'generic.loading' | translate }}</span></div>
     </div>
 
-    <!-- Contenu -->
     <ng-container *ngIf="!analysis.loading">
-      <!-- Graphe -->
       <div class="analysis-chart">
         <app-barchart-analyse [labels]="analysis.options" [values]="analysis.counts"
-          [title]="'Nombre de réponses par option'">
+          [title]="'admin.analysis.chartTitle' | translate">
         </app-barchart-analyse>
       </div>
 
-      <!-- Tableau de synthèse -->
       <div class="table-responsive mt-3">
         <table class="table table-sm analysis-table">
           <thead>
             <tr>
-              <th>Option</th>
-              <th class="text-end">Réponses</th>
+              <th>{{ 'admin.analysis.option' | translate }}</th>
+              <th class="text-end">{{ 'admin.analysis.answers' | translate }}</th>
             </tr>
           </thead>
           <tbody>

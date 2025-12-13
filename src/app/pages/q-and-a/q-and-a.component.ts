@@ -6,6 +6,7 @@ import { SousThematique } from 'src/app/models/sous-thematique.model';
 import { QuestionService } from 'src/app/services/question.service';
 import { ReponseService } from 'src/app/services/reponse.service';
 import { SousThematiqueService } from 'src/app/services/sous-thematique.service';
+import { TranslationService } from 'src/app/services/translation.service';
 
 type ToastType = 'success' | 'error';
 
@@ -18,19 +19,15 @@ export class QAndAComponent implements OnInit {
   thematiqueId!: number;
   thematiqueTitre!: string;
 
-  // 1) Sous-thématiques
   sousThematiques: SousThematique[] = [];
   isLoadingST = false;
 
-  // 2) Questions par ST
   questionsMap: { [stId: number]: Question[] } = {};
   loadingQuestionsMap: { [stId: number]: boolean } = {};
 
-  // 3) Réponses & IDs existantes
   reponses: { [stId: number]: { [questionId: number]: string } } = {};
   repIdMap: { [stId: number]: { [qId: number]: number } } = {};
 
-  // Toast
   toast = { show: false, message: '', type: 'success' as ToastType, timer: 0 };
 
   private userId!: number;
@@ -39,7 +36,8 @@ export class QAndAComponent implements OnInit {
     private route: ActivatedRoute,
     private sousThematiqueService: SousThematiqueService,
     private questionService: QuestionService,
-    private reponseService: ReponseService
+    private reponseService: ReponseService,
+    public i18n: TranslationService
   ) {}
 
   ngOnInit(): void {
@@ -53,13 +51,11 @@ export class QAndAComponent implements OnInit {
     });
   }
 
-  // ========== Helpers UI ==========
-  private showToast(message: string, type: ToastType = 'error', durationMs = 3000): void {
-    this.toast.message = message;
+  private showToast(key: string, type: ToastType = 'error', durationMs = 3000, params?: Record<string,string>): void {
+    this.toast.message = this.i18n.translate(key, params);
     this.toast.type = type;
     this.toast.show = true;
 
-    // reset timer
     if (this.toast.timer) {
       window.clearTimeout(this.toast.timer);
     }
@@ -70,20 +66,17 @@ export class QAndAComponent implements OnInit {
     return this.questionsMap[st.id] || [];
   }
 
-  /** Retourne les options de la question si type 'liste' */
   getOptions(q: Question): string[] {
     if (q.type !== 'liste') return [];
     return Array.isArray(q.options) ? q.options : [];
   }
 
-  // ========== Chargements ==========
   private loadSousThematiques(): void {
     this.isLoadingST = true;
     this.sousThematiqueService.getByThematique(this.thematiqueId).subscribe({
       next: listST => {
         this.sousThematiques = listST;
         this.isLoadingST = false;
-        // charger les questions pour chaque ST
         for (const st of listST) {
           this.loadQuestionsForSousThematique(st.id);
         }
@@ -102,21 +95,17 @@ export class QAndAComponent implements OnInit {
     this.questionService.getBySousThematique(stId).subscribe({
       next: listQ => {
         this.questionsMap[stId] = listQ;
-        // init réponses + ids
         this.reponses[stId] = {};
         this.repIdMap[stId]  = {};
         listQ.forEach(q => (this.reponses[stId][q.id] = ''));
 
-        // charger réponses existantes
         this.reponseService.getByClientSousThematique(this.userId, stId).subscribe({
           next: existing => {
-            // map pour accès rapide question par id
             const byId = new Map<number, Question>(this.questionsMap[stId].map(q => [q.id, q]));
             existing.forEach(r => {
               const q = byId.get(r.question_id);
               if (!q) return;
 
-              // injecter la valeur dans les options seulement pour les questions de type liste
               if (q.type === 'liste') {
                 const opts = this.getOptions(q);
                 if (r.contenu && !opts.includes(r.contenu)) {
@@ -143,16 +132,14 @@ export class QAndAComponent implements OnInit {
     });
   }
 
-  // ========== Sauvegarde ==========
   saveReponses(st: SousThematique): void {
     const stId = st.id;
     const questions = this.getQuestions(st);
     if (!questions.length) {
-      this.showToast('Aucune question à enregistrer.', 'error');
+      this.showToast('qna.toast.none', 'error');
       return;
     }
 
-    // Validation: toutes les questions doivent être renseignées
     const manquantes: number[] = [];
     for (const q of questions) {
       const val = (this.reponses[stId][q.id] || '').trim();
@@ -161,11 +148,10 @@ export class QAndAComponent implements OnInit {
       }
     }
     if (manquantes.length) {
-      this.showToast('Veuillez renseigner chaque question.', 'error');
+      this.showToast('qna.toast.missing', 'error');
       return;
     }
 
-    // Envoi
     let total = 0;
     let done = 0;
     let failed = false;
@@ -187,7 +173,7 @@ export class QAndAComponent implements OnInit {
       obs$.subscribe({
         next: saved => {
           if (!existingId) {
-            this.repIdMap[stId][q.id] = saved.id; // id créé
+            this.repIdMap[stId][q.id] = saved.id;
           }
         },
         error: err => {
@@ -198,9 +184,9 @@ export class QAndAComponent implements OnInit {
           done++;
           if (done === total) {
             if (failed) {
-              this.showToast('Certaines réponses n’ont pas pu être enregistrées.', 'error', 4000);
+              this.showToast('qna.toast.partial', 'error', 4000);
             } else {
-              this.showToast(`Vos réponses pour « ${st.titre} » ont été enregistrées.`, 'success');
+              this.showToast('qna.toast.saved', 'success', 3000, { title: st.titre });
             }
           }
         }

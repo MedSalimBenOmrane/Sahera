@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { DashboardService, ThematiqueProgress } from 'src/app/services/dashboard.service';
+import { TranslationService } from 'src/app/services/translation.service';
 
 @Component({
   selector: 'app-bar-chart',
@@ -9,9 +10,9 @@ import { DashboardService, ThematiqueProgress } from 'src/app/services/dashboard
 })
 export class BarChartComponent implements OnInit {
   public chart: Chart | undefined;
-  chartWidth = 0;                 // ➜ largeur défilable
+  chartWidth = 0;
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(private dashboardService: DashboardService, private i18n: TranslationService) {}
 
   ngOnInit(): void {
     Chart.register(...registerables);
@@ -22,11 +23,9 @@ export class BarChartComponent implements OnInit {
         const incompletes = data.map(t => t.incomplete_count);
         const completes   = data.map(t => t.completed_count);
 
-        // largeur “élastique” : ~100 px par thématique (min 600)
         const MIN_COL_W = 120;
         this.chartWidth = Math.max(800, labels.length * MIN_COL_W);
 
-        // détruire l'ancien graphe si présent
         this.chart?.destroy();
 
         this.chart = new Chart('MyChart', {
@@ -34,25 +33,24 @@ export class BarChartComponent implements OnInit {
           data: {
             labels,
             datasets: [
-              { label: 'Non complété', data: incompletes, backgroundColor: 'rgba(255, 0, 0, 0.6)' },
-              { label: 'Complété',     data: completes,   backgroundColor: 'rgba(0, 128, 0, 0.6)' }
+              { label: this.i18n.translate('dashboard.incomplete'), data: incompletes, backgroundColor: 'rgba(255, 0, 0, 0.6)' },
+              { label: this.i18n.translate('dashboard.complete'),   data: completes,   backgroundColor: 'rgba(0, 128, 0, 0.6)' }
             ]
           },
           options: {
             responsive: true,
-            maintainAspectRatio: false,    // ➜ respecte la hauteur du wrapper
+            maintainAspectRatio: false,
             plugins: {
-             
               legend: { labels: { color: 'black' } }
             },
             scales: {
               y: {
                 beginAtZero: true,
-                title: { display: true, text: 'Nombre d’utilisateurs' }
+                title: { display: true, text: this.i18n.translate('dashboard.usersCount') }
               },
               x: {
-                title: { display: true, text: 'Thématique' },
-                ticks: { autoSkip: false, maxRotation: 0 } // pas de skip des labels
+                title: { display: true, text: this.i18n.translate('dashboard.themeAxis') },
+                ticks: { autoSkip: false, maxRotation: 0 }
               }
             }
           }

@@ -1,28 +1,27 @@
 <main class="table" id="customers_table">
  <section class="table__header">
-  <h1>Liste des participants</h1>
+  <h1>{{ 'admin.participants.title' | translate }}</h1>
 
-  <!-- Filtres -->
   <div class="filters">
     <input
       type="number"
       min="1"
       class="input-filter"
-      placeholder="ID exact"
+      [placeholder]="'admin.filters.id' | translate"
       [(ngModel)]="searchId"
       (input)="onSearchChanged()"
     />
     <input
       type="text"
       class="input-filter"
-      placeholder="Nom (commence par...)"
+      [placeholder]="'admin.filters.name' | translate"
       [(ngModel)]="searchNom"
       (input)="onSearchChanged()"
     />
     <input
       type="text"
       class="input-filter"
-      placeholder="Prénom (commence par...)"
+      [placeholder]="'admin.filters.firstname' | translate"
       [(ngModel)]="searchPrenom"
       (input)="onSearchChanged()"
     />
@@ -34,7 +33,7 @@
         <path d="M0 0h24v24H0z" fill="none"></path>
         <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z" fill="currentColor"></path>
       </svg>
-      <span>Créer</span>
+      <span>{{ 'admin.create' | translate }}</span>
     </button>
   </div>
 </section>
@@ -44,17 +43,16 @@
     <table>
       <thead>
         <tr>
-          <!-- Vos colonnes existantes… -->
-          <th (click)="sortTable('id', true)">ID <span class="icon-arrow">&UpArrow;</span></th>
-          <th (click)="sortTable('nom', true)">Nom <span class="icon-arrow">&UpArrow;</span></th>
-          <th (click)="sortTable('prenom', true)">Prénom <span class="icon-arrow">&UpArrow;</span></th>
-          <th (click)="sortTable('email', true)">Email <span class="icon-arrow">&UpArrow;</span></th>
-          <th (click)="sortTable('telephone', true)">Téléphone <span class="icon-arrow">&UpArrow;</span></th>
-          <th (click)="sortTable('date_naissance', true)">Date de naissance <span class="icon-arrow">&UpArrow;</span></th>
-          <th (click)="sortTable('genre', true)">Genre <span class="icon-arrow">&UpArrow;</span></th>
-          <th (click)="sortTable('ethnicite', true)">Ethnicité <span class="icon-arrow">&UpArrow;</span></th>
-          <th (click)="sortTable('role', true)">Rôle <span class="icon-arrow">&UpArrow;</span></th>
-          <th>Actions</th>
+          <th (click)="sortTable('id', true)">{{ 'admin.table.id' | translate }} <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('nom', true)">{{ 'admin.table.name' | translate }} <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('prenom', true)">{{ 'admin.table.firstname' | translate }} <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('email', true)">{{ 'admin.table.email' | translate }} <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('telephone', true)">{{ 'admin.table.phone' | translate }} <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('date_naissance', true)">{{ 'admin.table.birthdate' | translate }} <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('genre', true)">{{ 'admin.table.gender' | translate }} <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('ethnicite', true)">{{ 'admin.table.ethnicity' | translate }} <span class="icon-arrow">&UpArrow;</span></th>
+          <th (click)="sortTable('role', true)">{{ 'admin.table.role' | translate }} <span class="icon-arrow">&UpArrow;</span></th>
+          <th>{{ 'admin.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -63,7 +61,7 @@
       <td colspan="10" class="p-0">
         <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
           <div class="spinner-border" role="status">
-            <span class="visually-hidden">Chargement…</span>
+            <span class="visually-hidden">{{ 'generic.loading' | translate }}</span>
           </div>
         </div>
       </td>
@@ -74,9 +72,9 @@
     <tr *ngIf="displayedClients.length === 0">
       <td colspan="10" class="p-0">
         <div class="d-flex flex-column justify-content-center align-items-center" style="height: 200px;">
-          <img src="assets/images/empty-folder.png" alt="Aucun participant" style="max-width: 150px;" class="mb-2" />
+          <img src="assets/images/empty-folder.png" [attr.alt]="(hasAnyFilter ? 'admin.emptyFiltered' : 'admin.empty') | translate" style="max-width: 150px;" class="mb-2" />
           <p class="mb-0">
-            {{ hasAnyFilter ? 'Aucun participant trouvé pour ces critères.' : 'Aucun participant pour le moment.' }}
+            {{ hasAnyFilter ? ('admin.emptyFiltered' | translate) : ('admin.empty' | translate) }}
           </p>
         </div>
       </td>
@@ -89,12 +87,12 @@
       <td>{{c.email}}</td>
       <td>{{c.telephone}}</td>
       <td>{{c.date_naissance | date:'dd/MM/yyyy'}}</td>
-      <td>{{c.genre}}</td>
-      <td>{{c.ethnicite}}</td>
+      <td>{{ i18n.translateOptionLabel('gender', c.genre) }}</td>
+      <td>{{ i18n.translateOptionLabel('ethnicity', c.ethnicite) }}</td>
       <td>{{c.role}}</td>
       <td class="actions-cell">
-        <button class="btn-modifier" (click)="openEditDialog(c)">Modifier</button>
-        <button class="btn-supprimer" (click)="confirmDelete(c)">Supprimer</button>
+        <button class="btn-modifier" (click)="openEditDialog(c)">{{ 'admin.edit' | translate }}</button>
+        <button class="btn-supprimer" (click)="confirmDelete(c)">{{ 'admin.delete' | translate }}</button>
       </td>
     </tr>
   </ng-template>
@@ -102,16 +100,15 @@
     </table>
   </section>
   </div>
-  <!-- ✅ Pagination en bas du container -->
   <nav *ngIf="!hasAnyFilter && totalPages > 1"
        class="pagination-wrap d-flex justify-content-center mt-4"
        aria-label="Pagination des participants">
     <ul class="pagination">
       <li class="page-item" [class.disabled]="currentPage === 1">
-        <button class="page-link bg-transparent" (click)="firstPage()" [disabled]="currentPage === 1">«</button>
+        <button class="page-link bg-transparent" (click)="firstPage()" [disabled]="currentPage === 1">⏮</button>
       </li>
       <li class="page-item" [class.disabled]="currentPage === 1">
-        <button class="page-link bg-transparent" (click)="prevPage()" [disabled]="currentPage === 1">Précédent</button>
+        <button class="page-link bg-transparent" (click)="prevPage()" [disabled]="currentPage === 1">{{ 'pagination.prev' | translate }}</button>
       </li>
 
       <li class="page-item" *ngFor="let p of pageNumbers" [class.active]="p === currentPage">
@@ -119,31 +116,27 @@
       </li>
 
       <li class="page-item" [class.disabled]="currentPage === totalPages">
-        <button class="page-link bg-transparent" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+        <button class="page-link bg-transparent" (click)="nextPage()" [disabled]="currentPage === totalPages">{{ 'pagination.next' | translate }}</button>
       </li>
       <li class="page-item" [class.disabled]="currentPage === totalPages">
-        <button class="page-link bg-transparent" (click)="lastPage()" [disabled]="currentPage === totalPages">»</button>
+        <button class="page-link bg-transparent" (click)="lastPage()" [disabled]="currentPage === totalPages">⏭</button>
       </li>
     </ul>
   </nav>
 
-  <!-- dialog … -->
 </main>
-  <!-- Le même dialog pour Create / Edit -->
   <dialog #dialog>
-    <!-- Titre dynamique -->
-    <h2>{{ isEditMode ? 'modifier participant' : 'Crée nouveau participant' }}</h2>
+    <h2>{{ isEditMode ? ('admin.dialog.editTitle' | translate) : ('admin.dialog.createTitle' | translate) }}</h2>
 
-    <!-- Formulaire “template-driven” -->
     <div class="row" *ngFor="let field of formFields">
-      <div class="col-5">{{ field.label }} :</div>
+      <div class="col-5">{{ field.labelKey | translate }} :</div>
       <div class="col-7">
        
         <input
           *ngIf="field.type!=='select'"
           [type]="field.type"
           class="input5"
-          [placeholder]="field.label"
+          [placeholder]="field.labelKey | translate"
           [(ngModel)]="form[field.key]"
           name="{{field.key}}"
         />
@@ -153,17 +146,16 @@
           [(ngModel)]="form[field.key]"
           name="{{field.key}}"
         >
-          <option value="" disabled selected>{{field.label}}</option>
-          <option *ngFor="let opt of field.options" [value]="opt">{{opt}}</option>
+          <option value="" disabled selected>{{field.labelKey | translate}}</option>
+          <option *ngFor="let opt of field.options" [value]="opt.value">{{opt.labelKey | translate}}</option>
         </select>
       </div>
     </div>
 
     <div class="row">
       <button class="boton-elegante" (click)="saveClient()">
-        {{ isEditMode ? 'enregistrer les Changements' : 'Créer Participant' }}
+        {{ isEditMode ? ('admin.saveChanges' | translate) : ('admin.createParticipant' | translate) }}
       </button>
     </div>
-    <button class="x" aria-label="close" (click)="closeDialog()">❌</button>
+    <button class="x" aria-label="close" (click)="closeDialog()">×</button>
   </dialog>
-
