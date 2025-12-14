@@ -190,8 +190,10 @@ dialog::backdrop {
 /* responsive */
 @media (max-width: 575.98px) {
   dialog { padding: 1rem; }
-  .row { flex-direction: column; align-items: flex-start; }
-  .col-5, .col-7 { max-width: 100%; flex: 1; }
+  .row { flex-direction: column; align-items: stretch; gap: 0.35rem; }
+  .col-5, .col-7 { max-width: 100%; flex: 1; width: 100%; }
+  .input5, textarea, select { width: 100%; font-size: 16px; } /* évite zoom mobile */
+  dialog input, dialog textarea, dialog button { font-size: 16px; } /* évite zoom mobile */
 }
 .glass-container {
   background: rgba(0, 0, 0, 0.1);

@@ -24,7 +24,9 @@
                 <app-admin-qcard
                   [id]="t.id"
                   [title]="t.titre"
+                  [titleEn]="t.titreEn || ''"
                   [description]="t.description"
+                  [descriptionEn]="t.descriptionEn || ''"
                   [publicationDate]="t.dateOuvertureSession"
                   [isSessionOpen]="isSessionOpen(t)"
                   [sessionCloseDate]="t.dateFermetureSession"
@@ -84,18 +86,44 @@
 <dialog #dialog>
   <h1>{{ 'admin.thematiques.createTitle' | translate }}</h1>
 
+  <div *ngIf="isCreating || isCsvLoading" class="d-flex align-items-center gap-2 mb-3">
+    <div class="spinner-border spinner-border-sm" role="status">
+      <span class="visually-hidden">{{ 'generic.loading' | translate }}</span>
+    </div>
+    <span>{{ 'admin.thematiques.wait' | translate }}</span>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger py-2">
+    {{ errorMessage }}
+  </div>
+
   <div class="row">
-    <div class="col-5">{{ 'admin.thematiques.titre' | translate }}</div>
+    <div class="col-5">{{ 'admin.thematiques.titreFr' | translate }}</div>
     <div class="col-7">
-      <input type="text" class="input5" [(ngModel)]="newThematique.titre" [placeholder]="'admin.thematiques.titre' | translate" />
+      <input type="text" class="input5" [(ngModel)]="newThematique.titre" [placeholder]="'admin.thematiques.titreFr' | translate" />
     </div>
   </div>
 
   <div class="row">
-    <div class="col-5">{{ 'admin.thematiques.description' | translate }}</div>
+    <div class="col-5">{{ 'admin.thematiques.titreEn' | translate }}</div>
     <div class="col-7">
-      <textarea class="input5 textarea-message" [(ngModel)]="newThematique.description" [placeholder]="'admin.thematiques.description' | translate"
-        rows="4"></textarea>
+      <input type="text" class="input5" [(ngModel)]="newThematique.titreEn" [placeholder]="'admin.thematiques.titreEn' | translate" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-5">{{ 'admin.thematiques.descriptionFr' | translate }}</div>
+    <div class="col-7">
+      <textarea class="input5 textarea-message" [(ngModel)]="newThematique.description" [placeholder]="'admin.thematiques.descriptionFr' | translate"
+        rows="3"></textarea>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-5">{{ 'admin.thematiques.descriptionEn' | translate }}</div>
+    <div class="col-7">
+      <textarea class="input5 textarea-message" [(ngModel)]="newThematique.descriptionEn" [placeholder]="'admin.thematiques.descriptionEn' | translate"
+        rows="3"></textarea>
     </div>
   </div>
   <div class="row">

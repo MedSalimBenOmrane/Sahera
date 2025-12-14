@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Thematique } from 'src/app/models/thematique.model';
 import { ThematiqueService } from 'src/app/services/thematique.service';
+import { TranslationService } from 'src/app/services/translation.service';
 
 type Meta = {
   total: number;
@@ -27,10 +28,11 @@ interface QuestionnaireCard {
   templateUrl: './questionnaire.component.html',
   styleUrls: ['./questionnaire.component.css']
 })
-export class QuestionnaireComponent implements OnInit {
+export class QuestionnaireComponent implements OnInit, OnDestroy {
   isLoading = false;
 
   thematiques: Thematique[] = [];
+  private langSub?: Subscription;
 
   // --- pagination ---
   meta?: Meta;
@@ -44,11 +46,17 @@ export class QuestionnaireComponent implements OnInit {
 
   constructor(
     private thematiqueService: ThematiqueService,
-    private router: Router
+    private router: Router,
+    private i18n: TranslationService
   ) {}
 
   ngOnInit(): void {
     this.loadPage(1);
+    this.langSub = this.i18n.language$.subscribe(() => this.loadPage(this.currentPage));
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   private loadPage(page: number): void {

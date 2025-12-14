@@ -706,4 +706,123 @@ main.table {
   border-radius: 5px;
   background: #ffffff80;
   outline: none;
+  font-size: 16px; /* éviter le zoom iOS/Android */
+}
+
+/* empêcher le zoom mobile sur les champs/boutons et homogénéiser l’affichage */
+input, select, button, textarea {
+  font-size: 16px;
+}
+
+/* Champs du dialog en pleine largeur + anti-zoom mobile */
+dialog input,
+dialog select,
+dialog textarea,
+dialog button {
+  width: 100%;
+  font-size: 16px;
+}
+
+dialog .row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+dialog .col-5,
+dialog .col-7 {
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+dialog .col-5 {
+  font-weight: 600;
+}
+
+/* casser les longues chaînes (emails, noms) pour qu’elles restent dans l’écran */
+table td {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* --------- Mobile friendly layout --------- */
+@media (max-width: 768px) {
+  main.table {
+    width: 100%;
+    margin: 0 auto;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .table__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .filters {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .input-filter {
+    flex: 1 1 45%;
+    min-width: 140px;
+  }
+  .cssbuttons-io-button {
+    margin: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .table__body {
+    width: 100%;
+    margin: 0;
+    border-radius: 10px;
+  }
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  thead {
+    display: none;
+  }
+  tbody tr {
+    margin-bottom: 1rem;
+    padding: 0.75rem 0.85rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  tbody tr td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    font-size: 0.95rem;
+  }
+  tbody tr td:last-child {
+    border-bottom: none;
+  }
+  tbody tr td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #2b2b2b;
+    margin-right: 0.75rem;
+    flex: 0 0 45%;
+  }
+  .actions-cell {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .actions-cell button {
+    flex: 1 1 45%;
+    min-width: 120px;
+  }
+  .pagination-wrap {
+    width: 100%;
+    margin-top: 1rem;
+  }
 }

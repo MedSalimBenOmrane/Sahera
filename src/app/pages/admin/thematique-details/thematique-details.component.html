@@ -8,7 +8,7 @@
   </div>
 
   <section class="table__body">
-    <table *ngIf="!isLoading">
+    <table class="desktop-table" *ngIf="!isLoading">
       <thead>
         <tr>
           <th>{{ 'admin.details.subtheme' | translate }}</th>
@@ -72,6 +72,32 @@
         </ng-container>
       </tbody>
     </table>
+
+    <!-- Mobile-friendly cards -->
+    <div class="mobile-list" *ngIf="!isLoading">
+      <div class="mobile-card" *ngFor="let st of sousThematiques">
+        <div class="mobile-card__header">
+          <h3>{{ st.titre }}</h3>
+        </div>
+        <div *ngIf="!(questionsMap[st.id]?.length)" class="mobile-empty">
+          {{ 'admin.details.noQuestion' | translate }}
+        </div>
+        <div *ngFor="let q of questionsMap[st.id] || []" class="mobile-question">
+          <div class="mobile-question__badge">
+            <span class="answers-count">{{ responseCountMap[q.id] || 0 }}</span>
+          </div>
+          <div class="mobile-question__text">{{ q.question }}</div>
+          <div class="mobile-question__actions">
+            <button class="btn btn-sm btn-outline-primary" (click)="goToQuestionDetails(q)">
+              {{ 'admin.details.view' | translate }}
+            </button>
+            <button class="btn btn-sm btn-outline-primary" (click)="openAnalysis(q)" [disabled]="!(q.options?.length)">
+              {{ 'admin.details.analyze' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <dialog #analysisDialog class="analysis-dialog">

@@ -20,7 +20,9 @@ import { TranslationService } from 'src/app/services/translation.service';
 export class AdminQCardComponent implements OnInit {
   @Input() id = 0;
   @Input() title = '';
+  @Input() titleEn = '';
   @Input() description = '';
+  @Input() descriptionEn = '';
   editDateOuverture = '';
   @Input() publicationDate: Date | null = null;
   @Input() isSessionOpen = false;
@@ -32,7 +34,9 @@ export class AdminQCardComponent implements OnInit {
   editDialog!: ElementRef<HTMLDialogElement>;
 
   editTitre = '';
+  editTitreEn = '';
   editDescription = '';
+  editDescriptionEn = '';
   editDateFermeture = '';
 
   constructor(
@@ -83,7 +87,9 @@ export class AdminQCardComponent implements OnInit {
   }
   modify(): void {
     this.editTitre = this.title;
+    this.editTitreEn = this.titleEn || '';
     this.editDescription = this.description;
+    this.editDescriptionEn = this.descriptionEn || '';
     this.editDateOuverture = this.publicationDate
     ? this.publicationDate.toISOString().slice(0, 10)
     : '';
@@ -116,13 +122,19 @@ export class AdminQCardComponent implements OnInit {
     this.editTitre,
     newOpen,
     newClose,
-    this.editDescription
+    this.editDescription,
+    this.editTitre,
+    this.editTitreEn || undefined,
+    this.editDescription,
+    this.editDescriptionEn || undefined
   );
 
   this.thematiqueService.update(updated).subscribe({
     next: () => {
       this.title = this.editTitre;
+      this.titleEn = this.editTitreEn;
       this.description = this.editDescription;
+      this.descriptionEn = this.editDescriptionEn;
       this.publicationDate = newOpen;
       this.sessionCloseDate = newClose;
 

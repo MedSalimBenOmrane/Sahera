@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Question } from 'src/app/models/question.model';
 import { Reponse } from 'src/app/models/reponse.model';
 import { SousThematique } from 'src/app/models/sous-thematique.model';
@@ -15,7 +16,7 @@ type ToastType = 'success' | 'error';
   templateUrl: './q-and-a.component.html',
   styleUrls: ['./q-and-a.component.css']
 })
-export class QAndAComponent implements OnInit {
+export class QAndAComponent implements OnInit, OnDestroy {
   thematiqueId!: number;
   thematiqueTitre!: string;
 
@@ -31,6 +32,7 @@ export class QAndAComponent implements OnInit {
   toast = { show: false, message: '', type: 'success' as ToastType, timer: 0 };
 
   private userId!: number;
+  private langSub?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -49,6 +51,17 @@ export class QAndAComponent implements OnInit {
       this.thematiqueTitre = params.get('titre') || '';
       this.loadSousThematiques();
     });
+
+    this.langSub = this.i18n.language$.subscribe(() => {
+      this.questionsMap = {};
+      this.reponses = {};
+      this.repIdMap = {};
+      this.loadSousThematiques();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   private showToast(key: string, type: ToastType = 'error', durationMs = 3000, params?: Record<string,string>): void {

@@ -352,6 +352,7 @@ dialog.analysis-dialog::backdrop {
   min-height: 260px;
   height: 42vh;        /* ajuste selon ton goût */
   background: transparent;
+  margin-bottom: 16px;
 }
 
 /* Tableau dans le modal */
@@ -397,6 +398,7 @@ dialog.analysis-dialog::backdrop {
 .analysis-table td {
   border-color: rgba(255,255,255,0.25);
   color: #111;                        /* lisible sur fond clair du dialog */
+  vertical-align: middle;
 }
 
 /* Aucune pastille/fond derrière “Question :” */
@@ -437,3 +439,127 @@ td.inline-actions{
   }
 }
 
+/* --- Mobile layout: hide desktop table, show cards --- */
+@media (max-width: 768px) {
+  main.table {
+    width: 100%;
+    margin: 1rem auto;
+    padding: 0 0.5rem;
+  }
+
+  .desktop-table {
+    display: none;
+  }
+
+  .mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mobile-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 0.85rem 0.95rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .mobile-card__header h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    color: #2b2b2b;
+  }
+
+  .mobile-question {
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: #f9f9f9;
+    position: relative;
+    padding-top: 1.4rem; /* laisse la place pour le badge */
+    padding-right: 2.4rem; /* réserve de l'espace pour le badge à droite */
+  }
+
+  .mobile-question__text {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+  }
+
+  .mobile-question__badge {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.6rem;
+    background: #5e2b36;
+    color: #fff;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    z-index: 2;
+  }
+
+  .mobile-question__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .mobile-question__actions .answers-count {
+    display: none; /* le badge en haut fait office de compteur */
+  }
+
+  .mobile-question__text {
+    padding-right: 0.3rem; /* texte aéré après la réservation du badge */
+  }
+
+  .mobile-question__actions .btn {
+    flex: 1 1 calc(50% - 0.4rem);
+    min-width: 140px;
+    text-align: center;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .mobile-empty {
+    padding: 0.5rem 0;
+    color: #555;
+    font-style: italic;
+  }
+}
+
+/* --- Dialog analyse : version mobile lisible --- */
+@media (max-width: 575.98px) {
+  dialog.analysis-dialog {
+    width: 95%;
+    padding: 0.85rem 1rem 1rem;
+    max-width: 520px;
+  }
+  .analysis-title {
+    font-size: 1.25rem;
+  }
+  .analysis-subtitle {
+    font-size: 0.9rem;
+  }
+  .analysis-chart {
+    min-height: 220px;
+    height: auto;
+    margin-bottom: 16px;
+  }
+  .analysis-table {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .analysis-table th,
+  .analysis-table td {
+    padding: 0.35rem 0.45rem;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+  .analysis-close {
+    top: 8px;
+    right: 8px;
+  }
+}

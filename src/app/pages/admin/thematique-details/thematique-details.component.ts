@@ -1,12 +1,13 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SousThematique } from 'src/app/models/sous-thematique.model';
 import { Question } from 'src/app/models/question.model';
 import { SousThematiqueService } from 'src/app/services/sous-thematique.service';
 import { QuestionService } from 'src/app/services/question.service';
 import { ReponseService } from 'src/app/services/reponse.service';
-import { map, switchMap, of } from 'rxjs';
+import { map, switchMap, of, Subscription } from 'rxjs';
 import dialogPolyfill from 'dialog-polyfill';
+import { TranslationService } from 'src/app/services/translation.service';
 
 interface Row {
   sous: string;
@@ -19,7 +20,7 @@ interface Row {
   templateUrl: './thematique-details.component.html',
   styleUrls: ['./thematique-details.component.css']
 })
-export class ThematiqueDetailsComponent implements OnInit, AfterViewInit {
+export class ThematiqueDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('analysisDialog', { static: true })
   analysisDialog!: ElementRef<HTMLDialogElement>;   // <-- gardée UNE SEULE FOIS
 
@@ -41,13 +42,15 @@ export class ThematiqueDetailsComponent implements OnInit, AfterViewInit {
     counts: [] as number[],
     loading: false
   };
+  private langSub?: Subscription;
 
   constructor(
     private route: ActivatedRoute,
     private stService: SousThematiqueService,
     private qService: QuestionService,
     private rService: ReponseService,
-    private router: Router
+    private router: Router,
+    private i18n: TranslationService
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +59,12 @@ export class ThematiqueDetailsComponent implements OnInit, AfterViewInit {
       const titre = params.get('titre');
       if (id) this.thematiqueId = +id;
       if (titre) this.thematiqueTitre = titre!;
+      this.loadSousThematiques();
+    });
+    this.langSub = this.i18n.language$.subscribe(() => {
+      this.sousThematiques = [];
+      this.questionsMap = {};
+      this.responseCountMap = {};
       this.loadSousThematiques();
     });
   }
@@ -180,5 +189,9 @@ export class ThematiqueDetailsComponent implements OnInit, AfterViewInit {
   closeAnalysis(): void {
     const dlg = this.analysisDialog?.nativeElement as any; 
     if (dlg.open) dlg.close();
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 }

@@ -5,8 +5,11 @@
 
 /* Logo responsive */
 .navbar-brand img {
-  width: clamp(120px, 8vw, 300px);
+  width: clamp(90px, 6vw, 150px);
   height: auto;
+}
+.navbar-brand {
+  font-size: 0.95rem;
 }
 
 /* Aligne la dropdown à droite du menu */
@@ -15,18 +18,13 @@
   left: auto;
 }
 
-/* Optionnel : agrandir légèrement les emojis pour plus de lisibilité */
+/* Taille/gras des liens */
 .nav-link,
 .dropdown-item {
   font-size: 1rem;
   font-weight: bold;
   display: inline-flex;
   align-items: center;
-}
-
-/* Si vous voulez un peu plus d’espacement autour de l’emoji : */
-.nav-link,
-.dropdown-item {
   letter-spacing: 0.02em;
 }
 
@@ -89,12 +87,12 @@
   transition: width 0.4s;
 }
 
-/* Effet au survol : la ligne s’étend */
+/* Effet au survol */
 .menu__link:hover::before {
   width: 100%;
 }
 
-/* Effet actif (même règle que hover, mais dès affichage) */
+/* Effet actif */
 .menu__link.active::before {
   width: 100%;
 }
@@ -113,33 +111,21 @@
   color: #333;
 }
 
-/* Ajuster l’alignement vertical si nécessaire */
-.nav-link,
-.dropdown-item {
-  display: inline-flex;
-  align-items: center;
-}
 .badge {
   font-size: 0.75rem;
   padding: 0.25em 0.5em;
 }
 .icon-with-badge {
-  display: inline-block;      /* pour ne prendre que la taille de l’icône */
+  display: inline-block;
 }
-
-/* Badge superposé sur l’icône */
 .badge-on-icon {
-  top: 1px;                     /* coller en haut du conteneur */
-  right: 12px;                   /* coller à droite du conteneur */
+  top: 1px;
+  right: 12px;
   transform: translate(25%, -25%);
-  /* Ajustez translate(%) selon la taille de l’icône / de la badge :
-     ici, 25% vers la droite et -25% vers le haut pour que le badge « flotte » 
-     sur le coin supérieur droit de l’icône */
-  font-size: 0.65rem;         /* taille plus petite pour le badge */
-  padding: 0.25em 0.4em;      /* rétrécit un peu le padding */
-  line-height: 1;             /* évite que le texte du badge soit décalé */
+  font-size: 0.65rem;
+  padding: 0.25em 0.4em;
+  line-height: 1;
 }
-
 
 .lang-switch {
   display: inline-flex;

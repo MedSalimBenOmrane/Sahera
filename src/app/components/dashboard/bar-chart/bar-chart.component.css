@@ -1,13 +1,13 @@
-.chart-card{
+.chart-card {
   width: 100%;
-  height: 330px;             /* hauteur fixe de la carte */
+  height: 330px; /* keep desktop height */
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;           /* rien ne déborde hors de la carte */
+  overflow: hidden; /* keep canvas inside the card */
 }
 
-.chart-title{
+.chart-title {
   flex: 0 0 auto;
   text-align: center;
   font-weight: 600;
@@ -16,28 +16,45 @@
   margin: 6px 8px 8px;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;    /* coupe si trop long */
+  text-overflow: ellipsis;
 }
 
-.chart-scroll{
-  flex: 1 1 auto;             /* occupe le reste de la carte */
+.chart-scroll {
+  flex: 1 1 auto; /* takes the remaining card space */
   width: 100%;
-  overflow-x: auto;           /* ➜ barre horizontale DANS la carte */
+  overflow-x: auto; /* horizontal scroll stays inside the card */
   overflow-y: hidden;
-  padding-bottom: 4px;        /* espace pour la scrollbar */
+  padding-bottom: 4px; /* room for scrollbar */
 }
 
-.chart-inner{
+.chart-inner {
   min-width: 100%;
   height: 100%;
 }
 
-#MyChart{
+#MyChart {
   width: 100% !important;
   height: 100% !important;
 }
 
-/* (optionnel) style de la scrollbar interne */
-.chart-scroll::-webkit-scrollbar{ height: 8px; }
-.chart-scroll::-webkit-scrollbar-track{ background: rgba(0,0,0,.06); border-radius: 8px; }
-.chart-scroll::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.25); border-radius: 8px; }
+/* optional internal scrollbar styling */
+.chart-scroll::-webkit-scrollbar { height: 8px; }
+.chart-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,.06); border-radius: 8px; }
+.chart-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,.25); border-radius: 8px; }
+
+@media (max-width: 768px) {
+  .chart-card {
+    height: 200px; /* shorter card on small screens */
+    min-height: 180px;
+    border-radius: 12px;
+  }
+
+  .chart-title {
+    font-size: 16px;
+    margin: 4px 6px 6px;
+  }
+
+  .chart-scroll {
+    padding-bottom: 2px;
+  }
+}

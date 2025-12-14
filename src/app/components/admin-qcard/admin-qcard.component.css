@@ -239,8 +239,8 @@
 dialog {
   padding: 2rem;
   background: #c7c7c7cd;
-  max-width: 100vh;
   width: 90%;
+  max-width: 520px;
   margin: auto;
   border-radius: 20px;
   border: 0;
@@ -260,8 +260,8 @@ dialog::backdrop {
 /* croix de fermeture */
 .x {
   position: absolute;
-  top: 15px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   background: none;
   border: none;
   font-size: 1.2rem;
@@ -278,8 +278,8 @@ dialog::backdrop {
   align-items: center;
   margin-bottom: 0.75rem;
 }
-.col-5 { flex: 0 0 25%; max-width: 25%; }
-.col-7 { flex: 0 0 75%; max-width: 75%; }
+.col-5 { flex: 0 0 30%; max-width: 30%; }
+.col-7 { flex: 0 0 70%; max-width: 70%; }
 
 /* champs texte et date */
 .input5 {
@@ -382,10 +382,9 @@ dialog::backdrop {
 
 /* responsive */
 @media (max-width: 575.98px) {
-  dialog { padding: 1rem; }
-  .row { flex-direction: column; align-items: flex-start; }
-  .col-5, .col-7 { max-width: 100%; flex: 1; }
+  dialog { padding: 1rem; width: 95%; }
+  .row { flex-direction: column; align-items: stretch; gap: 0.35rem; }
+  .col-5, .col-7 { max-width: 100%; flex: 1; width: 100%; }
+  dialog input, dialog textarea, dialog button, dialog select { font-size: 16px; width: 100%; }
 }
-
-
 

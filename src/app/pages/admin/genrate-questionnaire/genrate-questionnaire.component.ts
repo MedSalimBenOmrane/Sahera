@@ -1,9 +1,10 @@
 // genrate-questionnaire.component.ts
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { finalize } from 'rxjs';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { finalize, Subscription } from 'rxjs';
 import { SousThematique } from 'src/app/models/sous-thematique.model';
 import { Thematique } from 'src/app/models/thematique.model';
 import { ThematiqueService } from 'src/app/services/thematique.service';
+import { TranslationService } from 'src/app/services/translation.service';
 
 type Meta = {
   total: number; page: number; per_page: number; pages: number;
@@ -15,19 +16,25 @@ type Meta = {
   templateUrl: './genrate-questionnaire.component.html',
   styleUrls: ['./genrate-questionnaire.component.css']
 })
-export class GenrateQuestionnaireComponent implements OnInit {
+export class GenrateQuestionnaireComponent implements OnInit, OnDestroy {
   thematiques: Thematique[] = [];
 
   isLoading = false;
   isCsvLoading = false;
+  isCreating = false;
+  errorMessage = '';
   selectedFile: File | null = null;
 
   newThematique = {
     titre: '',
+    titreEn: '',
     description: '',
+    descriptionEn: '',
     dateOuvertureSession: '',
     dateFermetureSession: ''
   };
+
+  private langSub?: Subscription;
 
   @ViewChild('dialog', { static: true }) dialogRef!: ElementRef<HTMLDialogElement>;
 
@@ -43,9 +50,16 @@ export class GenrateQuestionnaireComponent implements OnInit {
     return Array.from({length: end - start + 1}, (_, i) => start + i);
   }
 
-  constructor(private thematiqueService: ThematiqueService) {}
+  constructor(private thematiqueService: ThematiqueService, private i18n: TranslationService) {}
 
-  ngOnInit(): void { this.loadPage(1); }
+  ngOnInit(): void {
+    this.loadPage(1);
+    this.langSub = this.i18n.language$.subscribe(() => this.loadPage(this.currentPage));
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
+  }
 
   // charge une page
   private loadPage(page: number): void {
@@ -76,8 +90,9 @@ export class GenrateQuestionnaireComponent implements OnInit {
 
   // --- Dialog CRUD (inchangé à 99%), mais on RELIT la page après action
   openCreateDialog(): void {
-    this.newThematique = { titre:'', description:'', dateOuvertureSession:'', dateFermetureSession:'' };
+    this.newThematique = { titre:'', titreEn:'', description:'', descriptionEn:'', dateOuvertureSession:'', dateFermetureSession:'' };
     this.selectedFile = null;
+    this.errorMessage = '';
     (this.dialogRef.nativeElement as any).showModal();
   }
   closeDialog(): void { (this.dialogRef.nativeElement as any).close(); }
@@ -88,18 +103,20 @@ export class GenrateQuestionnaireComponent implements OnInit {
   }
 
   createThematique(): void {
-    const { titre, description, dateOuvertureSession, dateFermetureSession } = this.newThematique;
+    this.errorMessage = '';
+    const { titre, titreEn, description, descriptionEn, dateOuvertureSession, dateFermetureSession } = this.newThematique;
     if (!titre || !description || !dateOuvertureSession || !dateFermetureSession) return;
 
     const ouverture = new Date(dateOuvertureSession + 'T00:00:00');
     const cloture   = new Date(dateFermetureSession + 'T00:00:00');
     if (isNaN(ouverture.getTime()) || isNaN(cloture.getTime()) || ouverture > cloture) return;
 
-    const t = new Thematique(0, titre, ouverture, cloture, description);
+    const t = new Thematique(0, titre, ouverture, cloture, description, titre, titreEn || undefined, description, descriptionEn || undefined);
 
     this.isLoading = true;
+    this.isCreating = true;
     this.thematiqueService.create(t)
-      .pipe(finalize(() => (this.isLoading = false)))
+      .pipe(finalize(() => { this.isLoading = false; this.isCreating = false; }))
       .subscribe({
         next: (created) => {
           if (this.selectedFile) {
@@ -109,7 +126,11 @@ export class GenrateQuestionnaireComponent implements OnInit {
             this.loadPage(1);                   // reviens sur la 1ère page (tri -date_ouverture)
           }
         },
-        error: err => console.error('Erreur création thématique', err)
+        error: err => {
+          console.error('Erreur création thématique', err);
+          const msg = err?.error?.description || err?.error?.message || err?.message;
+          this.errorMessage = `${this.i18n.translate('admin.thematiques.errorPrefix')} ${msg || this.i18n.translate('admin.thematiques.errorGeneric')}`;
+        }
       });
   }
 
@@ -117,12 +138,17 @@ export class GenrateQuestionnaireComponent implements OnInit {
     if (!this.selectedFile) { this.closeDialog(); this.loadPage(1); return; }
     const fd = new FormData(); fd.append('file', this.selectedFile);
 
+    this.errorMessage = '';
     this.isCsvLoading = true;
     this.thematiqueService.importCsv(thematiqueId, fd)
       .pipe(finalize(() => (this.isCsvLoading = false)))
       .subscribe({
         next: () => { this.closeDialog(); this.loadPage(1); },
-        error: err => console.error('Erreur import CSV', err)
+        error: err => {
+          console.error('Erreur import CSV', err);
+          const msg = err?.error?.description || err?.error?.message || err?.message;
+          this.errorMessage = `${this.i18n.translate('admin.thematiques.errorPrefix')} ${msg || this.i18n.translate('admin.thematiques.errorGeneric')}`;
+        }
       });
   }
 

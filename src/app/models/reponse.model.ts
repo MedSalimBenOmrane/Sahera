@@ -5,6 +5,9 @@ export class Reponse {
     public valeur: string,
     public dateReponse: Date,
     public questionId: number,
-    public userId: number
+    public userId: number,
+    public valeurFr?: string,
+    public valeurEn?: string,
+    public valeurBrute?: string
   ) {}
 }

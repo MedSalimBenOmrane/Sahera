@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { forkJoin, Subscription } from 'rxjs';
 import { MesreponcesService, ThematiqueLite } from 'src/app/services/mesreponces.service';
 import { ThematiqueService } from 'src/app/services/thematique.service';
+import { TranslationService } from 'src/app/services/translation.service';
 
 interface ResponseCard {
   id: number;
@@ -21,7 +22,7 @@ interface ResponseCard {
   templateUrl: './mes-reponses.component.html',
   styleUrls: ['./mes-reponses.component.css']
 })
-export class MesReponsesComponent implements OnInit {
+export class MesReponsesComponent implements OnInit, OnDestroy {
   selectedTab: 'all' | 'completed' | 'incomplete' = 'all';
 
   allThematiques: ResponseCard[] = [];
@@ -30,6 +31,7 @@ export class MesReponsesComponent implements OnInit {
 
   clientId!: number;
   isLoading = false;
+  private langSub?: Subscription;
 
   // 🔹 pagination client
   perPage = 4;
@@ -37,13 +39,19 @@ export class MesReponsesComponent implements OnInit {
 
   constructor(
     private svc: MesreponcesService,
-    private thematiqueSvc: ThematiqueService
+    private thematiqueSvc: ThematiqueService,
+    private i18n: TranslationService
   ) {}
 
   ngOnInit(): void {
     const usr = JSON.parse(localStorage.getItem('user') || '{}');
     this.clientId = usr.id;
     this.loadThematiques();
+    this.langSub = this.i18n.language$.subscribe(() => this.loadThematiques());
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   private loadThematiques(): void {
@@ -60,9 +68,9 @@ export class MesReponsesComponent implements OnInit {
             id: t.id,
             title: t.titre,
             description: t.description,
-            publicationDate: new Date(t.dateOuvertureSession!),
-            sessionCloseDate: new Date(t.dateFermetureSession!),
-            isSessionOpen: !t.dateFermetureSession || new Date(t.dateFermetureSession) > new Date(),
+            publicationDate: t.dateOuvertureSession ? new Date(t.dateOuvertureSession) : new Date(),
+            sessionCloseDate: t.dateFermetureSession ? new Date(t.dateFermetureSession) : new Date(),
+            isSessionOpen: !!(t.dateFermetureSession && new Date(t.dateFermetureSession) > new Date()),
             isAnswered: comp.some(x => x.id === t.id),
             responseDate: undefined
           }))
@@ -119,4 +127,3 @@ export class MesReponsesComponent implements OnInit {
     this.currentPage = 1;
   }
 }
-

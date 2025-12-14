@@ -81,16 +81,16 @@
     </tr>
 
     <tr *ngFor="let c of displayedClients">
-      <td>{{c.id}}</td>
-      <td>{{c.nom}}</td>
-      <td>{{c.prenom}}</td>
-      <td>{{c.email}}</td>
-      <td>{{c.telephone}}</td>
-      <td>{{c.date_naissance | date:'dd/MM/yyyy'}}</td>
-      <td>{{ i18n.translateOptionLabel('gender', c.genre) }}</td>
-      <td>{{ i18n.translateOptionLabel('ethnicity', c.ethnicite) }}</td>
-      <td>{{c.role}}</td>
-      <td class="actions-cell">
+      <td [attr.data-label]="'admin.table.id' | translate">{{c.id}}</td>
+      <td [attr.data-label]="'admin.table.name' | translate">{{c.nom}}</td>
+      <td [attr.data-label]="'admin.table.firstname' | translate">{{c.prenom}}</td>
+      <td [attr.data-label]="'admin.table.email' | translate">{{c.email}}</td>
+      <td [attr.data-label]="'admin.table.phone' | translate">{{c.telephone}}</td>
+      <td [attr.data-label]="'admin.table.birthdate' | translate">{{c.date_naissance | date:'dd/MM/yyyy'}}</td>
+      <td [attr.data-label]="'admin.table.gender' | translate">{{ i18n.translateOptionLabel('gender', c.genre) }}</td>
+      <td [attr.data-label]="'admin.table.ethnicity' | translate">{{ i18n.translateOptionLabel('ethnicity', c.ethnicite) }}</td>
+      <td [attr.data-label]="'admin.table.role' | translate">{{c.role}}</td>
+      <td class="actions-cell" [attr.data-label]="'admin.actions' | translate">
         <button class="btn-modifier" (click)="openEditDialog(c)">{{ 'admin.edit' | translate }}</button>
         <button class="btn-supprimer" (click)="confirmDelete(c)">{{ 'admin.delete' | translate }}</button>
       </td>

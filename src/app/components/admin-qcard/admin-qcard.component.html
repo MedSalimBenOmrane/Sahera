@@ -56,12 +56,33 @@
   </div>
 
   <div class="row">
+    <div class="col-5">{{ 'admin.thematiques.titreEn' | translate }}</div>
+    <div class="col-7">
+      <input
+        type="text"
+        class="input5"
+        [(ngModel)]="editTitreEn"
+      />
+    </div>
+  </div>
+
+  <div class="row">
     <div class="col-5">{{ 'admin.card.description' | translate }}</div>
     <div class="col-7">
       <textarea
         class="input5 textarea-message"
         rows="3"
         [(ngModel)]="editDescription"
+      ></textarea>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-5">{{ 'admin.thematiques.descriptionEn' | translate }}</div>
+    <div class="col-7">
+      <textarea
+        class="input5 textarea-message"
+        rows="3"
+        [(ngModel)]="editDescriptionEn"
       ></textarea>
     </div>
   </div>

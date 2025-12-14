@@ -6,6 +6,10 @@ export class Question {
     public question: string,
     public sousThematiqueId: number,
     public options: string[] = [],
-    public type: QuestionType = 'liste'
+    public type: QuestionType = 'liste',
+    public questionFr?: string,
+    public questionEn?: string,
+    public optionsFr?: string[],
+    public optionsEn?: string[]
   ) {}
 }

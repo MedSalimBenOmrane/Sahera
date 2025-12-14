@@ -4,61 +4,27 @@
   </section>
 
   <section class="table__body">
-    <table>
-      <colgroup>
-        <col style="width: 10%;">
-        <col style="width: 15%;">
-        <col style="width: 15%;">
-        <col style="width: 60%;">
-      </colgroup>
-      <thead>
-        <tr>
-          <th>{{ 'admin.questionDetails.userId' | translate }}</th>
-          <th>{{ 'admin.questionDetails.name' | translate }}</th>
-          <th>{{ 'admin.questionDetails.firstname' | translate }}</th>
-          <th>{{ 'admin.questionDetails.answer' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngIf="isLoading">
-          <td colspan="4" class="p-0">
-            <div
-              class="d-flex justify-content-center align-items-center"
-              style="height: 200px;"
-            >
-              <div class="spinner-border" role="status">
-                <span class="visually-hidden">{{ 'generic.loading' | translate }}</span>
-              </div>
-            </div>
-          </td>
-        </tr>
+    <div *ngIf="isLoading" class="loading-box">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">{{ 'generic.loading' | translate }}</span>
+      </div>
+    </div>
 
-        <ng-container *ngIf="!isLoading">
-          <tr *ngFor="let row of rows">
-            <td>{{ row.userId }}</td>
-            <td>{{ row.nom }}</td>
-            <td>{{ row.prenom }}</td>
-            <td>{{ row.valeur }}</td>
-          </tr>
+    <div *ngIf="!isLoading && rows.length === 0" class="empty-box">
+      <img
+        src="assets/images/empty-folder.png"
+        [attr.alt]="'admin.questionDetails.empty' | translate"
+        class="mb-2"
+        style="max-width: 150px;"
+      />
+      <p class="mb-0">{{ 'admin.questionDetails.empty' | translate }}</p>
+    </div>
 
-          <tr *ngIf="rows.length === 0">
-            <td colspan="4" class="p-0">
-              <div
-                class="d-flex flex-column justify-content-center align-items-center"
-                style="height: 200px;"
-              >
-                <img
-                  src="assets/images/empty-folder.png"
-                  [attr.alt]="'admin.questionDetails.empty' | translate"
-                  class="mb-2"
-                  style="max-width: 150px;"
-                />
-                <p class="mb-0">{{ 'admin.questionDetails.empty' | translate }}</p>
-              </div>
-            </td>
-          </tr>
-        </ng-container>
-      </tbody>
-    </table>
+    <div class="answers-list" *ngIf="!isLoading && rows.length > 0">
+      <div class="answer-item" *ngFor="let row of rows; let i = index">
+        <div class="answer-index">{{ i + 1 }}</div>
+        <div class="answer-text">{{ row.valeur }}</div>
+      </div>
+    </div>
   </section>
 </main>
