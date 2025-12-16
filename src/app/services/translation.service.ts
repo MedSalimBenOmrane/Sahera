@@ -202,6 +202,16 @@ const translations: Translations = {
     'admin.empty': 'Aucun participant pour le moment.',
     'admin.confirmDelete': 'Voulez-vous vraiment supprimer "{{name}}" ?',
 
+    'admin.profile.editTitle': 'Modifier le profil admin et l\'emailing',
+    'admin.profile.hint': 'Mettez à jour votre nom et l\'expéditeur SMTP utilisé pour les emails.',
+    'admin.mail.senderName': 'Nom expéditeur',
+    'admin.mail.senderEmail': 'Email expéditeur',
+    'admin.mail.smtpHost': 'Hôte SMTP',
+    'admin.mail.smtpPort': 'Port SMTP',
+    'admin.mail.smtpUseTls': 'Activer TLS',
+    'admin.mail.smtpUsername': 'Identifiant SMTP',
+    'admin.mail.smtpPassword': 'Mot de passe SMTP',
+
     // Admin notifications
     'admin.notifications.title': 'Historique des Messages',
     'admin.notifications.send': 'Envoyer message',
@@ -498,6 +508,15 @@ const translations: Translations = {
     'admin.emptyFiltered': 'No participant found for these filters.',
     'admin.empty': 'No participant yet.',
     'admin.confirmDelete': 'Do you really want to delete "{{name}}" ?',
+    'admin.profile.editTitle': 'Edit admin profile & mailing',
+    'admin.profile.hint': 'Update your name and the SMTP sender used for outgoing emails.',
+    'admin.mail.senderName': 'Sender name',
+    'admin.mail.senderEmail': 'Sender email',
+    'admin.mail.smtpHost': 'SMTP host',
+    'admin.mail.smtpPort': 'SMTP port',
+    'admin.mail.smtpUseTls': 'Enable TLS',
+    'admin.mail.smtpUsername': 'SMTP username',
+    'admin.mail.smtpPassword': 'SMTP password',
 
     // Admin notifications
     'admin.notifications.title': 'Message history',

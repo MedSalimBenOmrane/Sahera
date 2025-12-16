@@ -42,6 +42,7 @@ import { QuestionDetailsComponent } from './pages/admin/question-details/questio
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { ComingSoonPageComponent } from './pages/coming-soon-page/coming-soon-page.component';
 import { EditCoordonneesUserComponent } from './components/edit-coordonnees-user/edit-coordonnees-user.component';
+import { EditAdminComponent } from './components/edit-admin/edit-admin.component';
 import { BarChartComponent } from './components/dashboard/bar-chart/bar-chart.component';
 import { CustomLineChartComponent } from './components/dashboard/custom-line-chart/custom-line-chart.component';
 import { LineChartComponent } from './components/dashboard/line-chart/line-chart.component';
@@ -80,6 +81,7 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
      QuestionDetailsComponent,
      ComingSoonPageComponent,
      EditCoordonneesUserComponent,
+     EditAdminComponent,
      BarchartAnalyseComponent,
      TranslatePipe,
      LandingPageComponent,

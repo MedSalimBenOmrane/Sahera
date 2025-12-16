@@ -1,0 +1,38 @@
+<dialog #dialog class="admin-dialog">
+  <button class="x" aria-label="close" (click)="close()">×</button>
+
+  <h2>{{ 'admin.profile.editTitle' | translate }}</h2>
+  <p class="hint">{{ 'admin.profile.hint' | translate }}</p>
+
+  <div *ngIf="isLoading" class="status loading">{{ 'navbar.loading' | translate }}</div>
+  <div *ngIf="errorMsg" class="status error">{{ errorMsg | translate }}</div>
+
+  <ng-container *ngIf="!isLoading && !errorMsg">
+    <div class="row" *ngFor="let field of formFields">
+      <label class="col-5">{{ field.labelKey | translate }}</label>
+
+      <div class="col-7" *ngIf="field.type !== 'checkbox'">
+        <input
+          class="input"
+          [type]="field.type"
+          [(ngModel)]="form[field.key]"
+          [placeholder]="field.placeholderKey ? (field.placeholderKey | translate) : (field.labelKey | translate)"
+        />
+      </div>
+
+      <div class="col-7 checkbox-wrap" *ngIf="field.type === 'checkbox'">
+        <label class="switch">
+          <input type="checkbox" [(ngModel)]="form[field.key]" />
+          <span class="slider"></span>
+        </label>
+        <span class="switch-label">{{ field.labelKey | translate }}</span>
+      </div>
+    </div>
+
+    <div class="row submit-row">
+      <button class="primary-btn" [disabled]="isSaving" (click)="save()">
+        {{ isSaving ? ('generic.loading' | translate) : ('navbar.save' | translate) }}
+      </button>
+    </div>
+  </ng-container>
+</dialog>

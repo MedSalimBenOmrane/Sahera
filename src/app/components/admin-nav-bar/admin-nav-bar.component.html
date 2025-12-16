@@ -86,9 +86,8 @@
             <li>
               <a
                 class="dropdown-item"
-                routerLink="/modifier-coordonnees"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: true }"
+                role="button"
+                (click)="adminEdit.open()"
               >
                 <mat-icon>edit</mat-icon>
                 {{ 'navbar.editProfile' | translate }}
@@ -108,3 +107,6 @@
     </div>
   </div>
 </nav>
+
+<!-- Modale d'édition admin (invisible jusqu'à ouverture) -->
+<app-edit-admin #adminEdit></app-edit-admin>
