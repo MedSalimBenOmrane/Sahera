@@ -43,17 +43,9 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
   newPw = '';
   newPw2 = '';
   fpError = '';
-  slides: string[] = [
-    'assets/images/left-2.png',
-    'assets/images/left-3.png',
-  ];
-
-  captionsKeys: string[] = ['auth.slide.0', 'auth.slide.1'];
   genderOptions = this.i18n.getOptions('gender');
   ethniciteOptions = this.i18n.getOptions('ethnicity');
 
-  currentSlide = 0;
-  private slideSub?: Subscription;
   @ViewChild('dialog', { static: true })
   private dialogRef!: ElementRef<HTMLDialogElement>;
 
@@ -87,18 +79,11 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
       password: ['', Validators.required],
       isAdmin: [false]
     });
-    this.startSlideshow();
   }
 
   ngOnDestroy(): void {
-    this.slideSub?.unsubscribe();
-  }
-
-  private startSlideshow(): void {
-    if (!this.slides?.length) return;
-    this.slideSub = interval(5000).subscribe(() => {
-      this.currentSlide = (this.currentSlide + 1) % this.slides.length;
-    });
+    this.cooldownSub?.unsubscribe();
+    this.fpCooldownSub?.unsubscribe();
   }
 
   private t(key: string, params?: Record<string,string|number>): string {

@@ -249,7 +249,15 @@ table {
   border-collapse: collapse;
 }
 table, th, td {
-  border: 1px solid #ccc;
+    border: 1px solid #ccc;
+}
+
+/* Default: desktop table visible, mobile cards hidden */
+.desktop-table {
+  display: table;
+}
+.mobile-list {
+  display: none;
 }
 
 .btn-outline-primary {

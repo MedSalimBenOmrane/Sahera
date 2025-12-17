@@ -14,22 +14,10 @@
   </div>
   <div class="login-wrapper">
     <div class="side-slideshow" [attr.aria-label]="'auth.slideshow.label' | translate">
-      <div class="slide-layer"
-       [ngStyle]="{'--cap-pad':'10%'}"
-      *ngFor="let src of slides; let i = index"
-      [class.is-active]="i === currentSlide"
-      [ngStyle]="{
-        'background-image': 'url(' + src + ')',
-        '-webkit-mask-image': 'url(' + src + ')',
-        'mask-image': 'url(' + src + ')'
-      }"
-    >
-      <div class="slide-caption" *ngIf="captionsKeys?.length">
-        {{ captionsKeys[i] | translate }}
+      <div class="side-photo-frame">
+        <img class="side-photo" src="assets/images/Capture.PNG" alt="Sahera visual" />
       </div>
     </div>
-
-  </div>
   <div class="main">
     <input type="checkbox" id="chk" aria-hidden="false" />
 
