@@ -12,7 +12,6 @@ import { TranslationService } from 'src/app/services/translation.service';
   styleUrls: ['./log-in-sign-in.component.css']
 })
 export class LogInSignINComponent implements OnInit, OnDestroy {
-  dateInputType: 'text' | 'date' = 'text';
   maxDate = new Date().toISOString().slice(0,10);
 
   signupForm!: FormGroup;
@@ -88,11 +87,6 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
 
   private t(key: string, params?: Record<string,string|number>): string {
     return this.i18n.translate(key, params);
-  }
-
-  onDateBlur() {
-    const v = this.signupForm.get('dateNaissance')?.value;
-    if (!v) this.dateInputType = 'text';
   }
 
   onBlurField(fieldName: string): void {

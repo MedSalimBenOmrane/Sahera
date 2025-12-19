@@ -1,4 +1,4 @@
-<head>
+﻿<head>
   <title>Slide Navbar</title>
   <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
 </head>
@@ -70,18 +70,20 @@
           [class.error-border]="isFieldInvalid('telephone')"
         />
 
-  <input
-  id="dateNaissance"
-  class="input"
-  [attr.type]="dateInputType"         
-  formControlName="dateNaissance"
-  [placeholder]="'auth.signup.birthDate' | translate"     
-  (focus)="dateInputType='date'"
-  (click)="dateInputType='date'"       
-  (blur)="onDateBlur()"
-  [class.error-border]="isFieldInvalid('dateNaissance')"
-  [max]="maxDate"                    
-/>
+        <div class="input-row date-row">
+          <label class="date-label" for="dateNaissance">
+            {{ 'auth.signup.birthDate' | translate }}
+          </label>
+          <input
+            id="dateNaissance"
+            class="input"
+            type="date"
+            formControlName="dateNaissance"
+            (blur)="onBlurField('dateNaissance')"
+            [class.error-border]="isFieldInvalid('dateNaissance')"
+            [max]="maxDate"
+          />
+        </div>
 
         <div class="genre-container" role="group" aria-labelledby="genre-label">
   <span id="genre-label" class="genre-label">{{ 'auth.signup.genderLabel' | translate }}</span>
@@ -221,7 +223,7 @@
     </div>
   </div>
 
-  <button id="x" aria-label="close" (click)="closeDialog()">×</button>
+  <button id="x" aria-label="close" (click)="closeDialog()">Ã—</button>
 </dialog>
 
 
@@ -284,5 +286,6 @@
     <button (click)="saveNewPassword()" [disabled]="!fpVerified">{{ 'auth.forgot.save' | translate }}</button>
   </div>
 
-  <button id="x" aria-label="close" (click)="closeForgotDialog()">×</button>
+  <button id="x" aria-label="close" (click)="closeForgotDialog()">Ã—</button>
 </dialog>
+

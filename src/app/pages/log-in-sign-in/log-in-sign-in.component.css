@@ -170,7 +170,7 @@ label.titleConnexion {
 
 /* ===== Styles des inputs & bouton par dÇÎ¶÷faut ===== */
 .input {
-    width: 85%;
+    width: 80%;
     background: #ffffff80;
     display: block;
     margin: 10px auto;
@@ -182,6 +182,27 @@ label.titleConnexion {
     transition: border-color .2s ease-in-out;
 }
 
+
+.input-row {
+  display: flex;
+  align-items: center;
+  width: 80%;
+  margin: 10px auto;
+  gap: 1%;
+}
+
+.date-label {
+  flex: 0 0 50%;
+  color: #4a1c2a;
+  font-weight: 600;
+  text-align: left;
+}
+
+.date-row .input {
+  flex: 1;
+  width: 100%;
+  margin: 0;
+}
 /* Corrige le rendu du <select> qui hÇÎ¶÷rite de .input */
 select.input {
   display: block;          /* au lieu de flex */
@@ -199,32 +220,9 @@ select.input option { color: #111; }
 
 /* Optionnel: griser le placeholder tant que non choisi */
 select.input:invalid { color: #6b7280; }
-#dateNaissance {
-    width: 85%;
-    background: #ffffff80;
-    display: block;
-    margin: 10px auto;
-    padding: 5px 5px;
-    border: 1px solid #000;
-    outline: none;
-    border-radius: 5px;
-    box-sizing: border-box;
-    transition: border-color .2s ease-in-out;
-}
-
-
 /* Classe appliquÇÎ¶÷e en erreur */
 .error-border {
     border-color: red !important;
-}
-
-/* SpÇÎ¶÷cificitÇÎ¶÷ pour les champs date (mÇÎ¶Ýme mise en forme horizontale) */
-.date {
-    width: 85%;
-    height: 10px;
-    margin: 10px auto;
-    padding: 5px 5px;
-    justify-content: center;
 }
 
 /* ===== Styles du bouton ===== */
@@ -240,7 +238,7 @@ button {
     background: #4a1c2a;
     font-size: 1em;
     font-weight: bold;
-    margin-top: 30px;
+    margin-top: 20px;
     outline: none;
     border: none;
     border-radius: 5px;
@@ -306,11 +304,14 @@ button:hover {
         width: 350px;
     }
 }
+.form-check{
+  margin: 0 5% ;
+}
 .form-check-input {
     margin: 15px 14px;
 }
 .form-check-label{
-    margin: 12px 10px;
+    margin: 12px 12px;
 }
 /* 1) Par dÇÎ¶÷faut (mobile), on cache les images */
 .side-img {
@@ -652,8 +653,8 @@ button {
 input[type="date"] {
   -webkit-appearance: none;
   appearance: none;
-  height: 40px;          /* même hauteur que tes autres champs visuellement */
-  padding: 4px 12px;     /* adapte si tu veux */
+  height: 38px;          /* même hauteur que tes autres champs visuellement */
+  padding: 4px 4px;     /* adapte si tu veux */
   line-height: 1;
 }
 
