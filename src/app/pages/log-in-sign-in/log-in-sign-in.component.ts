@@ -12,7 +12,6 @@ import { TranslationService } from 'src/app/services/translation.service';
   styleUrls: ['./log-in-sign-in.component.css']
 })
 export class LogInSignINComponent implements OnInit, OnDestroy {
-  nativeDateSupported = false;
   dateInputType: 'text' | 'date' = 'text';
   maxDate = new Date().toISOString().slice(0,10);
 
@@ -64,9 +63,6 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.nativeDateSupported = this.detectNativeDateSupport();
-    this.dateInputType = this.nativeDateSupported ? 'date' : 'text';
-
     this.signupForm = this.fb.group({
       nom: ['', Validators.required],
       prenom: ['', Validators.required],
@@ -94,112 +90,9 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
     return this.i18n.translate(key, params);
   }
 
-  onDateFocus() {
-    if (this.nativeDateSupported) {
-      this.dateInputType = 'date';
-    }
-  }
-
   onDateBlur() {
-    const control = this.signupForm.get('dateNaissance');
-    if (!control) { return; }
-    control.markAsTouched();
-
-    const rawValue = control.value;
-
-    if (!rawValue) {
-      this.dateInputType = this.nativeDateSupported ? 'date' : 'text';
-      return;
-    }
-
-    if (!this.nativeDateSupported) {
-      const normalized = this.normalizeDateInput(rawValue);
-      if (!normalized) {
-        const invalidMsg = this.t('auth.toast.invalidDate');
-        const toastMsg = invalidMsg === 'auth.toast.invalidDate'
-          ? 'Date invalide. Utilisez JJ/MM/AAAA'
-          : invalidMsg;
-        control.setErrors({ ...(control.errors || {}), invalidDate: true });
-        this.toastr.error(
-          toastMsg,
-          this.t('auth.toast.errorTitle'),
-          { positionClass: 'toast-top-right' }
-        );
-        return;
-      }
-      control.setValue(normalized, { emitEvent: false });
-    }
-
-    if (new Date(control.value) > new Date(this.maxDate)) {
-      control.setValue(this.maxDate, { emitEvent: false });
-    }
-
-    this.dateInputType = this.nativeDateSupported ? 'date' : 'text';
-  }
-
-  private detectNativeDateSupport(): boolean {
-    if (typeof document === 'undefined') {
-      return true;
-    }
-
-    const input = document.createElement('input');
-    input.setAttribute('type', 'date');
-    const isDateType = input.type === 'date';
-    input.value = '2025-01-01';
-    return isDateType && input.value === '2025-01-01';
-  }
-
-  private normalizeDateInput(value: unknown): string | null {
-    if (value instanceof Date) {
-      return value.toISOString().slice(0, 10);
-    }
-
-    const raw = value == null ? '' : String(value).trim();
-    if (!raw) return null;
-
-    const cleaned = raw
-      .replace(/[.]/g, '/')
-      .replace(/-/g, '/')
-      .replace(/\s+/g, '');
-
-    let day: number;
-    let month: number;
-    let year: number;
-
-    const dmy = cleaned.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-    const ymd = cleaned.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-
-    if (ymd) {
-      year = parseInt(ymd[1], 10);
-      month = parseInt(ymd[2], 10);
-      day = parseInt(ymd[3], 10);
-    } else if (dmy) {
-      day = parseInt(dmy[1], 10);
-      month = parseInt(dmy[2], 10);
-      year = parseInt(dmy[3], 10);
-      if (year < 100) {
-        year += 2000;
-      }
-    } else {
-      return null;
-    }
-
-    if (month < 1 || month > 12 || day < 1 || day > 31) {
-      return null;
-    }
-
-    const candidate = new Date(Date.UTC(year, month - 1, day));
-    const valid =
-      candidate.getUTCFullYear() === year &&
-      candidate.getUTCMonth() === month - 1 &&
-      candidate.getUTCDate() === day;
-
-    if (!valid) {
-      return null;
-    }
-
-    const iso = candidate.toISOString().slice(0, 10);
-    return iso > this.maxDate ? this.maxDate : iso;
+    const v = this.signupForm.get('dateNaissance')?.value;
+    if (!v) this.dateInputType = 'text';
   }
 
   onBlurField(fieldName: string): void {
