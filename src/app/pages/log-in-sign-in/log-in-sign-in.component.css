@@ -35,6 +35,15 @@ body {
     min-height: 100dvh; /* plus fiable que 100vh sur iOS */
 }
 
+.login-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 14px 32px;
+  gap: 12px;
+}
+
 .auth-lang-switch {
   position: absolute;
   top: 12px;
@@ -105,13 +114,14 @@ body {
 
 /* ===== Container principal ===== */
 .main {
-    width: 450px;
-    height: 645px;
+    width: min(100%, 480px);
+    height: clamp(580px, 92vh, 720px);
     background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") 
                no-repeat center/cover;
-    border-radius: 10px;
+    border-radius: 14px;
     box-shadow: 5px 10px 15px #000;
     overflow: hidden;
+    padding: 8px 0 24px;
 }
 
 /* ===== Masquage du checkbox utilisÇÎ¶÷ pour le slide ===== */
@@ -127,12 +137,12 @@ body {
 }
 
 .login {
-    height: 600px;
+    height: calc(100% - 36px);
     background: #f8e6d6;
     border-radius: 60% / 10%;
-    transform: translateY(-180px);
+    transform: translateY(-32%);
     
-    transition: .8s ease-in-out;
+    transition: transform .8s ease-in-out, border-radius .8s ease-in-out;
 	box-shadow: 15px 20px 20px #000;
 }
 
@@ -158,7 +168,7 @@ label.titleConnexion {
 
 /* Lorsque checkbox est cochÇÎ¶÷ : on remonte ’'?oConnexion’'?? et on agrandit son label */
 #chk:checked ~ .login {
-    transform: translateY(-645px);
+    transform: translateY(-102%);
 }
 #chk:checked ~ .login label {
     transform: scale(1);
@@ -294,6 +304,86 @@ button:hover {
 	font-weight: bold;
 	cursor: pointer;
 	transition: .5s ease-in-out;
+}
+
+@media (max-width: 767px) {
+  body {
+    align-items: flex-start;
+  }
+
+  .login-wrapper {
+    padding: 16px 12px 32px;
+  }
+
+  .main {
+    width: 100%;
+    max-width: 520px;
+    height: auto;
+    min-height: 0;
+    padding: 16px 0 22px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  .signup,
+  .login {
+    width: 100%;
+    height: auto;
+  }
+
+  .signup form,
+  .login form {
+    padding: 0 18px 8px;
+  }
+
+  .login {
+    position: relative;
+    transform: none;
+    border-radius: 16px;
+    box-shadow: none;
+    margin-top: 8px;
+  }
+
+  #chk:not(:checked) ~ .login {
+    display: none;
+  }
+
+  #chk:checked ~ .signup {
+    display: none;
+  }
+
+  #chk:checked ~ .login {
+    display: block;
+  }
+
+  label.titleInscription,
+  label.titleConnexion {
+    margin: 26px 12px 18px;
+    font-size: 1.8em;
+  }
+
+  .input,
+  #dateNaissance,
+  select.input {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .genre-container {
+    flex-wrap: wrap;
+    padding-left: 0;
+  }
+
+  button {
+    width: 100%;
+    max-width: none;
+  }
+
+  .auth-lang-switch {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+  }
 }
 
 /* ===== Adaptation pour ÇÎ¶÷crans ’'%¶ó768px ===== */
