@@ -140,7 +140,7 @@ body {
     height: calc(100% - 36px);
     background: #f8e6d6;
     border-radius: 60% / 10%;
-    transform: translateY(-32%);
+    transform: translateY(-25%);
     
     transition: transform .8s ease-in-out, border-radius .8s ease-in-out;
 	box-shadow: 15px 20px 20px #000;
@@ -168,7 +168,7 @@ label.titleConnexion {
 
 /* Lorsque checkbox est cochÇÎ¶÷ : on remonte ’'?oConnexion’'?? et on agrandit son label */
 #chk:checked ~ .login {
-    transform: translateY(-102%);
+    transform: translateY(-107%);
 }
 #chk:checked ~ .login label {
     transform: scale(1);
