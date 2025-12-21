@@ -160,6 +160,7 @@ const translations: Translations = {
     'qna.loadingSubthemes': 'Chargement des sous-thématiques…',
     'qna.questionsFor': 'Questions pour « {{title}} »',
     'qna.selectOption': 'Sélectionnez une option',
+    'qna.selectOptions': 'Sélectionnez une ou plusieurs options',
     'qna.enterAnswer': 'Saisissez votre réponse',
     'qna.chooseDate': 'Choisissez une date',
     'qna.noQuestions': 'Aucune question pour cette sous-thématique.',
@@ -237,6 +238,10 @@ const translations: Translations = {
     'admin.thematiques.openDate': 'Date d’ouverture :',
     'admin.thematiques.closeDate': 'Date de clôture :',
     'admin.thematiques.csv': 'Importer CSV :',
+    'admin.thematiques.csvRequired': 'CSV obligatoire',
+    'admin.thematiques.toast.csvReady': 'CSV chargé.',
+    'admin.thematiques.toast.missingFields': 'Veuillez remplir tous les champs obligatoires.',
+    'admin.thematiques.toast.missingCsv': 'Le fichier CSV est obligatoire.',
     'admin.thematiques.create': 'Creer',
     'admin.thematiques.wait': 'Patientez...',
     'admin.thematiques.errorPrefix': 'Erreur :',
@@ -320,7 +325,7 @@ const translations: Translations = {
   en: {
     // Navbar
     'navbar.myResponses': 'My responses',
-    'navbar.questionnaire': 'Questionnaire',
+    'navbar.questionnaire': 'Survey',
     'navbar.notifications': 'Notifications',
     'navbar.account': 'Account',
     'navbar.editProfile': 'Edit my details',
@@ -372,8 +377,8 @@ const translations: Translations = {
     'auth.consent.goal': 'Project Objective',
     'auth.consent.goalText': 'This project aims to understand how the device best promotes user well-being. Specifically, it evaluates ease of use, integration into daily routines, and perceived effects on symptoms such as cyclic pain, muscle tension, sleep problems, or mood variations linked to stress or hormonal changes.',
     'auth.consent.data': 'Data Collected',
-    'auth.consent.dataText': 'We collect your basic contact details (name, first name, age, gender, ethnic origin, and email) to track participation, send evaluation questionnaires, and gather your feedback on the device. These details support scientific validation and overall analysis across the participant cohort.',
-    'auth.consent.questionnaires': 'The questionnaires cover your usage experience: device comfort, frequency of use, context, perceived effects on pain, sleep, stress, and general well-being, plus overall satisfaction.',
+    'auth.consent.dataText': 'We collect your basic contact details (name, first name, age, gender, ethnic origin, and email) to track participation, send evaluation surveys, and gather your feedback on the device. These details support scientific validation and overall analysis across the participant cohort.',
+    'auth.consent.questionnaires': 'The surveys cover your usage experience: device comfort, frequency of use, context, perceived effects on pain, sleep, stress, and general well-being, plus overall satisfaction.',
     'auth.consent.security': 'All data is stored on secure servers in compliance with Quebec\'s Law 25 on personal information protection. During analysis, all data is anonymized to ensure participant confidentiality.',
     'auth.consent.partnership': 'Partnership Commitment',
     'auth.consent.partnershipText': 'By receiving the device free of charge, you become an active project partner. Your participation directly contributes to scientific validation and device improvement. We also wish to keep you informed of analysis reports and scientific validation results, so you can follow the cohort\'s collective outcomes and project progress. To this end, you consent to receive our newsletter, which will periodically share project updates, interim results, and additional information on research and development activities. If you choose to withdraw, you commit to returning the device to respect the study protocol.',
@@ -381,7 +386,7 @@ const translations: Translations = {
     'auth.consent.durationText': 'Your participation lasts about one year from the date you receive the device. To track your experience evolution, two evaluations are requested:',
     'auth.consent.duration6': 'First after 6 months of continuous use.',
     'auth.consent.duration12': 'Second after 12 months, at the end of your participation.',
-    'auth.consent.durationEnd': 'Each evaluation involves completing the same follow-up form (questionnaire on comfort, perceived effects, and satisfaction). These two response points assess effect evolution over time and strengthen the project\'s scientific value.',
+    'auth.consent.durationEnd': 'Each evaluation involves completing the same follow-up form (survey on comfort, perceived effects, and satisfaction). These two response points assess effect evolution over time and strengthen the project\'s scientific value.',
     'auth.consent.contact': 'You may withdraw consent at any time by emailing:',
     'auth.consent.email': 'info@sahera.ca',
     'auth.consent.withdraw': 'Upon withdrawal, you must return the provided device.',
@@ -437,9 +442,9 @@ const translations: Translations = {
     'answers.pagination.next': 'Next',
 
     // Questionnaire list
-    'questionnaire.title': 'Questionnaires to do:',
-    'questionnaire.emptyLead': 'You have no available questionnaire right now.',
-    'questionnaire.emptyTitle': 'No questionnaire',
+    'questionnaire.title': 'Surveys to do:',
+    'questionnaire.emptyLead': 'You have no available survey right now.',
+    'questionnaire.emptyTitle': 'No survey',
     'pagination.prev': 'Previous',
     'pagination.next': 'Next',
 
@@ -448,7 +453,7 @@ const translations: Translations = {
     'card.status.closed': 'Closed',
     'card.published': 'Published:',
     'card.until': 'until:',
-    'card.completed': 'Questionnaire completed',
+    'card.completed': 'Survey completed',
     'card.pending': 'Awaiting answers',
     'card.modify': 'Edit',
     'card.respond': 'Answer',
@@ -467,6 +472,7 @@ const translations: Translations = {
     'qna.loadingSubthemes': 'Loading subtopics…',
     'qna.questionsFor': 'Questions for « {{title}} »',
     'qna.selectOption': 'Select an option',
+    'qna.selectOptions': 'Select one or more options',
     'qna.enterAnswer': 'Enter your answer',
     'qna.chooseDate': 'Choose a date',
     'qna.noQuestions': 'No question for this subtopic.',
@@ -480,7 +486,7 @@ const translations: Translations = {
 
     // Admin navbar
     'admin.participants': 'Participants',
-    'admin.questionnaires': 'Questionnaire',
+    'admin.questionnaires': 'Survey',
     'admin.messages': 'Messages',
 
     // Admin participants
@@ -532,7 +538,7 @@ const translations: Translations = {
     // Admin questionnaire generation
     'admin.thematiques.title': 'Themes list',
     'admin.thematiques.emptyLead': 'No theme is available for now.',
-    'admin.thematiques.emptyTitle': 'No questionnaire',
+    'admin.thematiques.emptyTitle': 'No survey',
     'admin.thematiques.createTitle': 'Create a Theme',
     'admin.thematiques.titre': 'Title:',
     'admin.thematiques.titreFr': 'Title (FR)',
@@ -543,6 +549,10 @@ const translations: Translations = {
     'admin.thematiques.openDate': 'Opening date:',
     'admin.thematiques.closeDate': 'Closing date:',
     'admin.thematiques.csv': 'Import CSV:',
+    'admin.thematiques.csvRequired': 'CSV required',
+    'admin.thematiques.toast.csvReady': 'CSV loaded.',
+    'admin.thematiques.toast.missingFields': 'Please fill in all required fields.',
+    'admin.thematiques.toast.missingCsv': 'CSV file is required.',
     'admin.thematiques.create': 'Create',
     'admin.thematiques.wait': 'Please wait...',
     'admin.thematiques.errorPrefix': 'Error:',

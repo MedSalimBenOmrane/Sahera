@@ -10,6 +10,7 @@ import { SousThematiqueService } from 'src/app/services/sous-thematique.service'
 import { TranslationService } from 'src/app/services/translation.service';
 
 type ToastType = 'success' | 'error';
+type ResponseValue = string | string[];
 
 @Component({
   selector: 'app-q-and-a',
@@ -26,7 +27,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
   questionsMap: { [stId: number]: Question[] } = {};
   loadingQuestionsMap: { [stId: number]: boolean } = {};
 
-  reponses: { [stId: number]: { [questionId: number]: string } } = {};
+  reponses: { [stId: number]: { [questionId: number]: ResponseValue } } = {};
   repIdMap: { [stId: number]: { [qId: number]: number } } = {};
 
   toast = { show: false, message: '', type: 'success' as ToastType, timer: 0 };
@@ -79,9 +80,80 @@ export class QAndAComponent implements OnInit, OnDestroy {
     return this.questionsMap[st.id] || [];
   }
 
+  private normalizeType(type: Question['type'] | string | undefined): string {
+    return String(type || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+  }
+
+  isMultiSelectQuestion(q: Question): boolean {
+    return this.normalizeType(q.type) === 'liste_multiple';
+  }
+
+  isSingleSelectQuestion(q: Question): boolean {
+    return this.normalizeType(q.type) === 'liste';
+  }
+
   getOptions(q: Question): string[] {
-    if (q.type !== 'liste') return [];
+    if (!this.isSingleSelectQuestion(q) && !this.isMultiSelectQuestion(q)) return [];
     return Array.isArray(q.options) ? q.options : [];
+  }
+
+  private parseMultiAnswer(value?: ResponseValue | null): string[] {
+    if (Array.isArray(value)) {
+      return value.map(v => String(v).trim()).filter(Boolean);
+    }
+    if (!value) return [];
+    const raw = String(value).trim();
+    if (!raw) return [];
+    if (raw.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.map(v => String(v).trim()).filter(Boolean);
+        }
+      } catch {
+        // fallback to separator parsing
+      }
+    }
+    const parts = raw
+      .split(/\s*\/\s*/)
+      .map(v => v.trim())
+      .filter(Boolean);
+    return parts.length ? parts : [raw];
+  }
+
+  private getMultiSelection(value: ResponseValue | undefined): string[] {
+    return this.parseMultiAnswer(value);
+  }
+
+  private normalizeMultiAnswer(value: ResponseValue | undefined): string[] {
+    return this.parseMultiAnswer(value);
+  }
+
+  isOptionSelected(stId: number, qId: number, opt: string): boolean {
+    const current = this.getMultiSelection(this.reponses[stId]?.[qId]);
+    return current.includes(opt);
+  }
+
+  onOptionToggle(stId: number, q: Question, opt: string, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const current = new Set(this.getMultiSelection(this.reponses[stId]?.[q.id]));
+    if (checked) {
+      current.add(opt);
+    } else {
+      current.delete(opt);
+    }
+    const options = this.getOptions(q);
+    const ordered = options.filter(o => current.has(o));
+    const extras = Array.from(current).filter(o => !options.includes(o));
+    this.reponses[stId][q.id] = [...ordered, ...extras];
+  }
+
+  private isMissingAnswer(stId: number, q: Question): boolean {
+    const val = this.reponses[stId]?.[q.id];
+    if (this.isMultiSelectQuestion(q)) {
+      return this.normalizeMultiAnswer(val).length === 0;
+    }
+    return !String(val ?? '').trim();
   }
 
   private loadSousThematiques(): void {
@@ -110,7 +182,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
         this.questionsMap[stId] = listQ;
         this.reponses[stId] = {};
         this.repIdMap[stId]  = {};
-        listQ.forEach(q => (this.reponses[stId][q.id] = ''));
+        listQ.forEach(q => (this.reponses[stId][q.id] = this.isMultiSelectQuestion(q) ? [] : ''));
 
         this.reponseService.getByClientSousThematique(this.userId, stId).subscribe({
           next: existing => {
@@ -119,13 +191,23 @@ export class QAndAComponent implements OnInit, OnDestroy {
               const q = byId.get(r.question_id);
               if (!q) return;
 
-              if (q.type === 'liste') {
+              if (this.isSingleSelectQuestion(q)) {
                 const opts = this.getOptions(q);
                 if (r.contenu && !opts.includes(r.contenu)) {
                   (q as any).options = [r.contenu, ...opts];
                 }
+                this.reponses[stId][r.question_id] = r.contenu || '';
+              } else if (this.isMultiSelectQuestion(q)) {
+                const selected = this.parseMultiAnswer(r.contenu);
+                const opts = this.getOptions(q);
+                const extras = selected.filter(v => v && !opts.includes(v));
+                if (extras.length) {
+                  (q as any).options = [...extras, ...opts];
+                }
+                this.reponses[stId][r.question_id] = selected;
+              } else {
+                this.reponses[stId][r.question_id] = r.contenu || '';
               }
-              this.reponses[stId][r.question_id] = r.contenu || '';
               this.repIdMap[stId][r.question_id] = r.reponse_id;
             });
 
@@ -155,8 +237,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
 
     const manquantes: number[] = [];
     for (const q of questions) {
-      const val = (this.reponses[stId][q.id] || '').trim();
-      if (!val) {
+      if (this.isMissingAnswer(stId, q)) {
         manquantes.push(q.id);
       }
     }
@@ -170,7 +251,9 @@ export class QAndAComponent implements OnInit, OnDestroy {
     let failed = false;
 
     for (const q of questions) {
-      const texte = (this.reponses[stId][q.id] || '').trim();
+      const texte = this.isMultiSelectQuestion(q)
+        ? this.normalizeMultiAnswer(this.reponses[stId][q.id])
+        : String(this.reponses[stId][q.id] || '').trim();
       const existingId = this.repIdMap[stId][q.id];
 
       let obs$;

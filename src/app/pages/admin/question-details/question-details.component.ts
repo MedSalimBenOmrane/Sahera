@@ -61,11 +61,12 @@ export class QuestionDetailsComponent implements OnInit, OnDestroy {
           clients => {
             this.rows = reps.map((rep, i) => {
               const c = clients[i];
+              const valeur = Array.isArray(rep.valeur) ? rep.valeur.join(' / ') : rep.valeur;
               return {
                 userId: c?.id ?? rep.userId,
                 nom: c?.nom ?? '',
                 prenom: c?.prenom ?? '',
-                valeur: rep.valeur
+                valeur: valeur
               };
             });
             this.isLoading = false;

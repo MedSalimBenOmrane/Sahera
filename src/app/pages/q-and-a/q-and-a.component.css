@@ -37,6 +37,25 @@
   background: #4a1c2abe;
 }
 
+/* Ne pas appliquer le style d'onglet aux options multi-select */
+.tabs .multi-options label {
+  order: initial;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 0;
+  background: transparent;
+  color: #222;
+  font-weight: normal;
+  transition: none;
+}
+.tabs .multi-options label:hover {
+  background: transparent;
+}
+
 /* 2.2) Les “contenus” (un <div class="tab"> par sous-thématique) */
 .tabs .tab {
   order: 99; /* on met les contenus à la fin de la grille */
@@ -156,5 +175,104 @@ input:hover {
   .cdk-overlay-pane .mobile-select-panel {
     width: calc(100vw - 2rem) !important;     /* largeur max = viewport - marges */
     max-width: calc(100vw - 2rem) !important; /* idem si options très longues   */
+  }
+}
+/* Multi-select options (checkbox list) */
+.multi-select-label {
+  font-size: 0.9rem;
+  color: #4a1c2a;
+  margin-bottom: 0.35rem;
+}
+.multi-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+}
+
+/* Material checkbox style */
+.material-checkbox {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  color: #777777;
+  cursor: pointer;
+  position: relative;
+  padding: 0.2rem 0;
+  gap: 12px;
+  width: 100%;
+}
+
+.material-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkmark {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #4a1c2a;
+  border-radius: 4px;
+  transition: all 0.3s;
+  flex: 0 0 auto;
+}
+
+.material-checkbox input[type="checkbox"]:checked ~ .checkmark {
+  background-color: #4a1c2a;
+  border-color: #4a1c2a;
+}
+
+.material-checkbox input[type="checkbox"]:checked ~ .checkmark:after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 4px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.material-checkbox input[type="checkbox"]:focus ~ .checkmark {
+  box-shadow: 0 0 0 2px rgba(74, 28, 42, 0.2);
+}
+
+.material-checkbox:hover input[type="checkbox"] ~ .checkmark {
+  border-color: #4a1c2a;
+}
+
+.material-checkbox input[type="checkbox"]:disabled ~ .checkmark {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.material-checkbox input[type="checkbox"]:disabled ~ .checkmark:hover {
+  border-color: #4d4d4d;
+}
+
+.multi-option-text {
+  color: #222;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+@media (max-width: 480px) {
+  .material-checkbox {
+    font-size: 15px;
+  }
+  .checkmark {
+    width: 18px;
+    height: 18px;
+  }
+  .multi-option-text {
+    font-size: 0.9rem;
   }
 }

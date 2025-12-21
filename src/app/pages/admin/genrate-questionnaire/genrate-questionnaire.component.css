@@ -105,6 +105,14 @@ dialog::backdrop {
   background-color: #fff;
 }
 
+.input-invalid,
+.input-invalid:hover,
+.input-invalid:focus {
+  border-color: #b42318;
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.2);
+  background-color: #fff;
+}
+
 /* textarea pour la description */
 .textarea-message {
   resize: vertical;
@@ -169,6 +177,10 @@ dialog::backdrop {
   border: 2px dashed rgb(82, 82, 82);
   box-shadow: 0px 0px 200px -50px rgba(0, 0, 0, 0.719);
 }
+.file-upload-label.input-invalid {
+  border-color: #b42318;
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.2);
+}
 .file-upload-design {
   display: flex;
   flex-direction: column;
@@ -185,6 +197,20 @@ dialog::backdrop {
 }
 .browse-button:hover {
   background-color: rgb(14, 14, 14);
+}
+
+.csv-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  color: #2c2c2c;
+  font-size: 0.9rem;
+}
+.csv-name {
+  color: #4a1c2a;
+  font-weight: 600;
+  word-break: break-word;
 }
 
 /* responsive */

@@ -53,6 +53,38 @@ export class ThematiqueDetailsComponent implements OnInit, AfterViewInit, OnDest
     private i18n: TranslationService
   ) {}
 
+  private normalizeType(type: Question['type'] | string | undefined): string {
+    return String(type || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+  }
+
+  private isMultiSelectQuestion(q: Question): boolean {
+    return this.normalizeType(q.type) === 'liste_multiple';
+  }
+
+  private parseMultiAnswer(value?: string | string[] | null): string[] {
+    if (Array.isArray(value)) {
+      return value.map(v => String(v).trim()).filter(Boolean);
+    }
+    if (!value) return [];
+    const raw = String(value).trim();
+    if (!raw) return [];
+    if (raw.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.map(v => String(v).trim()).filter(Boolean);
+        }
+      } catch {
+        // fallback to separator parsing
+      }
+    }
+    const parts = raw
+      .split(/\s*\/\s*/)
+      .map(v => v.trim())
+      .filter(Boolean);
+    return parts.length ? parts : [raw];
+  }
+
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -140,6 +172,7 @@ export class ThematiqueDetailsComponent implements OnInit, AfterViewInit, OnDest
     this.analysis.loading = true;
     this.analysis.options = [];
     this.analysis.counts = [];
+    const isMulti = this.isMultiSelectQuestion(q);
 
     const options$ = (q as any)?.options
       ? of((q as any).options as string[])
@@ -154,9 +187,18 @@ export class ThematiqueDetailsComponent implements OnInit, AfterViewInit, OnDest
             for (const o of opts) base.set(o, 0);
             let other = 0;
             for (const r of resps) {
-              const v = (r.valeur || '').trim();
-              if (base.has(v)) base.set(v, (base.get(v) || 0) + 1);
-              else other++;
+              if (isMulti) {
+                const values = Array.from(new Set(this.parseMultiAnswer(r.valeur)));
+                if (!values.length) continue;
+                for (const v of values) {
+                  if (base.has(v)) base.set(v, (base.get(v) || 0) + 1);
+                  else other++;
+                }
+              } else {
+                const v = String(r.valeur || '').trim();
+                if (base.has(v)) base.set(v, (base.get(v) || 0) + 1);
+                else other++;
+              }
             }
             const counts = opts.map(o => base.get(o) || 0);
             this.analysis.counts  = other > 0 ? [...counts, other] : counts;

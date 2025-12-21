@@ -1,4 +1,4 @@
-export type QuestionType = 'liste' | 'text' | 'date';
+export type QuestionType = 'liste' | 'liste_multiple' | 'liste multiple' | 'text' | 'date';
 
 export class Question {
   constructor(

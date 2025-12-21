@@ -61,7 +61,7 @@
 .container2 { height: 60vh; margin-left: 2%; color: #ffd0f3; flex: 1; }
 .container3 { margin-top: 2%; color: #ffd0f3; max-height: 40%; flex: 1; margin-left: 2%; }
 .container4 { margin: 1% 1%; height: 48.8%; flex: 1; }
-.container5 { margin-top: 2%; margin-bottom: 1%; height: 97%; flex: 1; box-shadow: 0 4px 30px rgba(130, 60, 51, 0.1); }
+.container5 { margin-top: 2%; margin-bottom: 1%; height: 92%; flex: 1; box-shadow: 0 4px 30px rgba(130, 60, 51, 0.1); }
 .container7 { margin-top: 1%; width: 48%; min-height: 100%; flex: 1; margin-left:1%; margin-right: 2%; }
 .container8 { margin-top: 1%; width: 48%; min-height: 100%; flex: 1; }
 

@@ -47,6 +47,8 @@ export class LineChartComponent implements OnInit {
         ]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           title: {
             display: true,

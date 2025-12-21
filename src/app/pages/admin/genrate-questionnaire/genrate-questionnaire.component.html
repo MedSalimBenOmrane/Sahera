@@ -100,30 +100,36 @@
   <div class="row">
     <div class="col-5">{{ 'admin.thematiques.titreFr' | translate }}</div>
     <div class="col-7">
-      <input type="text" class="input5" [(ngModel)]="newThematique.titre" [placeholder]="'admin.thematiques.titreFr' | translate" />
+      <input type="text" class="input5" [(ngModel)]="newThematique.titre"
+        [class.input-invalid]="showValidation && !newThematique.titre"
+        [placeholder]="'admin.thematiques.titreFr' | translate" />
     </div>
   </div>
 
   <div class="row">
     <div class="col-5">{{ 'admin.thematiques.titreEn' | translate }}</div>
     <div class="col-7">
-      <input type="text" class="input5" [(ngModel)]="newThematique.titreEn" [placeholder]="'admin.thematiques.titreEn' | translate" />
+      <input type="text" class="input5" [(ngModel)]="newThematique.titreEn"
+        [class.input-invalid]="showValidation && !newThematique.titreEn"
+        [placeholder]="'admin.thematiques.titreEn' | translate" />
     </div>
   </div>
 
   <div class="row">
     <div class="col-5">{{ 'admin.thematiques.descriptionFr' | translate }}</div>
     <div class="col-7">
-      <textarea class="input5 textarea-message" [(ngModel)]="newThematique.description" [placeholder]="'admin.thematiques.descriptionFr' | translate"
-        rows="3"></textarea>
+      <textarea class="input5 textarea-message" [(ngModel)]="newThematique.description"
+        [class.input-invalid]="showValidation && !newThematique.description"
+        [placeholder]="'admin.thematiques.descriptionFr' | translate" rows="3"></textarea>
     </div>
   </div>
 
   <div class="row">
     <div class="col-5">{{ 'admin.thematiques.descriptionEn' | translate }}</div>
     <div class="col-7">
-      <textarea class="input5 textarea-message" [(ngModel)]="newThematique.descriptionEn" [placeholder]="'admin.thematiques.descriptionEn' | translate"
-        rows="3"></textarea>
+      <textarea class="input5 textarea-message" [(ngModel)]="newThematique.descriptionEn"
+        [class.input-invalid]="showValidation && !newThematique.descriptionEn"
+        [placeholder]="'admin.thematiques.descriptionEn' | translate" rows="3"></textarea>
     </div>
   </div>
   <div class="row">
@@ -132,20 +138,23 @@
     <input
       type="date"
       class="input5"
-      [(ngModel)]="newThematique.dateOuvertureSession" />
+      [(ngModel)]="newThematique.dateOuvertureSession"
+      [class.input-invalid]="showValidation && !newThematique.dateOuvertureSession" />
   </div>
 </div>
   <div class="row">
     <div class="col-5">{{ 'admin.thematiques.closeDate' | translate }}</div>
     <div class="col-7">
-      <input type="date" class="input5" [(ngModel)]="newThematique.dateFermetureSession" />
+    <input type="date" class="input5" [(ngModel)]="newThematique.dateFermetureSession"
+      [class.input-invalid]="showValidation && !newThematique.dateFermetureSession" />
     </div>
   </div>
   <div class="row">
     <div class="col-5">{{ 'admin.thematiques.csv' | translate }}</div>
     <div class="col-7">
       <form class="file-upload-form" >
-        <label class="file-upload-label" for="file">
+        <label class="file-upload-label" for="file"
+          [class.input-invalid]="showValidation && !selectedFile">
           <div class="file-upload-design">
             <svg height="1em" viewBox="0 0 640 512">
               <path
@@ -161,6 +170,9 @@
         </label>
 
       </form>
+      <div class="csv-status" *ngIf="selectedFile">
+        <span class="csv-name">{{ selectedFile?.name }}</span>
+      </div>
     </div>
   </div>
   <div class="row justify-content-center mt-3">

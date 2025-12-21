@@ -1,13 +1,15 @@
 // src/app/models/reponse.model.ts
+export type ReponseValeur = string | string[];
+
 export class Reponse {
   constructor(
     public id: number,
-    public valeur: string,
+    public valeur: ReponseValeur,
     public dateReponse: Date,
     public questionId: number,
     public userId: number,
-    public valeurFr?: string,
-    public valeurEn?: string,
-    public valeurBrute?: string
+    public valeurFr?: ReponseValeur,
+    public valeurEn?: ReponseValeur,
+    public valeurBrute?: ReponseValeur
   ) {}
 }

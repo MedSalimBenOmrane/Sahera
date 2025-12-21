@@ -24,6 +24,7 @@ export class GenrateQuestionnaireComponent implements OnInit, OnDestroy {
   isCreating = false;
   errorMessage = '';
   selectedFile: File | null = null;
+  showValidation = false;
 
   newThematique = {
     titre: '',
@@ -50,7 +51,10 @@ export class GenrateQuestionnaireComponent implements OnInit, OnDestroy {
     return Array.from({length: end - start + 1}, (_, i) => start + i);
   }
 
-  constructor(private thematiqueService: ThematiqueService, private i18n: TranslationService) {}
+  constructor(
+    private thematiqueService: ThematiqueService,
+    private i18n: TranslationService
+  ) {}
 
   ngOnInit(): void {
     this.loadPage(1);
@@ -93,6 +97,7 @@ export class GenrateQuestionnaireComponent implements OnInit, OnDestroy {
     this.newThematique = { titre:'', titreEn:'', description:'', descriptionEn:'', dateOuvertureSession:'', dateFermetureSession:'' };
     this.selectedFile = null;
     this.errorMessage = '';
+    this.showValidation = false;
     (this.dialogRef.nativeElement as any).showModal();
   }
   closeDialog(): void { (this.dialogRef.nativeElement as any).close(); }
@@ -104,8 +109,10 @@ export class GenrateQuestionnaireComponent implements OnInit, OnDestroy {
 
   createThematique(): void {
     this.errorMessage = '';
+    this.showValidation = true;
     const { titre, titreEn, description, descriptionEn, dateOuvertureSession, dateFermetureSession } = this.newThematique;
-    if (!titre || !description || !dateOuvertureSession || !dateFermetureSession) return;
+    if (!titre || !titreEn || !description || !descriptionEn || !dateOuvertureSession || !dateFermetureSession) return;
+    if (!this.selectedFile) return;
 
     const ouverture = new Date(dateOuvertureSession + 'T00:00:00');
     const cloture   = new Date(dateFermetureSession + 'T00:00:00');
@@ -119,12 +126,7 @@ export class GenrateQuestionnaireComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => { this.isLoading = false; this.isCreating = false; }))
       .subscribe({
         next: (created) => {
-          if (this.selectedFile) {
-            this.importCsv(created.id);         // après import on rechargera la liste
-          } else {
-            this.closeDialog();
-            this.loadPage(1);                   // reviens sur la 1ère page (tri -date_ouverture)
-          }
+          this.importCsv(created.id);         // CSV obligatoire
         },
         error: err => {
           console.error('Erreur création thématique', err);
