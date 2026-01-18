@@ -11,6 +11,7 @@ import { TranslationService } from 'src/app/services/translation.service';
 
 type ToastType = 'success' | 'error';
 type ResponseValue = string | string[];
+type InlineNotice = { message: string; type: ToastType; timer?: number };
 
 @Component({
   selector: 'app-q-and-a',
@@ -30,7 +31,8 @@ export class QAndAComponent implements OnInit, OnDestroy {
   reponses: { [stId: number]: { [questionId: number]: ResponseValue } } = {};
   repIdMap: { [stId: number]: { [qId: number]: number } } = {};
 
-  toast = { show: false, message: '', type: 'success' as ToastType, timer: 0 };
+  inlineNotices: { [stId: number]: InlineNotice } = {};
+  activeIndex = 0;
 
   private userId!: number;
   private langSub?: Subscription;
@@ -63,17 +65,26 @@ export class QAndAComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+    Object.values(this.inlineNotices).forEach(notice => {
+      if (notice.timer) window.clearTimeout(notice.timer);
+    });
   }
 
-  private showToast(key: string, type: ToastType = 'error', durationMs = 3000, params?: Record<string,string>): void {
-    this.toast.message = this.i18n.translate(key, params);
-    this.toast.type = type;
-    this.toast.show = true;
-
-    if (this.toast.timer) {
-      window.clearTimeout(this.toast.timer);
+  private setInlineNotice(stId: number, key: string, type: ToastType = 'error', durationMs = 3000, params?: Record<string,string>): void {
+    const message = this.i18n.translate(key, params);
+    const existing = this.inlineNotices[stId];
+    if (existing?.timer) {
+      window.clearTimeout(existing.timer);
     }
-    this.toast.timer = window.setTimeout(() => (this.toast.show = false), durationMs);
+    const timer = window.setTimeout(() => {
+      delete this.inlineNotices[stId];
+    }, durationMs);
+    this.inlineNotices[stId] = { message, type, timer };
+  }
+
+  setActiveIndex(index: number, scroll = false): void {
+    this.activeIndex = index;
+    if (scroll) this.scrollToTop();
   }
 
   getQuestions(st: SousThematique): Question[] {
@@ -162,6 +173,8 @@ export class QAndAComponent implements OnInit, OnDestroy {
       next: listST => {
         this.sousThematiques = listST;
         this.isLoadingST = false;
+        this.activeIndex = 0;
+        this.inlineNotices = {};
         for (const st of listST) {
           this.loadQuestionsForSousThematique(st.id);
         }
@@ -172,6 +185,21 @@ export class QAndAComponent implements OnInit, OnDestroy {
         this.isLoadingST = false;
       }
     });
+  }
+
+  private scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  private goToNextSousThematique(currentStId: number): void {
+    const currentIndex = this.sousThematiques.findIndex(st => st.id === currentStId);
+    if (currentIndex < 0) return;
+    const nextIndex = currentIndex + 1;
+    if (nextIndex < this.sousThematiques.length) {
+      this.setActiveIndex(nextIndex, true);
+    } else {
+      this.scrollToTop();
+    }
   }
 
   private loadQuestionsForSousThematique(stId: number): void {
@@ -231,7 +259,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
     const stId = st.id;
     const questions = this.getQuestions(st);
     if (!questions.length) {
-      this.showToast('qna.toast.none', 'error');
+      this.setInlineNotice(stId, 'qna.toast.none', 'error');
       return;
     }
 
@@ -242,7 +270,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
       }
     }
     if (manquantes.length) {
-      this.showToast('qna.toast.missing', 'error');
+      this.setInlineNotice(stId, 'qna.toast.missing', 'error');
       return;
     }
 
@@ -280,9 +308,11 @@ export class QAndAComponent implements OnInit, OnDestroy {
           done++;
           if (done === total) {
             if (failed) {
-              this.showToast('qna.toast.partial', 'error', 4000);
+              this.setInlineNotice(stId, 'qna.toast.partial', 'error', 4000);
             } else {
-              this.showToast('qna.toast.saved', 'success', 3000, { title: st.titre });
+              this.setInlineNotice(stId, 'qna.toast.saved', 'success', 3000, { title: st.titre });
+              const autoAdvanceDelayMs = 600;
+              window.setTimeout(() => this.goToNextSousThematique(stId), autoAdvanceDelayMs);
             }
           }
         }

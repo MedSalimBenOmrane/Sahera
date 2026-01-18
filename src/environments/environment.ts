@@ -6,7 +6,7 @@
 
 export const environment = {
   production: false,
-  apiBase: 'http://192.168.1.3:5000' // <- sans /api (on l’ajoute après)
+  apiBase: 'http://172.28.48.1:5000' // <- sans /api (on l’ajoute après)
 };
 
 /*

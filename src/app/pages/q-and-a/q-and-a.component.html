@@ -4,13 +4,6 @@
       <h1>{{ 'qna.theme' | translate }} {{ thematiqueTitre }}</h1>
     </div>
 
-    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
-      <div *ngIf="toast.show" class="alert shadow-sm mb-0"
-        [ngClass]="{'alert-danger': toast.type==='error', 'alert-success': toast.type==='success'}">
-        {{ toast.message }}
-      </div>
-    </div>
-
     <div *ngIf="isLoadingST" class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">{{ 'qna.loadingSubthemes' | translate }}</span>
@@ -21,7 +14,7 @@
       <ng-container *ngIf="sousThematiques.length > 0; else emptyST">
         <div class="tabs p-1">
           <ng-container *ngFor="let st of sousThematiques; let i = index">
-            <input type="radio" name="tabs" [id]="'tab' + i" [checked]="i===0" />
+            <input type="radio" name="tabs" [id]="'tab' + i" [checked]="activeIndex===i" (change)="setActiveIndex(i)" />
             <label [for]="'tab' + i">{{ st.titre }}</label>
 
             <div class="tab">
@@ -69,7 +62,7 @@
                   </ng-template>
 
                   <ng-template #nonListeTpl>
-                    <mat-form-field appearance="fill" class="w-100">
+                    <mat-form-field appearance="fill" class="w-100" [floatLabel]="q.type === 'date' ? 'always' : 'auto'">
                       <mat-label>
                         {{ q.type === 'date' ? ('qna.chooseDate' | translate) : ('qna.enterAnswer' | translate) }}
                       </mat-label>
@@ -95,6 +88,10 @@
                 <button (click)="saveReponses(st)" class="btn btn-primary">
                   {{ 'qna.saveAnswers' | translate }}
                 </button>
+                <div *ngIf="inlineNotices[st.id]" class="alert mt-2 mb-0 text-start w-100"
+                  [ngClass]="{'alert-danger': inlineNotices[st.id].type==='error', 'alert-success': inlineNotices[st.id].type==='success'}">
+                  {{ inlineNotices[st.id].message }}
+                </div>
               </div>
             </div>
           </ng-container>
