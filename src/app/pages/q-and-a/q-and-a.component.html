@@ -15,7 +15,7 @@
         <div class="tabs p-1">
           <ng-container *ngFor="let st of sousThematiques; let i = index">
             <input type="radio" name="tabs" [id]="'tab' + i" [checked]="activeIndex===i" (change)="setActiveIndex(i)" />
-            <label [for]="'tab' + i">{{ st.titre }}</label>
+            <label [for]="'tab' + i" [attr.title]="st.titre">{{ st.titre }}</label>
 
             <div class="tab">
               <div class="title">
