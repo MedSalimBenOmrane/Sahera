@@ -43,33 +43,6 @@
           [class.error-border]="isFieldInvalid('prenom')"
         />
 
-        <input class="input"
-          id="emailSignup"
-          type="email"
-          formControlName="email"
-          placeholder="Email"
-          (blur)="onBlurField('email')"
-          [class.error-border]="isFieldInvalid('email')"
-        />
-
-        <input class="input"
-          id="passwordSignup"
-          type="password"
-          formControlName="password"
-          [placeholder]="'auth.signup.password' | translate"
-          (blur)="onBlurField('password')"
-          [class.error-border]="isFieldInvalid('password')"
-        />
-
-        <input class="input"
-          id="telephone"
-          type="text"
-          formControlName="telephone"
-          [placeholder]="'auth.signup.phone' | translate"
-          (blur)="onBlurField('telephone')"
-          [class.error-border]="isFieldInvalid('telephone')"
-        />
-
         <div class="input-row date-row">
           <label class="date-label" for="dateNaissance">
             {{ 'auth.signup.birthDate' | translate }}
@@ -112,6 +85,78 @@
   <option *ngFor="let opt of ethniciteOptions" [ngValue]="opt.value">{{ opt.labelKey | translate }}</option>
 </select>
 
+        <input class="input"
+          id="telephone"
+          type="text"
+          formControlName="telephone"
+          [placeholder]="'auth.signup.phone' | translate"
+          (blur)="onBlurField('telephone')"
+          [class.error-border]="isFieldInvalid('telephone')"
+        />
+
+        <input class="input"
+          id="emailSignup"
+          type="email"
+          formControlName="email"
+          placeholder="Email"
+          (blur)="onBlurField('email')"
+          [class.error-border]="isFieldInvalid('email')"
+        />
+
+        <div class="password-field">
+          <input class="input"
+            id="passwordSignup"
+            [type]="showSignupPassword ? 'text' : 'password'"
+            formControlName="password"
+            [placeholder]="'auth.signup.password' | translate"
+            (blur)="onBlurField('password')"
+            [class.error-border]="isFieldInvalid('password')"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility('signup')"
+            [attr.aria-pressed]="showSignupPassword"
+            [attr.aria-label]="showSignupPassword ? 'Hide password' : 'Show password'">
+            <svg *ngIf="!showSignupPassword" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <svg *ngIf="showSignupPassword" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+              <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="password-field">
+          <input class="input"
+            id="confirmPasswordSignup"
+            [type]="showSignupConfirmPassword ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            [placeholder]="'auth.signup.confirmPassword' | translate"
+            (blur)="onBlurField('confirmPassword')"
+            [class.error-border]="isFieldInvalid('confirmPassword')"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility('signupConfirm')"
+            [attr.aria-pressed]="showSignupConfirmPassword"
+            [attr.aria-label]="showSignupConfirmPassword ? 'Hide password' : 'Show password'">
+            <svg *ngIf="!showSignupConfirmPassword" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <svg *ngIf="showSignupConfirmPassword" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+              <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
 
         <button type="submit">{{ 'auth.signup.submit' | translate }}</button>
       </form>
@@ -130,14 +175,32 @@
           [class.error-border]="isLoginFieldInvalid('email')"
         />
 
-        <input class="input"
-                  id="passwordLogin"
-          type="password"
-          formControlName="password"
-          [placeholder]="'auth.signup.password' | translate"
-          (blur)="onBlurLoginField('password')"
-          [class.error-border]="isLoginFieldInvalid('password')"
-        />
+        <div class="password-field">
+          <input class="input"
+                    id="passwordLogin"
+            [type]="showLoginPassword ? 'text' : 'password'"
+            formControlName="password"
+            [placeholder]="'auth.signup.password' | translate"
+            (blur)="onBlurLoginField('password')"
+            [class.error-border]="isLoginFieldInvalid('password')"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility('login')"
+            [attr.aria-pressed]="showLoginPassword"
+            [attr.aria-label]="showLoginPassword ? 'Hide password' : 'Show password'">
+            <svg *ngIf="!showLoginPassword" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <svg *ngIf="showLoginPassword" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+              <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
         <div class="form-check">
   <input
     class="form-check-input "
@@ -277,12 +340,54 @@
   </form>
 
   <div style="margin-top: 18px;">
-    <input type="password" class="input" [placeholder]="'auth.forgot.newPassword' | translate"
-           [(ngModel)]="newPw" name="newPw"
-           [disabled]="!fpVerified">
-    <input type="password" class="input" [placeholder]="'auth.forgot.confirmPassword' | translate"
-           [(ngModel)]="newPw2" name="newPw2"
-           [disabled]="!fpVerified">
+    <div class="password-field">
+      <input class="input"
+             [type]="showForgotNewPassword ? 'text' : 'password'"
+             [placeholder]="'auth.forgot.newPassword' | translate"
+             [(ngModel)]="newPw" name="newPw"
+             [disabled]="!fpVerified">
+      <button
+        type="button"
+        class="toggle-password"
+        (click)="togglePasswordVisibility('forgotNew')"
+        [disabled]="!fpVerified"
+        [attr.aria-pressed]="showForgotNewPassword"
+        [attr.aria-label]="showForgotNewPassword ? 'Hide password' : 'Show password'">
+        <svg *ngIf="!showForgotNewPassword" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <svg *ngIf="showForgotNewPassword" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+          <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="password-field">
+      <input class="input"
+             [type]="showForgotConfirmPassword ? 'text' : 'password'"
+             [placeholder]="'auth.forgot.confirmPassword' | translate"
+             [(ngModel)]="newPw2" name="newPw2"
+             [disabled]="!fpVerified">
+      <button
+        type="button"
+        class="toggle-password"
+        (click)="togglePasswordVisibility('forgotConfirm')"
+        [disabled]="!fpVerified"
+        [attr.aria-pressed]="showForgotConfirmPassword"
+        [attr.aria-label]="showForgotConfirmPassword ? 'Hide password' : 'Show password'">
+        <svg *ngIf="!showForgotConfirmPassword" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <svg *ngIf="showForgotConfirmPassword" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/>
+          <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
     <button (click)="saveNewPassword()" [disabled]="!fpVerified">{{ 'auth.forgot.save' | translate }}</button>
   </div>
 

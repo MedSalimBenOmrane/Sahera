@@ -1,9 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 import { Question } from 'src/app/models/question.model';
 import { Reponse } from 'src/app/models/reponse.model';
 import { SousThematique } from 'src/app/models/sous-thematique.model';
+import { NotificationService } from 'src/app/services/notification.service';
 import { QuestionService } from 'src/app/services/question.service';
 import { ReponseService } from 'src/app/services/reponse.service';
 import { SousThematiqueService } from 'src/app/services/sous-thematique.service';
@@ -12,6 +14,7 @@ import { TranslationService } from 'src/app/services/translation.service';
 type ToastType = 'success' | 'error';
 type ResponseValue = string | string[];
 type InlineNotice = { message: string; type: ToastType; timer?: number };
+type TabStatus = 'default' | 'incomplete' | 'complete';
 
 @Component({
   selector: 'app-q-and-a',
@@ -33,15 +36,20 @@ export class QAndAComponent implements OnInit, OnDestroy {
 
   inlineNotices: { [stId: number]: InlineNotice } = {};
   activeIndex = 0;
+  tabStatusMap: { [stId: number]: TabStatus } = {};
 
   private userId!: number;
   private langSub?: Subscription;
+  private tabStorageKey = '';
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private sousThematiqueService: SousThematiqueService,
     private questionService: QuestionService,
     private reponseService: ReponseService,
+    private toastr: ToastrService,
+    private notificationService: NotificationService,
     public i18n: TranslationService
   ) {}
 
@@ -52,6 +60,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
     this.route.paramMap.subscribe(params => {
       this.thematiqueId   = +(params.get('id')!);
       this.thematiqueTitre = params.get('titre') || '';
+      this.tabStorageKey = `qna-tab-status-${this.userId || 'anon'}-${this.thematiqueId}`;
       this.loadSousThematiques();
     });
 
@@ -85,6 +94,16 @@ export class QAndAComponent implements OnInit, OnDestroy {
   setActiveIndex(index: number, scroll = false): void {
     this.activeIndex = index;
     if (scroll) this.scrollToTop();
+  }
+
+  getTabStatusClass(stId: number): string {
+    const status = this.tabStatusMap[stId] || 'default';
+    return `tab-status-${status}`;
+  }
+
+  isLastSousThematique(st: SousThematique): boolean {
+    if (!this.sousThematiques.length) return false;
+    return this.sousThematiques[this.sousThematiques.length - 1].id === st.id;
   }
 
   getQuestions(st: SousThematique): Question[] {
@@ -175,9 +194,14 @@ export class QAndAComponent implements OnInit, OnDestroy {
         this.isLoadingST = false;
         this.activeIndex = 0;
         this.inlineNotices = {};
+        this.tabStatusMap = this.loadTabStatusFromStorage();
         for (const st of listST) {
+          if (!this.tabStatusMap[st.id]) {
+            this.tabStatusMap[st.id] = 'default';
+          }
           this.loadQuestionsForSousThematique(st.id);
         }
+        this.persistTabStatus();
       },
       error: err => {
         console.error('Erreur chargement ST', err);
@@ -200,6 +224,41 @@ export class QAndAComponent implements OnInit, OnDestroy {
     } else {
       this.scrollToTop();
     }
+  }
+
+  private setTabStatus(stId: number, status: TabStatus): void {
+    this.tabStatusMap[stId] = status;
+    this.persistTabStatus();
+  }
+
+  private markNonCompletedAsIncomplete(): void {
+    this.sousThematiques.forEach(st => {
+      if (this.tabStatusMap[st.id] !== 'complete') {
+        this.tabStatusMap[st.id] = 'incomplete';
+      }
+    });
+    this.persistTabStatus();
+  }
+
+  private handleFinalSubmission(): void {
+    const allComplete = this.sousThematiques.every(st => this.tabStatusMap[st.id] === 'complete');
+    if (allComplete) {
+      this.toastr.success(
+        this.i18n.translate('qna.toast.submitSuccess'),
+        this.i18n.translate('qna.toast.submitSuccessTitle'),
+        { positionClass: 'toast-top-right' }
+      );
+      this.sendCompletionNotification();
+      window.setTimeout(() => this.router.navigate(['/mes-reponses']), 800);
+      return;
+    }
+
+    this.markNonCompletedAsIncomplete();
+    this.toastr.error(
+      this.i18n.translate('qna.toast.submitIncomplete'),
+      this.i18n.translate('qna.toast.submitErrorTitle'),
+      { positionClass: 'toast-top-right' }
+    );
   }
 
   private loadQuestionsForSousThematique(stId: number): void {
@@ -239,6 +298,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
               this.repIdMap[stId][r.question_id] = r.reponse_id;
             });
 
+            this.updateTabStatusFromResponses(stId);
             this.loadingQuestionsMap[stId] = false;
           },
           error: err => {
@@ -257,6 +317,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
 
   saveReponses(st: SousThematique): void {
     const stId = st.id;
+    const isLast = this.isLastSousThematique(st);
     const questions = this.getQuestions(st);
     if (!questions.length) {
       this.setInlineNotice(stId, 'qna.toast.none', 'error');
@@ -270,7 +331,13 @@ export class QAndAComponent implements OnInit, OnDestroy {
       }
     }
     if (manquantes.length) {
+      this.setTabStatus(stId, 'incomplete');
       this.setInlineNotice(stId, 'qna.toast.missing', 'error');
+      if (isLast) {
+        this.handleFinalSubmission();
+      } else {
+        this.goToNextSousThematique(stId);
+      }
       return;
     }
 
@@ -308,15 +375,112 @@ export class QAndAComponent implements OnInit, OnDestroy {
           done++;
           if (done === total) {
             if (failed) {
+              this.setTabStatus(stId, 'incomplete');
               this.setInlineNotice(stId, 'qna.toast.partial', 'error', 4000);
             } else {
+              this.setTabStatus(stId, 'complete');
               this.setInlineNotice(stId, 'qna.toast.saved', 'success', 3000, { title: st.titre });
-              const autoAdvanceDelayMs = 600;
-              window.setTimeout(() => this.goToNextSousThematique(stId), autoAdvanceDelayMs);
+              if (isLast) {
+                this.handleFinalSubmission();
+              } else {
+                const autoAdvanceDelayMs = 600;
+                window.setTimeout(() => this.goToNextSousThematique(stId), autoAdvanceDelayMs);
+              }
             }
           }
         }
       });
+    }
+  }
+
+  private loadTabStatusFromStorage(): { [stId: number]: TabStatus } {
+    if (!this.tabStorageKey) return {};
+    try {
+      const raw = localStorage.getItem(this.tabStorageKey);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return {};
+      return parsed;
+    } catch {
+      return {};
+    }
+  }
+
+  private persistTabStatus(): void {
+    if (!this.tabStorageKey) return;
+    localStorage.setItem(this.tabStorageKey, JSON.stringify(this.tabStatusMap));
+  }
+
+  private updateTabStatusFromResponses(stId: number): void {
+    const questions = this.questionsMap[stId] || [];
+    if (!questions.length) return;
+    const savedCount = Object.keys(this.repIdMap[stId] || {}).length;
+    if (savedCount === 0) return;
+    const missing = questions.some(q => this.isMissingAnswer(stId, q));
+    this.setTabStatus(stId, missing ? 'incomplete' : 'complete');
+  }
+
+  private sendCompletionNotification(): void {
+    if (!this.userId) return;
+
+    const name = this.getUserDisplayName() || 'cliente';
+    const themeLabel = this.thematiqueTitre ? ` ${this.thematiqueTitre}` : '';
+    const subject = `Felicitations ${name} - questionnaire termine`;
+    const message =
+      `Felicitations ${name}, vous avez fini le questionnaire${themeLabel} avec succes. ` +
+      `Merci chere cliente et a la prochaine pour notre nouveau questionnaire. ` +
+      `English version below: ` +
+      `Congratulations ${name}, you have finished the questionnaire${themeLabel} successfully. ` +
+      `Thank you, dear client, and see you next time for our new questionnaire.`;
+
+    this.notificationService.sendNotification(subject, message, [this.userId]).subscribe({
+      next: () => {
+        this.notificationService.refreshUnreadTotal();
+      },
+      error: err => console.error('Envoi notification echoue', err)
+    });
+  }
+
+  private sendCompletionNotificationHtml(): void {
+    if (!this.userId) return;
+
+    const name = this.getUserDisplayName() || 'cliente';
+    const subject = `Félicitations ${name} — questionnaire terminé`;
+    const message =
+      `Félicitations ${name}, vous avez fini le questionnaire avec succès.\r\n` +
+      `Merci chère cliente et à la prochaine pour notre nouveau questionnaire.\r\n\r\n` +
+      `English version below:\r\n` +
+      `Congratulations ${name}, you have finished the questionnaire successfully.\r\n` +
+      `Thank you, dear client, and see you next time for our new questionnaire.`;
+
+    const htmlMessage =
+      `<!DOCTYPE html>` +
+      `<html><head><meta charset="UTF-8"></head><body>` +
+      `<div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#111; line-height:1.6; white-space:pre-line;">` +
+      `Félicitations ${name}, vous avez fini le questionnaire avec succès.\n` +
+      `Merci chère cliente et à la prochaine pour notre nouveau questionnaire.\n\n` +
+      `English version below:\n` +
+      `Congratulations ${name}, you have finished the questionnaire successfully.\n` +
+      `Thank you, dear client, and see you next time for our new questionnaire.` +
+      `</div></body></html>`;
+
+    this.notificationService.sendNotification(subject, message, [this.userId], htmlMessage).subscribe({
+      next: () => {
+        this.notificationService.refreshUnreadTotal();
+      },
+      error: err => console.error('Envoi notification échoué', err)
+    });
+  }
+
+  private getUserDisplayName(): string {
+    const raw = localStorage.getItem('user');
+    if (!raw) return '';
+    try {
+      const u = JSON.parse(raw) as { nom?: string; prenom?: string };
+      const parts = [u.prenom, u.nom].filter(Boolean);
+      return parts.join(' ').trim();
+    } catch {
+      return '';
     }
   }
 }

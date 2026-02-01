@@ -26,6 +26,11 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
   consentChecked = false;
   private signupPayload: any | null = null;
   private codeRequested = false;
+  showSignupPassword = false;
+  showSignupConfirmPassword = false;
+  showLoginPassword = false;
+  showForgotNewPassword = false;
+  showForgotConfirmPassword = false;
 
   @ViewChildren('otpInput', { read: ElementRef })
   otpInputs!: QueryList<ElementRef<HTMLInputElement>>;
@@ -65,13 +70,14 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
     this.signupForm = this.fb.group({
       nom: ['', Validators.required],
       prenom: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      telephone: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
       dateNaissance: ['', Validators.required],
       genre: ['', Validators.required],
-      ethnicite: [null, Validators.required] 
-    });
+      ethnicite: [null, Validators.required],
+      telephone: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required]
+    }, { validators: this.matchPasswords });
 
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -87,6 +93,33 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
 
   private t(key: string, params?: Record<string,string|number>): string {
     return this.i18n.translate(key, params);
+  }
+
+  togglePasswordVisibility(target: 'signup' | 'signupConfirm' | 'login' | 'forgotNew' | 'forgotConfirm'): void {
+    switch (target) {
+      case 'signup':
+        this.showSignupPassword = !this.showSignupPassword;
+        break;
+      case 'signupConfirm':
+        this.showSignupConfirmPassword = !this.showSignupConfirmPassword;
+        break;
+      case 'login':
+        this.showLoginPassword = !this.showLoginPassword;
+        break;
+      case 'forgotNew':
+        this.showForgotNewPassword = !this.showForgotNewPassword;
+        break;
+      case 'forgotConfirm':
+        this.showForgotConfirmPassword = !this.showForgotConfirmPassword;
+        break;
+    }
+  }
+
+  private matchPasswords(group: FormGroup) {
+    const password = group.get('password')?.value;
+    const confirm = group.get('confirmPassword')?.value;
+    if (!password || !confirm) return null;
+    return password === confirm ? null : { passwordMismatch: true };
   }
 
   onBlurField(fieldName: string): void {
@@ -117,6 +150,13 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
           { positionClass: 'toast-top-right' }
         );
       }
+      else if (fieldName === 'confirmPassword' && this.signupForm.hasError('passwordMismatch')) {
+        this.toastr.error(
+          this.t('auth.toast.passwordMismatch'),
+          this.t('auth.toast.errorTitle'),
+          { positionClass: 'toast-top-right' }
+        );
+      }
       else if (fieldName === 'telephone' && control.hasError('pattern')) {
         this.toastr.error(
           this.t('auth.toast.phoneInvalid'),
@@ -124,6 +164,13 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
           { positionClass: 'toast-top-right' }
         );
       }
+    }
+    else if (fieldName === 'confirmPassword' && this.signupForm.hasError('passwordMismatch')) {
+      this.toastr.error(
+        this.t('auth.toast.passwordMismatch'),
+        this.t('auth.toast.errorTitle'),
+        { positionClass: 'toast-top-right' }
+      );
     }
   }
 
@@ -159,6 +206,12 @@ export class LogInSignINComponent implements OnInit, OnDestroy {
     
  
 onSignup(): void {
+    if (this.signupForm.hasError('passwordMismatch')) {
+      this.signupForm.get('confirmPassword')?.markAsTouched();
+      this.toastr.error(this.t('auth.toast.passwordMismatch'), this.t('auth.toast.errorTitle'), { positionClass: 'toast-top-right' });
+      return;
+    }
+
     if (this.signupForm.invalid) {
       this.signupForm.markAllAsTouched();
       this.toastr.error(this.t('auth.toast.fixErrors'), this.t('auth.toast.errorTitle'), { positionClass: 'toast-top-right' });
@@ -324,6 +377,9 @@ onLogin(): void {
 
   isFieldInvalid(fieldName: string): boolean {
   const control = this.signupForm.get(fieldName);
+  if (fieldName === 'confirmPassword') {
+    return !!(control && control.touched && (control.invalid || this.signupForm.hasError('passwordMismatch')));
+  }
   return !!(control && control.invalid && control.touched);
 }
 
@@ -362,6 +418,8 @@ private resetForgotState() {
   this.newPw2 = '';
   this.fpError = '';
   this.fpResendCooldown = 0;
+  this.showForgotNewPassword = false;
+  this.showForgotConfirmPassword = false;
   this.fpCooldownSub?.unsubscribe();
 }
 

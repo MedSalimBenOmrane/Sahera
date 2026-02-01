@@ -1,4 +1,4 @@
-<main class="table" id="customers_table">
+﻿<main class="table" id="customers_table">
  <section class="table__header">
   <h1>{{ 'admin.participants.title' | translate }}</h1>
 
@@ -105,21 +105,21 @@
        aria-label="Pagination des participants">
     <ul class="pagination">
       <li class="page-item" [class.disabled]="currentPage === 1">
-        <button class="page-link bg-transparent" (click)="firstPage()" [disabled]="currentPage === 1">⏮</button>
+        <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">&laquo;</button>
       </li>
       <li class="page-item" [class.disabled]="currentPage === 1">
-        <button class="page-link bg-transparent" (click)="prevPage()" [disabled]="currentPage === 1">{{ 'pagination.prev' | translate }}</button>
+        <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">{{ 'pagination.prev' | translate }}</button>
       </li>
 
       <li class="page-item" *ngFor="let p of pageNumbers" [class.active]="p === currentPage">
-        <button class="page-link bg-transparent" (click)="goToPage(p)">{{ p }}</button>
+        <button class="page-link" (click)="goToPage(p)">{{ p }}</button>
       </li>
 
       <li class="page-item" [class.disabled]="currentPage === totalPages">
-        <button class="page-link bg-transparent" (click)="nextPage()" [disabled]="currentPage === totalPages">{{ 'pagination.next' | translate }}</button>
+        <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">{{ 'pagination.next' | translate }}</button>
       </li>
       <li class="page-item" [class.disabled]="currentPage === totalPages">
-        <button class="page-link bg-transparent" (click)="lastPage()" [disabled]="currentPage === totalPages">⏭</button>
+        <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">&raquo;</button>
       </li>
     </ul>
   </nav>
@@ -157,5 +157,7 @@
         {{ isEditMode ? ('admin.saveChanges' | translate) : ('admin.createParticipant' | translate) }}
       </button>
     </div>
-    <button class="x" aria-label="close" (click)="closeDialog()">×</button>
+    <button class="x" aria-label="close" (click)="closeDialog()">Ã—</button>
   </dialog>
+
+

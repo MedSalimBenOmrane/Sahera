@@ -29,6 +29,10 @@
   max-height: 2000px;        /* on agrandit pour montrer tout le message */
 }
 
+.notification-message {
+  white-space: pre-line;
+}
+
 /* Effet “gradient” pour le fade en bas du texte */
 .gradient::before {
   content: '';

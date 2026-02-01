@@ -263,6 +263,16 @@ h2 {
   border-color: #4a1c2a;
   background: #4a1c2a;
 }
+
+.boton-elegante.danger {
+  border-color: #9e0b00;
+  background: #9e0b00;
+}
+
+.boton-elegante.danger:hover {
+  border-color: #b91c1c;
+  background: #b91c1c;
+}
 .row {
     display: flex;
     justify-content: space-between;

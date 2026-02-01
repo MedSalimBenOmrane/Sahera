@@ -69,11 +69,17 @@ export class NotificationService {
   sendNotification(
     titre: string,
     contenu: string,
-    utilisateurIds: number[]
+    utilisateurIds: number[],
+    htmlBody?: string
   ): Observable<{ message: string; notification: any }> {
+    const payload: any = { titre, contenu, utilisateur_ids: utilisateurIds };
+    if (htmlBody) {
+      payload.html_body = htmlBody;
+      payload.htmlBody = htmlBody;
+    }
     return this.http.post<{ message: string; notification: any }>(
       `${this.baseUrl}/notifications/send`,
-      { titre, contenu, utilisateur_ids: utilisateurIds }
+      payload
     );
   }
 

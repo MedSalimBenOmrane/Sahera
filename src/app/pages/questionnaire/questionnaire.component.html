@@ -1,4 +1,4 @@
-<div class="container my-4">
+﻿<div class="container my-4">
   <div class="glass-container p-4">
     <h1>{{ 'questionnaire.title' | translate }}</h1>
 
@@ -60,7 +60,7 @@
     >
       <ul class="pagination">
         <li class="page-item" [class.disabled]="currentPage === 1">
-          <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">⏮</button>
+          <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">&laquo;</button>
         </li>
         <li class="page-item" [class.disabled]="currentPage === 1">
           <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">{{ 'pagination.prev' | translate }}</button>
@@ -74,9 +74,10 @@
           <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">{{ 'pagination.next' | translate }}</button>
         </li>
         <li class="page-item" [class.disabled]="currentPage === totalPages">
-          <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">⏭</button>
+          <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">&raquo;</button>
         </li>
       </ul>
     </nav>
   </div>
 </div>
+

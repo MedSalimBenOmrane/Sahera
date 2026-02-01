@@ -23,19 +23,44 @@
 
 /* 2.1) Les labels (onglets en desktop, en-têtes en mobile) */
 .tabs label {
+  --tab-bg: #4a1c2a6b;
+  --tab-bg-hover: #4a1c2abe;
+  --tab-bg-active: #4a1c2a;
+  --tab-border: #4a1c2a;
   order: 1; /* on veut que les labels apparaissent avant les <div class="tab"> */
   display: block;
   padding: 1rem 2rem;
   cursor: pointer;
   border-radius: 16px 16px 0 0;
-  border: 1px solid #4a1c2a;
-  background: #4a1c2a6b;
+  border: 1px solid var(--tab-border);
+  background: var(--tab-bg);
   color: white;
   font-weight: bold;
   transition: background ease 0.2s;
 }
 .tabs label:hover {
-  background: #4a1c2abe;
+  background: var(--tab-bg-hover);
+}
+
+.tabs label.tab-status-default {
+  --tab-bg: #4a1c2a6b;
+  --tab-bg-hover: #4a1c2abe;
+  --tab-bg-active: #4a1c2a;
+  --tab-border: #4a1c2a;
+}
+
+.tabs label.tab-status-incomplete {
+  --tab-bg: #b91c1c66;
+  --tab-bg-hover: #b91c1cb3;
+  --tab-bg-active: #b91c1c;
+  --tab-border: #b91c1c;
+}
+
+.tabs label.tab-status-complete {
+  --tab-bg: #15803d66;
+  --tab-bg-hover: #15803db3;
+  --tab-bg-active: #15803d;
+  --tab-border: #15803d;
 }
 
 @media (min-width: 45.01em) {
@@ -97,7 +122,7 @@
 /* 2.4) Quand un input est coché (`:checked`),
         on surligne le label correspondant */
 .tabs input[type="radio"]:checked + label {
-  background: #4a1c2a;
+  background: var(--tab-bg-active);
 }
 
 /* 2.5) Et on affiche le contenu (`.tab`) juste après ce label */

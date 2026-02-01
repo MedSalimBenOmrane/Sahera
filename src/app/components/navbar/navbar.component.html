@@ -116,6 +116,12 @@
         {{ 'navbar.save' | translate }}
       </button>
     </div>
+
+    <div class="row" *ngIf="!authservice.isAdmin">
+      <button class="boton-elegante danger" (click)="confirmDeleteAccount()">
+        {{ 'navbar.deleteAccount' | translate }}
+      </button>
+    </div>
   </ng-container>
 
   <button class="x" aria-label="close" (click)="closeDialog()">×</button>

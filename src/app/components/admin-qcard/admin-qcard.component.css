@@ -181,10 +181,22 @@
   border: 1px solid #580c22;
   color: #fff;
 }
-.btn-success:hover {
-  background-color: #157347;
-  border-color: #157347;
-}
+ .btn-success:hover {
+   background-color: #157347;
+   border-color: #157347;
+ }
+
+ /* "Statut des utilisateurs" */
+ .btn-user-status {
+   background-color: #580c22;
+   border: 1px solid #580c22;
+   color: #fff;
+ }
+ .btn-user-status:hover {
+   background-color: #8e07c7;
+   border-color: #8e07c7;
+   color: #ffffff;
+ }
 
 /* 10. Responsive : ajustements pour très petit écran */
 @media (max-width: 991.98px) {
@@ -386,5 +398,18 @@ dialog::backdrop {
   .row { flex-direction: column; align-items: stretch; gap: 0.35rem; }
   .col-5, .col-7 { max-width: 100%; flex: 1; width: 100%; }
   dialog input, dialog textarea, dialog button, dialog select { font-size: 16px; width: 100%; }
+}
+
+@media (max-width: 991.98px) {
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .actions button {
+    width: 100%;
+    text-align: center;
+  }
 }
 

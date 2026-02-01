@@ -15,7 +15,7 @@
         <div class="tabs p-1">
           <ng-container *ngFor="let st of sousThematiques; let i = index">
             <input type="radio" name="tabs" [id]="'tab' + i" [checked]="activeIndex===i" (change)="setActiveIndex(i)" />
-            <label [for]="'tab' + i" [attr.title]="st.titre">{{ st.titre }}</label>
+            <label [for]="'tab' + i" [attr.title]="st.titre" [ngClass]="getTabStatusClass(st.id)">{{ st.titre }}</label>
 
             <div class="tab">
               <div class="title">
@@ -86,7 +86,7 @@
 
               <div class="actions text-end mt-2" *ngIf="!loadingQuestionsMap[st.id] && getQuestions(st).length > 0">
                 <button (click)="saveReponses(st)" class="btn btn-primary">
-                  {{ 'qna.saveAnswers' | translate }}
+                  {{ (isLastSousThematique(st) ? 'qna.submit' : 'qna.saveAnswers') | translate }}
                 </button>
                 <div *ngIf="inlineNotices[st.id]" class="alert mt-2 mb-0 text-start w-100"
                   [ngClass]="{'alert-danger': inlineNotices[st.id].type==='error', 'alert-success': inlineNotices[st.id].type==='success'}">

@@ -1,27 +1,27 @@
-<div class="container my-4">
+﻿<div class="container my-4">
   <div class="glass-container p-4">
     <h1>{{ 'answers.title' | translate }}</h1>
 
-    <ul class="nav nav-tabs mb-4">
-      <li class="nav-item">
-        <a class="nav-link"
-           [class.active]="selectedTab==='all'"
-           (click)="selectTab('all')"
-           href="javascript:void(0)">{{ 'answers.tabs.all' | translate }}</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link"
-           [class.active]="selectedTab==='completed'"
-           (click)="selectTab('completed')"
-           href="javascript:void(0)">{{ 'answers.tabs.completed' | translate }}</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link"
-           [class.active]="selectedTab==='incomplete'"
-           (click)="selectTab('incomplete')"
-           href="javascript:void(0)">{{ 'answers.tabs.incomplete' | translate }}</a>
-      </li>
-    </ul>
+    <div class="status-filter mb-4">
+      <button
+        class="filter-btn filter-all"
+        [class.active]="selectedTab==='all'"
+        (click)="selectTab('all')">
+        {{ 'answers.tabs.all' | translate }}
+      </button>
+      <button
+        class="filter-btn filter-complete"
+        [class.active]="selectedTab==='completed'"
+        (click)="selectTab('completed')">
+        {{ 'answers.tabs.completed' | translate }}
+      </button>
+      <button
+        class="filter-btn filter-incomplete"
+        [class.active]="selectedTab==='incomplete'"
+        (click)="selectTab('incomplete')">
+        {{ 'answers.tabs.incomplete' | translate }}
+      </button>
+    </div>
     <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
       <div class="spinner-border" role="status">
         <span class="visually-hidden">{{ 'answers.loading' | translate }}</span>
@@ -53,7 +53,7 @@
            [attr.aria-label]="'answers.title' | translate">
         <ul class="pagination">
           <li class="page-item" [class.disabled]="currentPage === 1">
-            <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">⏮</button>
+            <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">&laquo;</button>
           </li>
           <li class="page-item" [class.disabled]="currentPage === 1">
             <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">{{ 'answers.pagination.prev' | translate }}</button>
@@ -67,7 +67,7 @@
             <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">{{ 'answers.pagination.next' | translate }}</button>
           </li>
           <li class="page-item" [class.disabled]="currentPage === totalPages">
-            <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">⏭</button>
+            <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">&raquo;</button>
           </li>
         </ul>
       </nav>
@@ -81,3 +81,4 @@
     </ng-template>
   </div>
 </div>
+

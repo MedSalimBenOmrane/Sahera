@@ -44,7 +44,7 @@ export class NavbarComponent implements OnInit, AfterViewInit  {
 
   constructor(
     private notificationService: NotificationService,
-    private authservice: AuthService,
+    public authservice: AuthService,
     private svc: ClientsService,
     public i18n: TranslationService
   ) {
@@ -122,6 +122,27 @@ export class NavbarComponent implements OnInit, AfterViewInit  {
     this.svc.updateClient(payload).subscribe({
       next: () => this.closeDialog(),
       error: () => this.errorMsgKey = 'navbar.error.updateProfile'
+    });
+  }
+
+  confirmDeleteAccount(): void {
+    if (this.authservice.isAdmin) return;
+
+    const id = this.userId || this.authservice.userId;
+    if (!id) {
+      this.errorMsgKey = 'navbar.error.deleteAccount';
+      return;
+    }
+
+    const confirmed = window.confirm(this.i18n.translate('navbar.confirmDeleteAccount'));
+    if (!confirmed) return;
+
+    this.svc.deleteClient(id).subscribe({
+      next: () => {
+        this.closeDialog();
+        this.authservice.logout();
+      },
+      error: () => this.errorMsgKey = 'navbar.error.deleteAccount'
     });
   }
 

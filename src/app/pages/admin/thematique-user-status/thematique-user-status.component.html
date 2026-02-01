@@ -1,0 +1,131 @@
+﻿<main class="table" id="user_status_table">
+  <section class="table__header">
+    <h1>{{ 'admin.userStatus.title' | translate:{ title: thematiqueTitre } }}</h1>
+  </section>
+
+  <div class="status-filter">
+    <button
+      class="filter-btn filter-all"
+      [class.active]="filterStatus === 'all'"
+      (click)="setFilter('all')">
+      {{ 'admin.userStatus.filterAll' | translate }}
+    </button>
+    <button
+      class="filter-btn filter-complete"
+      [class.active]="filterStatus === 'complete'"
+      (click)="setFilter('complete')">
+      {{ 'admin.userStatus.completed' | translate }}
+    </button>
+    <button
+      class="filter-btn filter-incomplete"
+      [class.active]="filterStatus === 'incomplete'"
+      (click)="setFilter('incomplete')">
+      {{ 'admin.userStatus.incomplete' | translate }}
+    </button>
+  </div>
+
+  <section class="table__body">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ 'admin.table.name' | translate }}</th>
+          <th>{{ 'admin.table.firstname' | translate }}</th>
+          <th>{{ 'admin.table.email' | translate }}</th>
+          <th>{{ 'admin.table.phone' | translate }}</th>
+          <th>{{ 'admin.userStatus.status' | translate }}</th>
+          <th>{{ 'admin.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="isLoading; else dataRows">
+          <tr>
+            <td colspan="6" class="p-0">
+              <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+                <div class="spinner-border" role="status">
+                  <span class="visually-hidden">{{ 'generic.loading' | translate }}</span>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+
+        <ng-template #dataRows>
+          <tr *ngIf="filteredStatusRows.length === 0">
+            <td colspan="6" class="p-0">
+              <div class="d-flex flex-column justify-content-center align-items-center" style="height: 200px;">
+                <img src="assets/images/empty-folder.png" [attr.alt]="'admin.userStatus.empty' | translate"
+                     style="max-width: 150px;" class="mb-2" />
+                <p class="mb-0">{{ 'admin.userStatus.empty' | translate }}</p>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let u of paginatedStatusRows">
+            <td [attr.data-label]="'admin.table.name' | translate">{{ u.nom }}</td>
+            <td [attr.data-label]="'admin.table.firstname' | translate">{{ u.prenom }}</td>
+            <td [attr.data-label]="'admin.table.email' | translate">{{ u.email }}</td>
+            <td [attr.data-label]="'admin.table.phone' | translate">{{ u.telephone }}</td>
+            <td [attr.data-label]="'admin.userStatus.status' | translate">
+              <span class="status-pill" [class.complete]="u.status === 'complete'" [class.incomplete]="u.status === 'incomplete'">
+                {{ getStatusLabel(u.status) }}
+              </span>
+            </td>
+            <td class="actions-cell" [attr.data-label]="'admin.actions' | translate">
+              <div class="action-buttons">
+                <button class="btn-remind" (click)="sendReminder(u)" [disabled]="u.status === 'complete' || isSendingReminder">
+                  {{ 'admin.userStatus.remind' | translate }}
+                </button>
+                <button class="btn-edit-mail" (click)="openReminderDialog(u)" [disabled]="u.status === 'complete' || isSendingReminder">
+                  {{ 'admin.userStatus.editMail' | translate }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </tbody>
+    </table>
+  </section>
+
+    <nav *ngIf="totalPages > 1"
+       class="pagination-wrap d-flex justify-content-center mt-4"
+       aria-label="Pagination des statuts utilisateurs">
+    <ul class="pagination">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="firstPage()" [disabled]="currentPage === 1">&laquo;</button>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">{{ 'pagination.prev' | translate }}</button>
+      </li>
+
+      <li class="page-item" *ngFor="let p of pageNumbers" [class.active]="p === currentPage">
+        <button class="page-link" (click)="goToPage(p)">{{ p }}</button>
+      </li>
+
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">{{ 'pagination.next' | translate }}</button>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="lastPage()" [disabled]="currentPage === totalPages">&raquo;</button>
+      </li>
+    </ul>
+  </nav>
+
+  <dialog #reminderDialog>
+    <h2>{{ 'admin.userStatus.reminderTitle' | translate }}</h2>
+    <div class="mb-3">
+      <label>{{ 'admin.userStatus.reminderSubject' | translate }}</label>
+      <input type="text" class="form-control" [(ngModel)]="reminderSubject" />
+    </div>
+    <div class="mb-3">
+      <label>{{ 'admin.userStatus.reminderMessage' | translate }}</label>
+      <textarea class="form-control" rows="5" [(ngModel)]="reminderMessage"></textarea>
+    </div>
+    <button class="btn btn-success" (click)="sendReminderDraft()" [disabled]="isSendingReminder">
+      {{ 'admin.userStatus.sendReminder' | translate }}
+    </button>
+    <button class="btn btn-secondary ms-2" (click)="closeReminderDialog()">
+      {{ 'admin.userStatus.cancel' | translate }}
+    </button>
+  </dialog>
+</main>
+

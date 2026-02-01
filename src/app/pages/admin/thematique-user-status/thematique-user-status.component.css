@@ -1,0 +1,346 @@
+main.table {
+  width: 82vw;
+  min-height: 83vh;
+  margin: 3vh 18vh;
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  border: 1px solid rgba(0, 0, 0, 0.26);
+  margin-bottom: 1%;
+  border-radius: 0.8rem;
+  overflow: hidden;
+}
+
+.table__header {
+  width: 100%;
+  height: 10%;
+  background-color: #fff4;
+  padding: 0.8rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table__body {
+  width: 95%;
+  max-height: calc(89% - 1.6rem);
+  background-color: #fffb;
+  margin: 0.8rem auto;
+  border-radius: 0.6rem;
+  overflow: auto;
+  overflow: overlay;
+}
+
+table {
+  width: 100%;
+}
+
+table, th, td {
+  border-collapse: collapse;
+  padding: 1rem;
+  text-align: left;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  left: 0;
+  background-color: #4a1c2a5a;
+  text-transform: capitalize;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #0000000b;
+}
+
+tbody tr:hover {
+  background-color: #fff6 !important;
+}
+
+table td {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.status-pill.complete {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #16a34a;
+}
+
+.status-pill.incomplete {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #dc2626;
+}
+
+.status-filter {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding: 0.8rem 1.6rem 1.1rem;
+  margin-top: 0.4rem;
+  align-items: center;
+}
+
+.filter-btn {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.filter-btn:hover {
+  transform: translateY(-1px);
+}
+
+.filter-all {
+  border-color: #f2a33c;
+  color: #a65c00;
+  background: rgba(242, 163, 60, 0.18);
+}
+.filter-all.active {
+  background: #f2a33c;
+  color: #fff;
+}
+
+.filter-complete {
+  border-color: #16a34a;
+  color: #166534;
+  background: rgba(22, 163, 74, 0.18);
+}
+.filter-complete.active {
+  background: #16a34a;
+  color: #fff;
+}
+
+.filter-incomplete {
+  border-color: #dc2626;
+  color: #991b1b;
+  background: rgba(220, 38, 38, 0.16);
+}
+.filter-incomplete.active {
+  background: #dc2626;
+  color: #fff;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.btn-remind,
+.btn-edit-mail {
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-remind {
+  background: #580c22;
+  border-color: #580c22;
+  color: #fff;
+}
+.btn-remind:hover {
+  background: #6b1a34;
+  border-color: #6b1a34;
+}
+
+.btn-edit-mail {
+  background: #f7c948;
+  border-color: #f7c948;
+  color: #3b2600;
+}
+.btn-edit-mail:hover {
+  background: #f4b844;
+  border-color: #f4b844;
+}
+
+.btn-remind:disabled,
+.btn-edit-mail:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+dialog {
+  padding: 1rem 3rem;
+  background: #c7c7c7cd;
+  width: 560px;
+  max-width: 90vw;
+  margin: auto;
+  padding: 3%;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  border-radius: 20px;
+  border: 0;
+  color: #1a1a1a;
+  box-shadow: 0 5px 30px 0 rgb(0 0 0 / 10%);
+  animation: fadeIn 1s ease both;
+}
+
+dialog::backdrop {
+  animation: fadeIn 1s ease both;
+  background: rgba(89, 89, 89, 0.127);
+  z-index: 2;
+  backdrop-filter: blur(7px);
+}
+
+dialog label {
+  display: inline-block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  color: #2b2b2b;
+  background: transparent;
+  padding: 0;
+}
+
+dialog textarea {
+  min-height: 220px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.pagination-wrap {
+  position: static;
+  margin-top: auto;
+  align-self: center;
+}
+
+.pagination {
+  background: rgba(255, 234, 218, 0.238);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.page-link { color: #111 !important; background: transparent; border: 1px solid rgba(0,0,0,.15); }
+.page-link:hover { color: #000 !important; background: rgba(0,0,0,.04); }
+.page-item.active .page-link { color: #000 !important; background: rgba(0,0,0,.08); border-color: rgba(0,0,0,.25); }
+.page-item.disabled .page-link { color: rgba(0,0,0,.35) !important; background: transparent; border-color: rgba(0,0,0,.1); }
+.page-link:focus { box-shadow: none; }
+
+@media (max-width: 768px) {
+  main.table {
+    width: 100%;
+    margin: 0 auto;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .table__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .table__body {
+    width: 100%;
+    margin: 0;
+    border-radius: 10px;
+  }
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  thead {
+    display: none;
+  }
+  tbody tr {
+    margin-bottom: 1.1rem;
+    padding: 0.95rem 1rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  tbody tr td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    font-size: 0.98rem;
+  }
+  tbody tr td:last-child {
+    border-bottom: none;
+  }
+  tbody tr td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #2b2b2b;
+    margin-right: 0.5rem;
+    flex: 0 0 32%;
+  }
+
+  .status-filter {
+    padding: 0.6rem 0.6rem 1rem;
+  }
+
+  tbody tr td.actions-cell {
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+
+  .action-buttons {
+    gap: 0.4rem;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+  }
+
+  .btn-remind,
+  .btn-edit-mail {
+    min-width: 86px;
+    white-space: nowrap;
+  }
+
+  dialog {
+    width: 94vw;
+    max-width: 94vw;
+    min-height: 75vh;
+    padding: 1.4rem 1.2rem;
+  }
+
+  dialog textarea {
+    min-height: 42vh;
+  }
+
+  .pagination {
+    border-radius: 16px;
+    padding: 0.4rem 0.55rem;
+  }
+
+  .page-link {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.6rem;
+    font-size: 0.95rem;
+  }
+}

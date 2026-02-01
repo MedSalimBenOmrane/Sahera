@@ -152,4 +152,8 @@ export class AdminQCardComponent implements OnInit {
   viewResponse(): void {
     this.router.navigate(['/admin/thematique', this.id, this.title]);
   }
+
+  viewUserStatus(): void {
+    this.router.navigate(['/admin/thematique', this.id, this.title, 'status']);
+  }
 }

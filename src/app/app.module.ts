@@ -39,6 +39,7 @@ import { GenrateQuestionnaireComponent } from './pages/admin/genrate-questionnai
 import { AdminQCardComponent } from './components/admin-qcard/admin-qcard.component';
 import { ThematiqueDetailsComponent } from './pages/admin/thematique-details/thematique-details.component';
 import { QuestionDetailsComponent } from './pages/admin/question-details/question-details.component';
+import { ThematiqueUserStatusComponent } from './pages/admin/thematique-user-status/thematique-user-status.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { ComingSoonPageComponent } from './pages/coming-soon-page/coming-soon-page.component';
 import { EditCoordonneesUserComponent } from './components/edit-coordonnees-user/edit-coordonnees-user.component';
@@ -79,6 +80,7 @@ import { LandingPageComponent } from './pages/landing-page/landing-page.componen
      AdminQCardComponent,
      ThematiqueDetailsComponent,
      QuestionDetailsComponent,
+     ThematiqueUserStatusComponent,
      ComingSoonPageComponent,
      EditCoordonneesUserComponent,
      EditAdminComponent,
