@@ -110,6 +110,18 @@ export class QAndAComponent implements OnInit, OnDestroy {
     return this.questionsMap[st.id] || [];
   }
 
+  trackBySousThematique(_index: number, st: SousThematique): number {
+    return st.id;
+  }
+
+  trackByQuestion(_index: number, q: Question): number {
+    return q.id;
+  }
+
+  trackByOption(_index: number, opt: string): string {
+    return opt;
+  }
+
   private normalizeType(type: Question['type'] | string | undefined): string {
     return String(type || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
   }

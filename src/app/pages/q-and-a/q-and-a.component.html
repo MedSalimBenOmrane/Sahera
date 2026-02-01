@@ -13,11 +13,11 @@
     <ng-container *ngIf="!isLoadingST">
       <ng-container *ngIf="sousThematiques.length > 0; else emptyST">
         <div class="tabs p-1">
-          <ng-container *ngFor="let st of sousThematiques; let i = index">
+          <ng-container *ngFor="let st of sousThematiques; let i = index; trackBy: trackBySousThematique">
             <input type="radio" name="tabs" [id]="'tab' + i" [checked]="activeIndex===i" (change)="setActiveIndex(i)" />
             <label [for]="'tab' + i" [attr.title]="st.titre" [ngClass]="getTabStatusClass(st.id)">{{ st.titre }}</label>
 
-            <div class="tab">
+            <div class="tab" *ngIf="activeIndex===i">
               <div class="title">
                 <h2>{{ 'qna.questionsFor' | translate:{ title: st.titre } }}</h2>
               </div>
@@ -30,7 +30,7 @@
               </div>
 
               <ul *ngIf="!loadingQuestionsMap[st.id] && getQuestions(st).length > 0" class="list-unstyled">
-                <li *ngFor="let q of getQuestions(st)" class="mb-3">
+                <li *ngFor="let q of getQuestions(st); trackBy: trackByQuestion" class="mb-3">
                   <div class="mb-1 fw-medium">
                     {{ q.question }} <span class="text-danger">*</span>
                   </div>
@@ -38,7 +38,7 @@
                   <ng-container *ngIf="isMultiSelectQuestion(q); else singleListTpl">
                     <div class="multi-select-label">{{ 'qna.selectOptions' | translate }}</div>
                     <div class="multi-options">
-                      <label class="material-checkbox" *ngFor="let opt of getOptions(q)">
+                      <label class="material-checkbox" *ngFor="let opt of getOptions(q); trackBy: trackByOption">
                         <input
                           type="checkbox"
                           [checked]="isOptionSelected(st.id, q.id, opt)"
@@ -55,7 +55,7 @@
                         <mat-label>{{ 'qna.selectOption' | translate }}</mat-label>
                         <mat-select [(ngModel)]="reponses[st.id][q.id]" name="resp-{{st.id}}-{{q.id}}" required
                           panelClass="mobile-select-panel">
-                          <mat-option *ngFor="let opt of getOptions(q)" [value]="opt">{{ opt }}</mat-option>
+                          <mat-option *ngFor="let opt of getOptions(q); trackBy: trackByOption" [value]="opt">{{ opt }}</mat-option>
                         </mat-select>
                       </mat-form-field>
                     </ng-container>
