@@ -30,6 +30,8 @@ export class QAndAComponent implements OnInit, OnDestroy {
 
   questionsMap: { [stId: number]: Question[] } = {};
   loadingQuestionsMap: { [stId: number]: boolean } = {};
+  private readonly questionChunkSize = 4;
+  visibleQuestionCounts: { [stId: number]: number } = {};
 
   reponses: { [stId: number]: { [questionId: number]: ResponseValue } } = {};
   repIdMap: { [stId: number]: { [qId: number]: number } } = {};
@@ -69,6 +71,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
       this.loadingQuestionsMap = {};
       this.reponses = {};
       this.repIdMap = {};
+      this.visibleQuestionCounts = {};
       this.loadSousThematiques();
     });
   }
@@ -281,6 +284,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
     this.questionService.getBySousThematique(stId).subscribe({
       next: listQ => {
         this.questionsMap[stId] = listQ;
+        this.visibleQuestionCounts[stId] = Math.min(this.questionChunkSize, listQ.length);
         this.reponses[stId] = {};
         this.repIdMap[stId]  = {};
         listQ.forEach(q => (this.reponses[stId][q.id] = this.isMultiSelectQuestion(q) ? [] : ''));
@@ -327,6 +331,24 @@ export class QAndAComponent implements OnInit, OnDestroy {
         this.loadingQuestionsMap[stId] = false;
       }
     });
+  }
+
+  getVisibleQuestions(st: SousThematique): Question[] {
+    const list = this.getQuestions(st);
+    const limit = this.visibleQuestionCounts[st.id] ?? this.questionChunkSize;
+    return list.slice(0, limit);
+  }
+
+  canLoadMoreQuestions(st: SousThematique): boolean {
+    const list = this.getQuestions(st);
+    const limit = this.visibleQuestionCounts[st.id] ?? this.questionChunkSize;
+    return list.length > limit;
+  }
+
+  loadMoreQuestions(st: SousThematique): void {
+    const list = this.getQuestions(st);
+    const current = this.visibleQuestionCounts[st.id] ?? this.questionChunkSize;
+    this.visibleQuestionCounts[st.id] = Math.min(list.length, current + this.questionChunkSize);
   }
 
   private ensureQuestionsLoaded(index: number): void {

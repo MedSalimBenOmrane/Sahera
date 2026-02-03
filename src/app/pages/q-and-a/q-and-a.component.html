@@ -30,7 +30,7 @@
               </div>
 
               <ul *ngIf="!loadingQuestionsMap[st.id] && getQuestions(st).length > 0" class="list-unstyled">
-                <li *ngFor="let q of getQuestions(st); trackBy: trackByQuestion" class="mb-3">
+                <li *ngFor="let q of getVisibleQuestions(st); trackBy: trackByQuestion" class="mb-3">
                   <div class="mb-1 fw-medium">
                     {{ q.question }} <span class="text-danger">*</span>
                   </div>
@@ -76,6 +76,12 @@
                   </ng-template>
                 </li>
               </ul>
+              <div class="text-center mt-3" *ngIf="!loadingQuestionsMap[st.id] && canLoadMoreQuestions(st)">
+                <button class="btn btn-outline-primary" (click)="loadMoreQuestions(st)">
+                  {{ 'qna.loadMore' | translate }}
+                  ({{ visibleQuestionCounts[st.id] || 0 }} / {{ getQuestions(st).length }})
+                </button>
+              </div>
 
               <div *ngIf="!loadingQuestionsMap[st.id] && getQuestions(st).length===0"
                 class="d-flex flex-column justify-content-center align-items-center" style="min-height: 20vh;">

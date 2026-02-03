@@ -181,6 +181,7 @@ const translations: Translations = {
     'qna.toast.submitErrorTitle': 'Erreur',
     'qna.toast.submitSuccess': 'Félicitations, vous avez fini le questionnaire avec succès 🎉',
     'qna.toast.submitIncomplete': 'Des sous-thématiques sont incomplètes. Vérifiez les onglets en rouge.',
+    'qna.loadMore': 'Charger plus de questions',
 
     // Admin navbar
     'admin.participants': 'Participants',
@@ -520,6 +521,7 @@ const translations: Translations = {
     'qna.toast.submitErrorTitle': 'Error',
     'qna.toast.submitSuccess': 'Congratulations, you have finished the questionnaire successfully 🎉',
     'qna.toast.submitIncomplete': 'Some subtopics are incomplete. Check the red tabs.',
+    'qna.loadMore': 'Load more questions',
 
     // Admin navbar
     'admin.participants': 'Participants',
