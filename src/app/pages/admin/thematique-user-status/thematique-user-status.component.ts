@@ -329,7 +329,7 @@ export class ThematiqueUserStatusComponent implements OnInit {
     const closeDateFr = closeDate ? ` ${closeDate}` : '';
     const closeDateEn = closeDate ? ` ${closeDate}` : '';
     const salutationFr = this.getFrenchSalutation(user);
-    const fr = `${salutationFr}${namePart}, vous n'avez pas encore complete la thematique ${title}. Merci de completer le formulaire avant la date de cloture${closeDateFr}.`;
+    const fr = `${salutationFr}${namePart}, vous n'avez pas encore complété la thématique ${title}. Merci de compléter le formulaire avant la date de clôture${closeDateFr}.`;
     const en = `English version below:\nDear client${namePart}, you have not completed the theme ${title} yet. Please complete the form before the closing date${closeDateEn}.`;
     return {
       subject: `Rappel questionnaire - ${title}`,
@@ -344,7 +344,7 @@ export class ThematiqueUserStatusComponent implements OnInit {
   private getFrenchSalutation(user: UserStatusRow): string {
     const g = (user.genre || '').toLowerCase();
     const isFemale = g.startsWith('f') || g.includes('female') || g.includes('femme') || g.includes('woman');
-    return isFemale ? 'Chere cliente' : 'Cher client';
+    return isFemale ? 'Chère cliente' : 'Cher client';
   }
 
   private formatCloseDate(): string {
