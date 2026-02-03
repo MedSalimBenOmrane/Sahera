@@ -230,11 +230,12 @@ export class QAndAComponent implements OnInit, OnDestroy {
   }
 
   private detectIOS(): boolean {
-    if (typeof navigator === 'undefined') return false;
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
     const ua = navigator.userAgent || '';
     const isIOS = /iPad|iPhone|iPod/.test(ua);
-    const isIPadOS = /Macintosh/.test(ua) && typeof document !== 'undefined' && 'ontouchend' in document;
-    return isIOS || isIPadOS;
+    const isIPadOS = /Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1;
+    const isCoarse = typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
+    return isIOS || isIPadOS || isCoarse;
   }
 
   private scrollToTop(): void {
