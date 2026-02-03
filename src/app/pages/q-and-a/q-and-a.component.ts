@@ -32,6 +32,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
   loadingQuestionsMap: { [stId: number]: boolean } = {};
   private readonly questionChunkSize = 3;
   visibleQuestionCounts: { [stId: number]: number } = {};
+  readonly isIOS = this.detectIOS();
 
   reponses: { [stId: number]: { [questionId: number]: ResponseValue } } = {};
   repIdMap: { [stId: number]: { [qId: number]: number } } = {};
@@ -226,6 +227,14 @@ export class QAndAComponent implements OnInit, OnDestroy {
         this.isLoadingST = false;
       }
     });
+  }
+
+  private detectIOS(): boolean {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(ua);
+    const isIPadOS = /Macintosh/.test(ua) && typeof document !== 'undefined' && 'ontouchend' in document;
+    return isIOS || isIPadOS;
   }
 
   private scrollToTop(): void {

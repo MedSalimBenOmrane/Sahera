@@ -51,13 +51,24 @@
 
                   <ng-template #singleListTpl>
                     <ng-container *ngIf="isSingleSelectQuestion(q); else nonListeTpl">
-                      <mat-form-field appearance="fill" class="w-100">
-                        <mat-label>{{ 'qna.selectOption' | translate }}</mat-label>
-                        <mat-select [(ngModel)]="reponses[st.id][q.id]" name="resp-{{st.id}}-{{q.id}}" required
-                          panelClass="mobile-select-panel">
-                          <mat-option *ngFor="let opt of getOptions(q); trackBy: trackByOption" [value]="opt">{{ opt }}</mat-option>
-                        </mat-select>
-                      </mat-form-field>
+                      <ng-container *ngIf="!isIOS; else nativeSelectTpl">
+                        <mat-form-field appearance="fill" class="w-100">
+                          <mat-label>{{ 'qna.selectOption' | translate }}</mat-label>
+                          <mat-select [(ngModel)]="reponses[st.id][q.id]" name="resp-{{st.id}}-{{q.id}}" required
+                            panelClass="mobile-select-panel">
+                            <mat-option *ngFor="let opt of getOptions(q); trackBy: trackByOption" [value]="opt">{{ opt }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </ng-container>
+                      <ng-template #nativeSelectTpl>
+                        <label class="native-select-label">{{ 'qna.selectOption' | translate }}</label>
+                        <select class="native-select"
+                                [(ngModel)]="reponses[st.id][q.id]"
+                                name="resp-{{st.id}}-{{q.id}}"
+                                required>
+                          <option *ngFor="let opt of getOptions(q); trackBy: trackByOption" [value]="opt">{{ opt }}</option>
+                        </select>
+                      </ng-template>
                     </ng-container>
                   </ng-template>
 

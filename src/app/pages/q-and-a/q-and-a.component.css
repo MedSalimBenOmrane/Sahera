@@ -11,6 +11,21 @@
   border: 1px solid rgba(0, 0, 0, 0.26);
 }
 .title{color:#4a1c2a;}
+/* Native select for iOS to keep rendering light */
+.native-select-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #4a1c2a;
+}
+.native-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: #fff;
+  font-size: 16px; /* prevents iOS zoom on focus */
+}
 /* -------------------------------------------------------
    2) Structure “tabs” / “accordéon” en pur CSS
    ------------------------------------------------------- */
