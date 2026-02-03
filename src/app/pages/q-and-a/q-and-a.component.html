@@ -61,10 +61,11 @@
                         </mat-form-field>
                       </ng-container>
                       <ng-template #nativeSelectTpl>
-                        <label class="native-select-label">{{ 'qna.selectOption' | translate }}</label>
+                        <div class="native-select-label">{{ 'qna.selectOption' | translate }}</div>
                         <select class="native-select"
                                 [(ngModel)]="reponses[st.id][q.id]"
                                 name="resp-{{st.id}}-{{q.id}}"
+                                [attr.aria-label]="'qna.selectOption' | translate"
                                 required>
                           <option *ngFor="let opt of getOptions(q); trackBy: trackByOption" [value]="opt">{{ opt }}</option>
                         </select>
