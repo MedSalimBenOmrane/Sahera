@@ -32,6 +32,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
   loadingQuestionsMap: { [stId: number]: boolean } = {};
   private readonly questionChunkSize = 4;
   visibleQuestionCounts: { [stId: number]: number } = {};
+  private openSelectMap: { [key: string]: boolean } = {};
 
   reponses: { [stId: number]: { [questionId: number]: ResponseValue } } = {};
   repIdMap: { [stId: number]: { [qId: number]: number } } = {};
@@ -72,6 +73,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
       this.reponses = {};
       this.repIdMap = {};
       this.visibleQuestionCounts = {};
+      this.openSelectMap = {};
       this.loadSousThematiques();
     });
   }
@@ -98,6 +100,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
   setActiveIndex(index: number, scroll = false): void {
     this.activeIndex = index;
     this.ensureQuestionsLoaded(index);
+    this.schedulePrefetchNext(index);
     if (scroll) this.scrollToTop();
   }
 
@@ -219,6 +222,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
         }
         this.persistTabStatus();
         this.ensureQuestionsLoaded(this.activeIndex);
+        this.schedulePrefetchNext(this.activeIndex);
       },
       error: err => {
         console.error('Erreur chargement ST', err);
@@ -333,6 +337,14 @@ export class QAndAComponent implements OnInit, OnDestroy {
     });
   }
 
+  onSelectOpenChange(stId: number, qId: number, open: boolean): void {
+    this.openSelectMap[`${stId}:${qId}`] = open;
+  }
+
+  isSelectOpen(stId: number, qId: number): boolean {
+    return !!this.openSelectMap[`${stId}:${qId}`];
+  }
+
   getVisibleQuestions(st: SousThematique): Question[] {
     const list = this.getQuestions(st);
     const limit = this.visibleQuestionCounts[st.id] ?? this.questionChunkSize;
@@ -353,6 +365,25 @@ export class QAndAComponent implements OnInit, OnDestroy {
 
   private ensureQuestionsLoaded(index: number): void {
     const st = this.sousThematiques?.[index];
+    if (!st) return;
+    if (this.loadingQuestionsMap[st.id]) return;
+    if (this.questionsMap[st.id]) return;
+    this.loadQuestionsForSousThematique(st.id);
+  }
+
+  private schedulePrefetchNext(index: number): void {
+    const idle = (window as any).requestIdleCallback as ((cb: () => void) => void) | undefined;
+    const run = () => this.prefetchNextSousThematique(index);
+    if (idle) {
+      idle(run);
+    } else {
+      window.setTimeout(run, 200);
+    }
+  }
+
+  private prefetchNextSousThematique(index: number): void {
+    const nextIndex = index + 1;
+    const st = this.sousThematiques?.[nextIndex];
     if (!st) return;
     if (this.loadingQuestionsMap[st.id]) return;
     if (this.questionsMap[st.id]) return;
