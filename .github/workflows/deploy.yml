@@ -2,9 +2,8 @@ name: Deploy Angular App to S3
 
 on:
   workflow_dispatch:  # lancement manuel
-  # tu peux ajouter ça plus tard si tu veux déployer à chaque push :
-  # push:
-  #   branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
   deploy:

@@ -53,18 +53,9 @@
                     <ng-container *ngIf="isSingleSelectQuestion(q); else nonListeTpl">
                       <mat-form-field appearance="fill" class="w-100">
                         <mat-label>{{ 'qna.selectOption' | translate }}</mat-label>
-                        <mat-select
-                          [(ngModel)]="reponses[st.id][q.id]"
-                          name="resp-{{st.id}}-{{q.id}}"
-                          required
-                          panelClass="mobile-select-panel"
-                          (openedChange)="onSelectOpenChange(st.id, q.id, $event)">
-                          <mat-select-trigger>
-                            {{ reponses[st.id][q.id] }}
-                          </mat-select-trigger>
-                          <ng-container *ngIf="isSelectOpen(st.id, q.id)">
-                            <mat-option *ngFor="let opt of getOptions(q); trackBy: trackByOption" [value]="opt">{{ opt }}</mat-option>
-                          </ng-container>
+                        <mat-select [(ngModel)]="reponses[st.id][q.id]" name="resp-{{st.id}}-{{q.id}}" required
+                          panelClass="mobile-select-panel">
+                          <mat-option *ngFor="let opt of getOptions(q); trackBy: trackByOption" [value]="opt">{{ opt }}</mat-option>
                         </mat-select>
                       </mat-form-field>
                     </ng-container>
