@@ -30,7 +30,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
 
   questionsMap: { [stId: number]: Question[] } = {};
   loadingQuestionsMap: { [stId: number]: boolean } = {};
-  private readonly questionChunkSize = 4;
+  private readonly questionChunkSize = 3;
   visibleQuestionCounts: { [stId: number]: number } = {};
   private openSelectMap: { [key: string]: boolean } = {};
 
