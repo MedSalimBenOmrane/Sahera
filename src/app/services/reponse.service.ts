@@ -24,6 +24,13 @@ export class ReponseService {
     );
   }
 
+  /** Version sans filtre de langue (utile pour les stats/admin) */
+  getAllRaw(): Observable<Reponse[]> {
+    return this.http.get<any[]>(this.apiUrl).pipe(
+      map(list => list.map(item => this.adapt(item)))
+    );
+  }
+
   getById(id: number): Observable<Reponse | undefined> {
     return this.http.get<any>(`${this.apiUrl}/${id}`, { params: this.langParams() }).pipe(
       map(item => this.adapt(item)),

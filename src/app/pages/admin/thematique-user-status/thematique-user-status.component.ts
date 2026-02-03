@@ -120,7 +120,7 @@ export class ThematiqueUserStatusComponent implements OnInit {
 
     this.stService.getByThematique(this.thematiqueId).subscribe({
       next: sts => {
-        const requests = sts.map(st => this.questionService.getBySousThematique(st.id));
+        const requests = sts.map(st => this.questionService.getBySousThematiqueRaw(st.id));
         const joined = requests.length ? forkJoin(requests) : of([]);
         joined.subscribe({
           next: (lists: Question[][] | any[]) => {
@@ -155,7 +155,7 @@ export class ThematiqueUserStatusComponent implements OnInit {
     }
 
     const questionSet = new Set(this.questionIds);
-    this.reponseService.getAll().subscribe({
+    this.reponseService.getAllRaw().subscribe({
       next: responses => {
         responses.forEach(r => {
           if (!questionSet.has(r.questionId)) return;
@@ -185,8 +185,9 @@ export class ThematiqueUserStatusComponent implements OnInit {
       .subscribe({
         next: ({ items, meta }) => {
           const pages = meta?.pages ?? 1;
+          const baseItems = items.filter(u => !this.isAdminUser(u));
           if (pages <= 1) {
-            this.users = items;
+            this.users = baseItems;
             this.isLoadingUsers = false;
             this.usersLoaded = true;
             this.updateStatusRows();
@@ -200,15 +201,15 @@ export class ThematiqueUserStatusComponent implements OnInit {
 
           forkJoin(requests).subscribe({
             next: more => {
-              const extra = more.flatMap(r => r.items);
-              this.users = items.concat(extra);
+              const extra = more.flatMap(r => r.items).filter(u => !this.isAdminUser(u));
+              this.users = baseItems.concat(extra);
               this.isLoadingUsers = false;
               this.usersLoaded = true;
               this.updateStatusRows();
             },
             error: err => {
               console.error('Erreur chargement pages participants', err);
-              this.users = items;
+              this.users = baseItems;
               this.isLoadingUsers = false;
               this.usersLoaded = true;
               this.updateStatusRows();
@@ -223,6 +224,11 @@ export class ThematiqueUserStatusComponent implements OnInit {
           this.usersLoaded = true;
         }
       });
+  }
+
+  private isAdminUser(user: Client): boolean {
+    const role = String(user?.role ?? '').toLowerCase();
+    return role.includes('admin');
   }
 
   private updateStatusRows(): void {

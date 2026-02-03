@@ -49,6 +49,14 @@ export class QuestionService {
     );
   }
 
+  /** Version sans filtre de langue (utile pour les stats/admin) */
+  getBySousThematiqueRaw(sousThId: number): Observable<Question[]> {
+    const url = `${this.base}/sousthematiques/${sousThId}/questions`;
+    return this.http.get<any[]>(url).pipe(
+      map(list => list.map(item => this.adaptFromSous(item, sousThId)))
+    );
+  }
+
   create(q: Question): Observable<Question> {
     const payload: any = {
       texte: q.question,
