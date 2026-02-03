@@ -238,7 +238,7 @@ onSignup(): void {
     this.signupPayload = payload;
     this.regToken = null;
     this.codeRequested = false;
-    this.consentScrolled = false;
+    this.consentScrolled = true;
     this.consentChecked = false;
     this.otpDigits = ["","","","",""];
     this.resendCooldown = 0;

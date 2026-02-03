@@ -41,6 +41,9 @@ export class ThematiqueUserStatusComponent implements OnInit {
 
   users: Client[] = [];
   statusRows: UserStatusRow[] = [];
+  allCount = 0;
+  completeCount = 0;
+  incompleteCount = 0;
 
   currentPage = 1;
   perPage = 5;
@@ -233,6 +236,9 @@ export class ThematiqueUserStatusComponent implements OnInit {
       genre: user.genre,
       status: this.getUserStatus(user.id)
     }));
+    this.allCount = this.statusRows.length;
+    this.completeCount = this.statusRows.filter(u => u.status === 'complete').length;
+    this.incompleteCount = this.statusRows.filter(u => u.status === 'incomplete').length;
     this.clampPage();
   }
 

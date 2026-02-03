@@ -1,6 +1,9 @@
 ﻿<main class="table" id="customers_table">
  <section class="table__header">
-  <h1>{{ 'admin.participants.title' | translate }}</h1>
+  <h1>
+    {{ 'admin.participants.title' | translate }}
+    ({{ 'admin.participants.total' | translate }} : {{ totalParticipants }})
+  </h1>
 
   <div class="filters">
     <input

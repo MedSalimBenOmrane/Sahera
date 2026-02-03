@@ -189,6 +189,7 @@ const translations: Translations = {
 
     // Admin participants
     'admin.participants.title': 'Liste des participants',
+    'admin.participants.total': 'Total',
     'admin.filters.id': 'ID exact',
     'admin.filters.name': 'Nom (commence par...)',
     'admin.filters.firstname': 'Prénom (commence par...)',
@@ -527,6 +528,7 @@ const translations: Translations = {
 
     // Admin participants
     'admin.participants.title': 'Participants list',
+    'admin.participants.total': 'Total',
     'admin.filters.id': 'Exact ID',
     'admin.filters.name': 'Last name (starts with...)',
     'admin.filters.firstname': 'First name (starts with...)',

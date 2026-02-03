@@ -7,19 +7,19 @@
         class="filter-btn filter-all"
         [class.active]="selectedTab==='all'"
         (click)="selectTab('all')">
-        {{ 'answers.tabs.all' | translate }}
+        {{ 'answers.tabs.all' | translate }} ({{ allThematiques.length }})
       </button>
       <button
         class="filter-btn filter-complete"
         [class.active]="selectedTab==='completed'"
         (click)="selectTab('completed')">
-        {{ 'answers.tabs.completed' | translate }}
+        {{ 'answers.tabs.completed' | translate }} ({{ completedThematiques.length }})
       </button>
       <button
         class="filter-btn filter-incomplete"
         [class.active]="selectedTab==='incomplete'"
         (click)="selectTab('incomplete')">
-        {{ 'answers.tabs.incomplete' | translate }}
+        {{ 'answers.tabs.incomplete' | translate }} ({{ incompleteThematiques.length }})
       </button>
     </div>
     <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">

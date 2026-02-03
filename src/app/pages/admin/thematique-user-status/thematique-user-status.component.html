@@ -8,19 +8,19 @@
       class="filter-btn filter-all"
       [class.active]="filterStatus === 'all'"
       (click)="setFilter('all')">
-      {{ 'admin.userStatus.filterAll' | translate }}
+      {{ 'admin.userStatus.filterAll' | translate }} ({{ allCount }})
     </button>
     <button
       class="filter-btn filter-complete"
       [class.active]="filterStatus === 'complete'"
       (click)="setFilter('complete')">
-      {{ 'admin.userStatus.completed' | translate }}
+      {{ 'admin.userStatus.completed' | translate }} ({{ completeCount }})
     </button>
     <button
       class="filter-btn filter-incomplete"
       [class.active]="filterStatus === 'incomplete'"
       (click)="setFilter('incomplete')">
-      {{ 'admin.userStatus.incomplete' | translate }}
+      {{ 'admin.userStatus.incomplete' | translate }} ({{ incompleteCount }})
     </button>
   </div>
 

@@ -66,6 +66,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
 
     this.langSub = this.i18n.language$.subscribe(() => {
       this.questionsMap = {};
+      this.loadingQuestionsMap = {};
       this.reponses = {};
       this.repIdMap = {};
       this.loadSousThematiques();
@@ -93,6 +94,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
 
   setActiveIndex(index: number, scroll = false): void {
     this.activeIndex = index;
+    this.ensureQuestionsLoaded(index);
     if (scroll) this.scrollToTop();
   }
 
@@ -211,9 +213,9 @@ export class QAndAComponent implements OnInit, OnDestroy {
           if (!this.tabStatusMap[st.id]) {
             this.tabStatusMap[st.id] = 'default';
           }
-          this.loadQuestionsForSousThematique(st.id);
         }
         this.persistTabStatus();
+        this.ensureQuestionsLoaded(this.activeIndex);
       },
       error: err => {
         console.error('Erreur chargement ST', err);
@@ -325,6 +327,14 @@ export class QAndAComponent implements OnInit, OnDestroy {
         this.loadingQuestionsMap[stId] = false;
       }
     });
+  }
+
+  private ensureQuestionsLoaded(index: number): void {
+    const st = this.sousThematiques?.[index];
+    if (!st) return;
+    if (this.loadingQuestionsMap[st.id]) return;
+    if (this.questionsMap[st.id]) return;
+    this.loadQuestionsForSousThematique(st.id);
   }
 
   saveReponses(st: SousThematique): void {

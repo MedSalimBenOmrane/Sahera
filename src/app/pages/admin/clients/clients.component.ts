@@ -58,6 +58,7 @@ get hasAnyFilter(): boolean {
   meta?: Meta;
   currentPage = 1;
   perPage = 4; 
+  get totalParticipants(): number { return this.meta?.total ?? 0; }
   get totalPages(): number { return this.meta?.pages ?? 1; }
   get pageNumbers(): number[] {
     const total = this.totalPages, cur = this.currentPage;
