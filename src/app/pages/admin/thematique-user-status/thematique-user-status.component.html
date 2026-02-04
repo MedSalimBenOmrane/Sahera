@@ -28,6 +28,7 @@
     <table>
       <thead>
         <tr>
+          <th>{{ 'admin.table.id' | translate }}</th>
           <th>{{ 'admin.table.name' | translate }}</th>
           <th>{{ 'admin.table.firstname' | translate }}</th>
           <th>{{ 'admin.table.email' | translate }}</th>
@@ -39,7 +40,7 @@
       <tbody>
         <ng-container *ngIf="isLoading; else dataRows">
           <tr>
-            <td colspan="6" class="p-0">
+            <td colspan="7" class="p-0">
               <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
                 <div class="spinner-border" role="status">
                   <span class="visually-hidden">{{ 'generic.loading' | translate }}</span>
@@ -51,7 +52,7 @@
 
         <ng-template #dataRows>
           <tr *ngIf="filteredStatusRows.length === 0">
-            <td colspan="6" class="p-0">
+            <td colspan="7" class="p-0">
               <div class="d-flex flex-column justify-content-center align-items-center" style="height: 200px;">
                 <img src="assets/images/empty-folder.png" [attr.alt]="'admin.userStatus.empty' | translate"
                      style="max-width: 150px;" class="mb-2" />
@@ -61,6 +62,7 @@
           </tr>
 
           <tr *ngFor="let u of paginatedStatusRows">
+            <td [attr.data-label]="'admin.table.id' | translate">{{ u.id }}</td>
             <td [attr.data-label]="'admin.table.name' | translate">{{ u.nom }}</td>
             <td [attr.data-label]="'admin.table.firstname' | translate">{{ u.prenom }}</td>
             <td [attr.data-label]="'admin.table.email' | translate">{{ u.email }}</td>

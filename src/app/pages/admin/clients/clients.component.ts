@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { Client } from 'src/app/models/client.model';
 import { ClientsService } from 'src/app/services/clients.service';
 import { TranslationService } from 'src/app/services/translation.service';
@@ -26,12 +26,15 @@ type Meta = {
 export class ClientsComponent implements OnInit {
   clients: Client[] = [];
  isLoading = false;
+  private isLoadingAll = false;
   errorMsg: string | null = null;
 searchId: number | null = null; 
 searchNom: string = '';
 searchPrenom: string = '';
 
 displayedClients: Client[] = [];
+  private allClients: Client[] = [];
+  private allClientsLoaded = false;
 
 get hasAnyFilter(): boolean {
   return (this.searchId !== null && this.searchId > 0)
@@ -91,7 +94,11 @@ onSearchChanged(): void {
     this.fetchById(id);
     return;
   }
-  this.recomputeDisplayed();
+  if (!this.hasAnyFilter) {
+    this.recomputeDisplayed(false);
+    return;
+  }
+  this.ensureAllClientsLoaded();
 }
 
 private fetchById(id: number): void {
@@ -104,8 +111,9 @@ private fetchById(id: number): void {
     });
 }
 
-private recomputeDisplayed(): void {
-  let list = [...this.clients];
+private recomputeDisplayed(useAll: boolean): void {
+  const source = useAll ? this.allClients : this.clients;
+  let list = [...source];
 
   const nom = this.searchNom.trim().toLowerCase();
   const prenom = this.searchPrenom.trim().toLowerCase();
@@ -119,6 +127,68 @@ private recomputeDisplayed(): void {
   this.displayedClients = list;
 }
 
+private ensureAllClientsLoaded(): void {
+  if (this.allClientsLoaded) {
+    this.recomputeDisplayed(true);
+    return;
+  }
+  if (this.isLoadingAll) return;
+  this.loadAllClients();
+}
+
+private loadAllClients(): void {
+  this.isLoadingAll = true;
+  this.isLoading = true;
+
+  const serverPerPage = 50;
+  this.svc.getPage({ page: 1, per_page: serverPerPage, sort: 'nom,prenom' })
+    .subscribe({
+      next: ({ items, meta }) => {
+        const pages = meta?.pages ?? 1;
+        if (pages <= 1) {
+          this.allClients = items;
+          this.allClientsLoaded = true;
+          this.recomputeDisplayed(true);
+          this.isLoadingAll = false;
+          this.isLoading = false;
+          return;
+        }
+
+        const requests = [];
+        for (let p = 2; p <= pages; p++) {
+          requests.push(this.svc.getPage({ page: p, per_page: serverPerPage, sort: 'nom,prenom' }));
+        }
+
+        forkJoin(requests).subscribe({
+          next: more => {
+            const extra = more.flatMap(r => r.items);
+            this.allClients = items.concat(extra);
+            this.allClientsLoaded = true;
+            this.recomputeDisplayed(true);
+            this.isLoadingAll = false;
+            this.isLoading = false;
+          },
+          error: err => {
+            console.error('Erreur chargement pages participants', err);
+            this.allClients = items;
+            this.allClientsLoaded = true;
+            this.recomputeDisplayed(true);
+            this.isLoadingAll = false;
+            this.isLoading = false;
+          }
+        });
+      },
+      error: err => {
+        console.error('Erreur chargement participants', err);
+        this.allClients = [];
+        this.allClientsLoaded = true;
+        this.displayedClients = [];
+        this.isLoadingAll = false;
+        this.isLoading = false;
+      }
+    });
+}
+
  private loadPage(page: number): void {
   this.isLoading = true;
   this.errorMsg = null;
@@ -130,7 +200,7 @@ private recomputeDisplayed(): void {
         this.clients = items;
         this.meta = meta as Meta;
         this.currentPage = this.meta.page;
-        this.recomputeDisplayed(); 
+        this.recomputeDisplayed(false); 
       },
       error: err => {
         console.error('Erreur API :', err);
