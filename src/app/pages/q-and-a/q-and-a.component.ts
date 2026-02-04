@@ -477,15 +477,20 @@ export class QAndAComponent implements OnInit, OnDestroy {
   private sendCompletionNotification(): void {
     if (!this.userId) return;
 
-    const name = this.getUserDisplayName() || 'cliente';
-    const themeLabel = this.thematiqueTitre ? ` ${this.thematiqueTitre}` : '';
-    const subject = `Felicitations ${name} - questionnaire termine`;
-    const message =
-      `Felicitations ${name}, vous avez fini le questionnaire${themeLabel} avec succes. ` +
-      `Merci chere cliente et a la prochaine pour notre nouveau questionnaire. ` +
-      `English version below: ` +
-      `Congratulations ${name}, you have finished the questionnaire${themeLabel} successfully. ` +
-      `Thank you, dear client, and see you next time for our new questionnaire.`;
+    const name = this.getUserDisplayName();
+    const namePart = name ? ` ${name}` : '';
+    const participe = this.isFemaleUser() ? 'consacrée' : 'consacré';
+    const subject = `Merci${namePart} pour le temps que vous avez ${participe} à cette enquête.`;
+    const message = [
+      '**Français**',
+      'Merci d’avoir pris le temps de répondre à cette enquête de satisfaction sur le dispositif d’auriculothérapie SaHera. Vos retours en tant que primo-adaptantes sont particulièrement précieux pour nous aider à améliorer le dispositif',
+      '',
+      'Si vous souhaitez partager d’autres idées ou suggestions, n’hésitez surtout pas à nous écrire.',
+      '',
+      '**English**',
+      'Thank you for taking the time to complete this satisfaction survey on the SaHera auriculotherapy device. Your feedback as a first-time user is especially valuable in helping us improve the device.',
+      'If you would like to share any additional ideas or suggestions, please feel free to contact us.'
+    ].join('\n');
 
     this.notificationService.sendNotification(subject, message, [this.userId]).subscribe({
       next: () => {
@@ -498,32 +503,55 @@ export class QAndAComponent implements OnInit, OnDestroy {
   private sendCompletionNotificationHtml(): void {
     if (!this.userId) return;
 
-    const name = this.getUserDisplayName() || 'cliente';
-    const subject = `Félicitations ${name} — questionnaire terminé`;
-    const message =
-      `Félicitations ${name}, vous avez fini le questionnaire avec succès.\r\n` +
-      `Merci chère cliente et à la prochaine pour notre nouveau questionnaire.\r\n\r\n` +
-      `English version below:\r\n` +
-      `Congratulations ${name}, you have finished the questionnaire successfully.\r\n` +
-      `Thank you, dear client, and see you next time for our new questionnaire.`;
+    const name = this.getUserDisplayName();
+    const namePart = name ? ` ${name}` : '';
+    const participe = this.isFemaleUser() ? 'consacrée' : 'consacré';
+    const subject = `Merci${namePart} pour le temps que vous avez ${participe} à cette enquête.`;
+    const message = [
+      '**Français**',
+      'Merci d’avoir pris le temps de répondre à cette enquête de satisfaction sur le dispositif d’auriculothérapie SaHera. Vos retours en tant que primo-adaptantes sont particulièrement précieux pour nous aider à améliorer le dispositif',
+      '',
+      'Si vous souhaitez partager d’autres idées ou suggestions, n’hésitez surtout pas à nous écrire.',
+      '',
+      '**English**',
+      'Thank you for taking the time to complete this satisfaction survey on the SaHera auriculotherapy device. Your feedback as a first-time user is especially valuable in helping us improve the device.',
+      'If you would like to share any additional ideas or suggestions, please feel free to contact us.'
+    ].join('\r\n');
 
-    const htmlMessage =
-      `<!DOCTYPE html>` +
-      `<html><head><meta charset="UTF-8"></head><body>` +
-      `<div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#111; line-height:1.6; white-space:pre-line;">` +
-      `Félicitations ${name}, vous avez fini le questionnaire avec succès.\n` +
-      `Merci chère cliente et à la prochaine pour notre nouveau questionnaire.\n\n` +
-      `English version below:\n` +
-      `Congratulations ${name}, you have finished the questionnaire successfully.\n` +
-      `Thank you, dear client, and see you next time for our new questionnaire.` +
-      `</div></body></html>`;
+    const htmlMessage = [
+      '<!DOCTYPE html>',
+      '<html><head><meta charset="UTF-8"></head><body>',
+      '<div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#111; line-height:1.6;">',
+      '<strong>Français</strong><br>',
+      'Merci d’avoir pris le temps de répondre à cette enquête de satisfaction sur le dispositif d’auriculothérapie SaHera. Vos retours en tant que primo-adaptantes sont particulièrement précieux pour nous aider à améliorer le dispositif',
+      '<br><br>',
+      'Si vous souhaitez partager d’autres idées ou suggestions, n’hésitez surtout pas à nous écrire.',
+      '<br><br>',
+      '<strong>English</strong><br>',
+      'Thank you for taking the time to complete this satisfaction survey on the SaHera auriculotherapy device. Your feedback as a first-time user is especially valuable in helping us improve the device.',
+      '<br>',
+      'If you would like to share any additional ideas or suggestions, please feel free to contact us.',
+      '</div></body></html>'
+    ].join('');
 
     this.notificationService.sendNotification(subject, message, [this.userId], htmlMessage).subscribe({
       next: () => {
         this.notificationService.refreshUnreadTotal();
       },
-      error: err => console.error('Envoi notification échoué', err)
+      error: err => console.error('Envoi notification echoue', err)
     });
+  }
+
+  private isFemaleUser(): boolean {
+    const raw = localStorage.getItem('user');
+    if (!raw) return false;
+    try {
+      const u = JSON.parse(raw) as { genre?: string; gender?: string };
+      const g = String(u?.genre ?? u?.gender ?? '').toLowerCase();
+      return g.startsWith('f') || g.includes('female') || g.includes('femme') || g.includes('woman');
+    } catch {
+      return false;
+    }
   }
 
   private getUserDisplayName(): string {
@@ -531,7 +559,7 @@ export class QAndAComponent implements OnInit, OnDestroy {
     if (!raw) return '';
     try {
       const u = JSON.parse(raw) as { nom?: string; prenom?: string };
-      const parts = [u.prenom, u.nom].filter(Boolean);
+      const parts = [u.nom, u.prenom].filter(Boolean);
       return parts.join(' ').trim();
     } catch {
       return '';
