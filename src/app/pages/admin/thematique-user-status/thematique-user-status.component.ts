@@ -350,7 +350,7 @@ export class ThematiqueUserStatusComponent implements OnInit {
   private getFrenchSalutation(user: UserStatusRow): string {
     const g = (user.genre || '').toLowerCase();
     const isFemale = g.startsWith('f') || g.includes('female') || g.includes('femme') || g.includes('woman');
-    return isFemale ? 'Chère cliente' : 'Cher client';
+    return isFemale ? 'Chère' : 'Cher';
   }
 
   private formatCloseDate(): string {
