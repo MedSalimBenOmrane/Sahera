@@ -336,7 +336,7 @@ export class ThematiqueUserStatusComponent implements OnInit {
     const closeDateEn = closeDate ? ` ${closeDate}` : '';
     const salutationFr = this.getFrenchSalutation(user);
     const fr = `${salutationFr}${namePart}, vous n'avez pas encore complété la thématique ${title}. Merci de compléter le formulaire avant la date de clôture${closeDateFr}.`;
-    const en = `English version below:\nDear client${namePart}, you have not completed the theme ${title} yet. Please complete the form before the closing date${closeDateEn}.`;
+    const en = `English version below:\nDear ${namePart}, you have not completed the theme ${title} yet. Please complete the form before the closing date${closeDateEn}.`;
     return {
       subject: `Rappel questionnaire - ${title}`,
       message: `${fr}\n\n${en}`
