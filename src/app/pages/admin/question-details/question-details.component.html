@@ -1,6 +1,16 @@
 <main class="table">
   <section class="table__header">
     <h1>{{ 'admin.questionDetails.title' | translate:{ title: questionTitre } }}</h1>
+    <div class="header-actions">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-primary btn-download"
+        (click)="downloadCsv()"
+        [disabled]="isLoading || rows.length === 0"
+      >
+        {{ 'admin.questionDetails.downloadCsv' | translate }}
+      </button>
+    </div>
   </section>
 
   <section class="table__body">

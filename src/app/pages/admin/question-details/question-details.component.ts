@@ -97,4 +97,55 @@ export class QuestionDetailsComponent implements OnInit, OnDestroy {
       document.querySelectorAll<HTMLElement>(sel).forEach(el => (el.scrollTop = 0));
     });
   }
+
+  downloadCsv(): void {
+    if (this.isLoading || this.rows.length === 0) return;
+
+    const headers = [
+      this.i18n.translate('admin.questionDetails.userId'),
+      this.i18n.translate('admin.questionDetails.name'),
+      this.i18n.translate('admin.questionDetails.firstname'),
+      this.i18n.translate('admin.questionDetails.answer')
+    ];
+
+    const lines = [
+      headers,
+      ...this.rows.map(row => [
+        String(row.userId ?? ''),
+        row.nom ?? '',
+        row.prenom ?? '',
+        row.valeur ?? ''
+      ])
+    ].map(cols => cols.map(this.escapeCsv).join(','));
+
+    const csvContent = `\uFEFF${lines.join('\n')}`;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = this.buildCsvFilename();
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  private escapeCsv(value: string): string {
+    const normalized = String(value ?? '');
+    const escaped = normalized.replace(/"/g, '""');
+    return `"${escaped}"`;
+  }
+
+  private buildCsvFilename(): string {
+    const rawTitle = this.questionTitre || 'question';
+    const withoutDiacritics = rawTitle
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '');
+    const safeTitle = withoutDiacritics
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .toLowerCase();
+    const base = safeTitle ? `question-${this.questionId}-${safeTitle}` : `question-${this.questionId}`;
+    return `${base}.csv`;
+  }
 }
